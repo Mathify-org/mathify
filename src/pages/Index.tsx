@@ -1,7 +1,7 @@
 
 import GameMascot from "@/components/GameMascot";
-import SoilLandscape from "@/components/SoilLandscape";
 import QuizSection from "@/components/QuizSection";
+import SoilErosionGame from "@/components/SoilErosionGame";
 
 const Index = () => {
   return (
@@ -15,8 +15,8 @@ const Index = () => {
         
         <div className="grid gap-8">
           <div>
-            <h2 className="text-2xl font-bold mb-4">Your Conservation Sandbox</h2>
-            <SoilLandscape />
+            <h2 className="text-2xl font-bold mb-4">Protect Your Soil!</h2>
+            <SoilErosionGame />
           </div>
           
           <div>
