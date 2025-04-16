@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Cloud, Sun, Tree, Droplet } from "lucide-react";
+import { Cloud, Sun, Trees, Droplet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const SoilLandscape = () => {
@@ -41,7 +41,7 @@ const SoilLandscape = () => {
 
       <div className="absolute bottom-0 left-0 right-0 h-1/2 flex items-end justify-around">
         {Array.from({ length: plants }).map((_, i) => (
-          <Tree
+          <Trees
             key={i}
             className="h-16 w-16 text-plant transform transition-transform hover:scale-110"
           />
