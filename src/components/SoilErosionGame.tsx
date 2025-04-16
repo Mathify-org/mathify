@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { DndContext, DragEndEvent, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
-import { Trees, Droplet, Wind, Sun, Tractor, Factory, House, Trash, Fire } from "lucide-react";
+import { Trees, Droplet, Wind, Sun, Tractor, Factory, House, Trash, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -130,7 +130,7 @@ const SoilErosionGame = () => {
     { 
       id: "burning", 
       type: "burning", 
-      icon: <Fire className="h-10 w-10 text-orange-600" />, 
+      icon: <Flame className="h-10 w-10 text-orange-600" />, 
       effect: 12,
       label: "Burning" 
     }
