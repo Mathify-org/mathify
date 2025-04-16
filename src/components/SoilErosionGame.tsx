@@ -1,16 +1,25 @@
 
 import { useState, useEffect } from "react";
 import { DndContext, DragEndEvent, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
-import { Trees, Droplet, Wind, Sun } from "lucide-react";
+import { Trees, Droplet, Wind, Sun, Tractor, Factory, House, Trash, Fire } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import Draggable from "@/components/Draggable";
 import DroppableZone from "@/components/DroppableZone";
+import { Progress } from "@/components/ui/progress";
 
 type ConservationItem = {
   id: string;
-  type: "tree" | "mulch" | "grass" | "rocks";
+  type: "tree" | "mulch" | "grass" | "rocks" | "terrace" | "cover-crop";
+  icon: JSX.Element;
+  effect: number;
+  label: string;
+};
+
+type HumanActivity = {
+  id: string;
+  type: "farming" | "construction" | "deforestation" | "pollution" | "burning";
   icon: JSX.Element;
   effect: number;
   label: string;
@@ -21,30 +30,31 @@ type Weather = "sunny" | "rainy" | "windy";
 const SoilErosionGame = () => {
   const [weather, setWeather] = useState<Weather>("sunny");
   const [erosion, setErosion] = useState<number>(80);
-  const [placedItems, setPlacedItems] = useState<ConservationItem[]>([]);
-  const [goal] = useState<number>(25);
+  const [placedItems, setPlacedItems] = useState<(ConservationItem | HumanActivity)[]>([]);
+  const [activeTab, setActiveTab] = useState<"conservation" | "human">("conservation");
+  const [goal] = useState<number>(20);
   const [gameWon, setGameWon] = useState<boolean>(false);
   
   const conservationItems: ConservationItem[] = [
     { 
       id: "tree", 
       type: "tree", 
-      icon: <Trees className="h-10 w-10 text-plant" />, 
-      effect: -15,
+      icon: <Trees className="h-10 w-10 text-green-700" />, 
+      effect: -10,
       label: "Tree" 
     },
     { 
       id: "mulch", 
       type: "mulch", 
       icon: <div className="h-8 w-14 rounded bg-amber-800" />, 
-      effect: -10,
+      effect: -7,
       label: "Mulch" 
     },
     { 
       id: "grass", 
       type: "grass", 
       icon: <div className="h-10 w-10 bg-green-400 rounded-t-full" />, 
-      effect: -8,
+      effect: -5,
       label: "Grass" 
     },
     { 
@@ -55,8 +65,74 @@ const SoilErosionGame = () => {
         <div className="h-5 w-5 bg-gray-500 rounded-full" />
         <div className="h-7 w-7 bg-gray-600 rounded-full" />
       </div>, 
-      effect: -12,
+      effect: -8,
       label: "Rocks" 
+    },
+    { 
+      id: "terrace", 
+      type: "terrace", 
+      icon: <div className="flex flex-col items-center">
+        <div className="h-2 w-12 bg-brown-500 mb-1" />
+        <div className="h-2 w-12 bg-brown-500 mb-1" />
+        <div className="h-2 w-12 bg-brown-500" />
+      </div>, 
+      effect: -12,
+      label: "Terraces" 
+    },
+    { 
+      id: "cover-crop", 
+      type: "cover-crop", 
+      icon: <div className="grid grid-cols-3 gap-0.5">
+        {[...Array(9)].map((_, i) => (
+          <div key={i} className="h-2 w-2 bg-green-300 rounded-full" />
+        ))}
+      </div>, 
+      effect: -6,
+      label: "Cover Crops" 
+    }
+  ];
+
+  const humanActivities: HumanActivity[] = [
+    { 
+      id: "farming", 
+      type: "farming", 
+      icon: <Tractor className="h-10 w-10 text-yellow-600" />, 
+      effect: 8,
+      label: "Farming" 
+    },
+    { 
+      id: "construction", 
+      type: "construction", 
+      icon: <House className="h-10 w-10 text-gray-700" />, 
+      effect: 10,
+      label: "Construction" 
+    },
+    { 
+      id: "deforestation", 
+      type: "deforestation", 
+      icon: <div className="relative">
+        <Trees className="h-10 w-10 text-green-700 opacity-50" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="h-0.5 w-8 bg-red-600 rotate-45" />
+          <div className="h-0.5 w-8 bg-red-600 -rotate-45" />
+        </div>
+      </div>, 
+      effect: 15,
+      label: "Deforestation" 
+    },
+    { 
+      id: "pollution", 
+      type: "pollution", 
+      icon: <Trash className="h-10 w-10 text-gray-600" />, 
+      effect: 7,
+      label: "Pollution" 
+    },
+    { 
+      id: "burning", 
+      type: "burning", 
+      icon: <Fire className="h-10 w-10 text-orange-600" />, 
+      effect: 12,
+      label: "Burning" 
     }
   ];
 
@@ -92,15 +168,30 @@ const SoilErosionGame = () => {
     // Weather effects can increase erosion
     if (weather === "rainy") {
       // Rain increases erosion, but less so if you have trees and other protection
-      const protection = placedItems.length * 2;
+      const protectionItems = placedItems.filter(item => 
+        'type' in item && 
+        (item.type === "tree" || item.type === "grass" || item.type === "cover-crop")
+      );
+      const protection = protectionItems.length * 2;
       newErosion += Math.max(0, 15 - protection);
     }
     if (weather === "windy") {
-      // Wind increases erosion, but less so if you have rocks and trees
-      const windProtection = placedItems.filter(item => 
-        item.type === "tree" || item.type === "rocks"
-      ).length * 3;
+      // Wind increases erosion, but less so if you have rocks, trees and terraces
+      const windProtectionItems = placedItems.filter(item => 
+        'type' in item && 
+        (item.type === "tree" || item.type === "rocks" || item.type === "terrace")
+      );
+      const windProtection = windProtectionItems.length * 3;
       newErosion += Math.max(0, 10 - windProtection);
+    }
+    
+    // Synergistic effects - certain combinations work better
+    const hasTree = placedItems.some(item => 'type' in item && item.type === "tree");
+    const hasGrass = placedItems.some(item => 'type' in item && item.type === "grass");
+    const hasMulch = placedItems.some(item => 'type' in item && item.type === "mulch");
+    
+    if (hasTree && hasGrass && hasMulch) {
+      newErosion -= 5; // Additional bonus for a good combination
     }
     
     // Ensure erosion stays within 0-100 range
@@ -121,7 +212,9 @@ const SoilErosionGame = () => {
     
     if (over && over.id === "soil-zone") {
       const itemType = active.id as string;
-      const itemToAdd = conservationItems.find(item => item.id === itemType);
+      const conservationItem = conservationItems.find(item => item.id === itemType);
+      const humanActivityItem = humanActivities.find(item => item.id === itemType);
+      const itemToAdd = conservationItem || humanActivityItem;
       
       if (itemToAdd) {
         const newItem = { 
@@ -129,7 +222,12 @@ const SoilErosionGame = () => {
           id: `${itemToAdd.id}-${Date.now()}` // Make a unique ID for this instance
         };
         setPlacedItems(prev => [...prev, newItem]);
-        toast.info(`Added ${itemToAdd.label} to protect the soil!`);
+        
+        if ('type' in itemToAdd && ['tree', 'grass', 'mulch', 'rocks', 'terrace', 'cover-crop'].includes(itemToAdd.type as string)) {
+          toast.info(`Added ${itemToAdd.label} to protect the soil!`);
+        } else {
+          toast.warning(`Added ${itemToAdd.label} which increases erosion!`);
+        }
       }
     }
   };
@@ -154,6 +252,14 @@ const SoilErosionGame = () => {
     return "Keep working to reduce erosion! You're getting closer to your goal.";
   };
 
+  // Calculate which color to use based on erosion level
+  const getErosionColor = () => {
+    if (erosion > 60) return "bg-red-600";
+    if (erosion > 40) return "bg-orange-500";
+    if (erosion > 20) return "bg-yellow-500";
+    return "bg-green-500";
+  }
+  
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <Card className="p-6 relative bg-gradient-to-b from-blue-100 to-amber-200">
@@ -186,20 +292,22 @@ const SoilErosionGame = () => {
         <div className="flex flex-col space-y-6">
           {/* Status and controls */}
           <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <div className="text-lg font-medium">Erosion Level: {erosion}%</div>
-              <div className="w-full bg-gray-300 rounded-full h-2.5">
-                <div 
-                  className="bg-red-600 h-2.5 rounded-full" 
-                  style={{ width: `${erosion}%` }}
-                ></div>
+            <div className="space-y-2 w-full">
+              <div className="flex items-center justify-between">
+                <div className="text-lg font-medium">Erosion Level: {erosion}%</div>
+                <div className="text-sm">Goal: Reduce erosion to {goal}% or lower</div>
               </div>
-              <div className="text-sm">Goal: Reduce erosion to {goal}% or lower</div>
+              <Progress value={100 - erosion} className="h-3">
+                <div 
+                  className={`${getErosionColor()} h-full rounded-full transition-all duration-500`} 
+                  style={{ width: `${100 - erosion}%` }}
+                ></div>
+              </Progress>
             </div>
           </div>
           
           {/* Message */}
-          <div className="bg-white/80 p-3 rounded-lg text-center">
+          <div className={`bg-white/80 p-3 rounded-lg text-center transition-colors ${gameWon ? 'bg-green-100' : ''}`}>
             {getStatusMessage()}
           </div>
           
@@ -207,17 +315,54 @@ const SoilErosionGame = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Left side: items to drag */}
             <div className="bg-white/40 p-4 rounded-lg">
-              <h3 className="font-bold mb-3">Conservation Tools:</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {conservationItems.map((item) => (
-                  <Draggable key={item.id} id={item.id}>
-                    <div className="bg-white p-4 rounded-lg shadow cursor-grab flex flex-col items-center justify-center h-24">
-                      {item.icon}
-                      <span className="mt-2 text-sm font-medium">{item.label}</span>
-                    </div>
-                  </Draggable>
-                ))}
+              <div className="flex space-x-2 mb-4">
+                <Button 
+                  variant={activeTab === "conservation" ? "default" : "outline"}
+                  onClick={() => setActiveTab("conservation")}
+                  className="flex-1"
+                >
+                  Conservation
+                </Button>
+                <Button 
+                  variant={activeTab === "human" ? "default" : "outline"}
+                  onClick={() => setActiveTab("human")}
+                  className="flex-1"
+                >
+                  Human Activities
+                </Button>
               </div>
+              
+              {activeTab === "conservation" ? (
+                <div>
+                  <h3 className="font-bold mb-3">Conservation Tools:</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {conservationItems.map((item) => (
+                      <Draggable key={item.id} id={item.id}>
+                        <div className="bg-white p-4 rounded-lg shadow cursor-grab flex flex-col items-center justify-center h-24">
+                          {item.icon}
+                          <span className="mt-2 text-sm font-medium">{item.label}</span>
+                          <span className="text-xs text-green-600">{item.effect}% erosion</span>
+                        </div>
+                      </Draggable>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <h3 className="font-bold mb-3">Human Activities:</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {humanActivities.map((item) => (
+                      <Draggable key={item.id} id={item.id}>
+                        <div className="bg-white p-4 rounded-lg shadow cursor-grab flex flex-col items-center justify-center h-24">
+                          {item.icon}
+                          <span className="mt-2 text-sm font-medium">{item.label}</span>
+                          <span className="text-xs text-red-600">+{item.effect}% erosion</span>
+                        </div>
+                      </Draggable>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             
             {/* Right side: soil zone */}
@@ -229,7 +374,7 @@ const SoilErosionGame = () => {
                     className={`absolute top-0 left-0 right-0 h-1/3 ${
                       weather === "sunny" ? "bg-blue-300" : 
                       weather === "rainy" ? "bg-gray-400" : "bg-gray-300"
-                    }`}
+                    } transition-colors duration-500`}
                   >
                     {weather === "rainy" && (
                       <div className="absolute inset-0 flex justify-around">
@@ -270,7 +415,7 @@ const SoilErosionGame = () => {
                     </div>
                     
                     {/* Erosion visualization */}
-                    {erosion > 50 && (
+                    {erosion > 40 && (
                       <div className="absolute bottom-0 left-0 right-0">
                         <div className="flex justify-around">
                           {Array.from({ length: Math.ceil(erosion / 10) }).map((_, i) => (
@@ -289,12 +434,22 @@ const SoilErosionGame = () => {
                   {placedItems.length === 0 && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <p className="text-white bg-black/50 p-2 rounded">
-                        Drag and drop items here to protect the soil
+                        Drag and drop items here to protect or change the soil
                       </p>
                     </div>
                   )}
                 </div>
               </DroppableZone>
+              
+              {/* Tips section */}
+              <div className="mt-4 bg-white/60 p-3 rounded-lg text-sm">
+                <h4 className="font-bold">Tips:</h4>
+                <ul className="list-disc ml-5">
+                  <li>Different conservation methods work better against different weather conditions</li>
+                  <li>Combining multiple conservation methods provides better protection</li>
+                  <li>Human activities increase erosion - balance is key!</li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
