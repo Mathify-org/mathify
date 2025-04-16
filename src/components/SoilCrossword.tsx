@@ -1,5 +1,4 @@
-
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Timer, Check, RefreshCw, Trophy, HelpCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -74,8 +73,7 @@ const CROSSWORD_WORDS: CrosswordWord[] = [
   }
 ];
 
-// Calculate grid dimensions
-const GRID_SIZE = 10; // Reasonable size for our words
+const GRID_SIZE = 10;
 
 const SoilCrossword = () => {
   const [grid, setGrid] = useState<string[][]>(
@@ -96,7 +94,6 @@ const SoilCrossword = () => {
     Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null))
   );
   
-  // Initialize the grid with the crossword structure
   useEffect(() => {
     const newGrid = Array(GRID_SIZE).fill('').map(() => Array(GRID_SIZE).fill(''));
     
@@ -119,7 +116,6 @@ const SoilCrossword = () => {
     setGrid(newGrid);
   }, []);
   
-  // Setup timer
   useEffect(() => {
     return () => {
       if (timerRef.current) {
@@ -128,12 +124,10 @@ const SoilCrossword = () => {
     };
   }, []);
   
-  // Check if a cell is part of the crossword
   const isCellActive = (row: number, col: number): boolean => {
     return grid[row][col] !== '';
   };
 
-  // Get the word number to display in the grid
   const getCellNumber = (row: number, col: number): number | null => {
     for (let i = 0; i < CROSSWORD_WORDS.length; i++) {
       const { startRow, startCol } = CROSSWORD_WORDS[i];
@@ -151,7 +145,6 @@ const SoilCrossword = () => {
     setScore(0);
     setIsGameComplete(false);
     
-    // Reset user grid
     setUserGrid(Array(GRID_SIZE).fill('').map(() => Array(GRID_SIZE).fill('')));
     
     if (timerRef.current) {
@@ -164,17 +157,14 @@ const SoilCrossword = () => {
   };
   
   const handleCellInput = (row: number, col: number, value: string) => {
-    // Only allow single letters
     value = value.slice(-1).toUpperCase();
     
     const newUserGrid = [...userGrid];
     newUserGrid[row][col] = value;
     setUserGrid(newUserGrid);
     
-    // Check for completed words
     checkCompletedWords(newUserGrid);
     
-    // Move focus to next cell
     if (value && currentClue) {
       moveToNextCell(row, col);
     }
@@ -197,7 +187,6 @@ const SoilCrossword = () => {
       nextCol < GRID_SIZE && 
       isCellActive(nextRow, nextCol)
     ) {
-      // Focus the next cell
       const nextInput = gridRefs.current[nextRow][nextCol];
       if (nextInput) {
         nextInput.focus();
@@ -215,13 +204,11 @@ const SoilCrossword = () => {
         const row = direction === "across" ? startRow : startRow + i;
         const col = direction === "across" ? startCol + i : startCol;
         
-        // Check if we're still within grid bounds
         if (row >= GRID_SIZE || col >= GRID_SIZE) {
           isWordComplete = false;
           break;
         }
         
-        // Check if the user's input matches the word letter
         if (currentUserGrid[row][col] !== word[i]) {
           isWordComplete = false;
           break;
@@ -233,7 +220,6 @@ const SoilCrossword = () => {
       }
     });
     
-    // Check if any new words were completed
     newCorrectWords.forEach(word => {
       if (!correctWords.includes(word)) {
         toast.success(`You found "${word}"!`);
@@ -242,7 +228,6 @@ const SoilCrossword = () => {
     
     setCorrectWords(newCorrectWords);
     
-    // Check if all words are complete
     if (newCorrectWords.length === CROSSWORD_WORDS.length) {
       completeGame();
     }
@@ -254,15 +239,13 @@ const SoilCrossword = () => {
       timerRef.current = null;
     }
     
-    // Calculate score based on time and number of completed words
     const baseScore = 100;
-    const timeDeduction = Math.min(50, Math.floor(timeElapsed / 10)); // Max 50 points deduction for time
+    const timeDeduction = Math.min(50, Math.floor(timeElapsed / 10));
     const finalScore = baseScore - timeDeduction;
     
     setScore(finalScore);
     setIsGameComplete(true);
     
-    // Launch confetti for completing the puzzle
     launchConfetti();
   };
   
@@ -274,7 +257,6 @@ const SoilCrossword = () => {
     });
   };
   
-  // Format time as MM:SS
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -284,7 +266,6 @@ const SoilCrossword = () => {
   const selectClue = (clue: CrosswordWord) => {
     setCurrentClue(clue);
     
-    // Focus on the first cell of the selected word
     const { startRow, startCol } = clue;
     const firstCell = gridRefs.current[startRow][startCol];
     if (firstCell) {
@@ -338,7 +319,6 @@ const SoilCrossword = () => {
             
             <div className="bg-white p-1 rounded-lg shadow-md">
               <div className="relative">
-                {/* Fixed grid cells with proper sizing and spacing */}
                 <div className="grid grid-cols-10 gap-0.5">
                   {Array(GRID_SIZE).fill(null).map((_, rowIndex) => (
                     <React.Fragment key={`row-${rowIndex}`}>
