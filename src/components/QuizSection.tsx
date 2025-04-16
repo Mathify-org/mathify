@@ -14,6 +14,96 @@ const questions = [
     options: ["Snow", "Heavy rain", "Rainbow", "Clouds"],
     correct: 1,
   },
+  {
+    question: "What is soil conservation?",
+    options: ["Making soil dirty", "Protecting soil from erosion", "Removing all plants", "Adding more water"],
+    correct: 1,
+  },
+  {
+    question: "Which of these is NOT a method of soil conservation?",
+    options: ["Terrace farming", "Contour plowing", "Burning vegetation", "Cover crops"],
+    correct: 2,
+  },
+  {
+    question: "How do tree roots help prevent soil erosion?",
+    options: ["They hold soil together", "They make soil softer", "They remove water", "They add rocks"],
+    correct: 0,
+  },
+  {
+    question: "What is mulching?",
+    options: ["Removing plants", "Covering soil with protective layer", "Digging holes", "Watering plants"],
+    correct: 1,
+  },
+  {
+    question: "Which natural force most commonly causes soil erosion?",
+    options: ["Wind", "Earthquakes", "Lightning", "Volcanoes"],
+    correct: 0,
+  },
+  {
+    question: "What type of farming helps prevent soil erosion on hills?",
+    options: ["Vertical farming", "Terrace farming", "Underground farming", "Water farming"],
+    correct: 1,
+  },
+  {
+    question: "Why is soil conservation important?",
+    options: ["To grow more weeds", "To protect fertile land", "To create deserts", "To remove plants"],
+    correct: 1,
+  },
+  {
+    question: "What is a windbreak?",
+    options: ["A broken window", "Trees planted to block wind", "A type of storm", "A farming tool"],
+    correct: 1,
+  },
+  {
+    question: "Which activity can harm soil conservation efforts?",
+    options: ["Crop rotation", "Overgrazing", "Planting trees", "Using mulch"],
+    correct: 1,
+  },
+  {
+    question: "What is contour plowing?",
+    options: ["Plowing in straight lines", "Plowing across slopes", "Plowing vertically", "Not plowing at all"],
+    correct: 1,
+  },
+  {
+    question: "How do cover crops help soil?",
+    options: ["They protect soil", "They remove nutrients", "They cause erosion", "They kill insects"],
+    correct: 0,
+  },
+  {
+    question: "What happens when soil erodes?",
+    options: ["Soil becomes more fertile", "Soil is lost", "Plants grow better", "More rain falls"],
+    correct: 1,
+  },
+  {
+    question: "Which is a sign of soil erosion?",
+    options: ["More plants growing", "Gullies forming", "Better crop yields", "Increased fertility"],
+    correct: 1,
+  },
+  {
+    question: "How can farmers prevent soil erosion?",
+    options: ["Remove all plants", "Plant only one crop", "Rotate crops", "Avoid mulching"],
+    correct: 2,
+  },
+  {
+    question: "What role do forests play in soil conservation?",
+    options: ["They cause erosion", "They protect soil", "They remove soil", "They heat the soil"],
+    correct: 1,
+  },
+  {
+    question: "Why is grass good for preventing soil erosion?",
+    options: ["It has deep roots", "It kills other plants", "It removes water", "It breaks up soil"],
+    correct: 0,
+  },
+  {
+    question: "What is strip cropping?",
+    options: ["Removing all crops", "Planting in alternating strips", "Burning crops", "Flooding fields"],
+    correct: 1,
+  },
+  {
+    question: "Which human activity can increase soil erosion?",
+    options: ["Tree planting", "Deforestation", "Crop rotation", "Using mulch"],
+    correct: 1,
+  }
 ];
 
 const QuizSection = () => {

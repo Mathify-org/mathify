@@ -8,14 +8,14 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-b from-sun to-accent p-6">
       <div className="max-w-4xl mx-auto space-y-8">
         <h1 className="text-4xl font-bold text-center text-soil">
-          Soil Adventures Academy
+          Soil Erosion and Conservation
         </h1>
         
-        <GameMascot message="Hi! I'm Wiggles! Let's learn about soil erosion!" />
+        <GameMascot message="Hi! I'm Wiggles! Let's learn about soil erosion and how to prevent it!" />
         
         <div className="grid gap-8">
           <div>
-            <h2 className="text-2xl font-bold mb-4">Your Soil Garden</h2>
+            <h2 className="text-2xl font-bold mb-4">Your Conservation Sandbox</h2>
             <SoilLandscape />
           </div>
           
