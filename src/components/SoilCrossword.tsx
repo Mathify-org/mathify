@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from "react";
-import { Timer, Check, X, RefreshCw, Trophy, HelpCircle } from "lucide-react";
+import { Timer, Check, RefreshCw, Trophy, HelpCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -337,62 +337,59 @@ const SoilCrossword = () => {
             </div>
             
             <div className="bg-white p-1 rounded-lg shadow-md">
-              <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-2">
-                <div className="relative">
-                  <div className="grid grid-cols-10 gap-1">
-                    {Array(GRID_SIZE).fill(null).map((_, rowIndex) => (
-                      <div key={`row-${rowIndex}`} className="flex gap-1">
-                        {Array(GRID_SIZE).fill(null).map((_, colIndex) => {
-                          const isActive = isCellActive(rowIndex, colIndex);
-                          const cellNumber = getCellNumber(rowIndex, colIndex);
-                          const isCurrentFocus = currentClue && 
-                            ((currentClue.direction === "across" && 
-                              rowIndex === currentClue.startRow && 
-                              colIndex >= currentClue.startCol && 
-                              colIndex < currentClue.startCol + currentClue.word.length) ||
-                             (currentClue.direction === "down" && 
-                              colIndex === currentClue.startCol && 
-                              rowIndex >= currentClue.startRow && 
-                              rowIndex < currentClue.startRow + currentClue.word.length));
-                          
-                          return (
-                            <div 
-                              key={`cell-${rowIndex}-${colIndex}`} 
-                              className={`relative ${
-                                isActive 
-                                  ? isCurrentFocus 
-                                    ? "bg-blue-100 border-2 border-blue-300" 
-                                    : "bg-white border border-gray-300" 
-                                  : "bg-gray-100"
-                              } w-8 h-8 flex items-center justify-center`}
-                            >
-                              {isActive && (
-                                <>
-                                  {cellNumber !== null && (
-                                    <span className="absolute text-[8px] top-0 left-0.5 text-gray-500 font-bold">
-                                      {cellNumber}
-                                    </span>
-                                  )}
-                                  <Input
-                                    type="text"
-                                    value={userGrid[rowIndex][colIndex]}
-                                    onChange={(e) => handleCellInput(rowIndex, colIndex, e.target.value)}
-                                    className="w-full h-full text-center p-0 border-none focus:ring-0 uppercase font-bold text-lg"
-                                    maxLength={1}
-                                    ref={(el) => {
-                                      if (gridRefs.current) {
-                                        gridRefs.current[rowIndex][colIndex] = el;
-                                      }
-                                    }}
-                                  />
-                                </>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ))}
-                  </div>
+              <div className="relative">
+                {/* Fixed grid cells with proper sizing and spacing */}
+                <div className="grid grid-cols-10 gap-0.5">
+                  {Array(GRID_SIZE).fill(null).map((_, rowIndex) => (
+                    <React.Fragment key={`row-${rowIndex}`}>
+                      {Array(GRID_SIZE).fill(null).map((_, colIndex) => {
+                        const isActive = isCellActive(rowIndex, colIndex);
+                        const cellNumber = getCellNumber(rowIndex, colIndex);
+                        const isCurrentFocus = currentClue && 
+                          ((currentClue.direction === "across" && 
+                            rowIndex === currentClue.startRow && 
+                            colIndex >= currentClue.startCol && 
+                            colIndex < currentClue.startCol + currentClue.word.length) ||
+                           (currentClue.direction === "down" && 
+                            colIndex === currentClue.startCol && 
+                            rowIndex >= currentClue.startRow && 
+                            rowIndex < currentClue.startRow + currentClue.word.length));
+                        
+                        return (
+                          <div 
+                            key={`cell-${rowIndex}-${colIndex}`} 
+                            className={`relative ${
+                              isActive 
+                                ? isCurrentFocus 
+                                  ? "bg-blue-100 border-2 border-blue-300" 
+                                  : "bg-white border border-gray-300" 
+                                : "bg-gray-200"
+                            } w-9 h-9 flex items-center justify-center`}
+                          >
+                            {isActive && (
+                              <>
+                                {cellNumber !== null && (
+                                  <span className="absolute text-[8px] top-0 left-0.5 text-gray-500 font-bold">
+                                    {cellNumber}
+                                  </span>
+                                )}
+                                <Input
+                                  type="text"
+                                  value={userGrid[rowIndex][colIndex]}
+                                  onChange={(e) => handleCellInput(rowIndex, colIndex, e.target.value)}
+                                  className="w-full h-full text-center p-0 border-none focus:ring-0 uppercase font-bold text-lg"
+                                  maxLength={1}
+                                  ref={(el) => {
+                                    gridRefs.current[rowIndex][colIndex] = el;
+                                  }}
+                                />
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </React.Fragment>
+                  ))}
                 </div>
               </div>
             </div>
@@ -410,7 +407,7 @@ const SoilCrossword = () => {
               </Button>
             </div>
             
-            <div className="bg-white rounded-lg shadow-md p-4 h-[320px] overflow-y-auto">
+            <div className="bg-white rounded-lg shadow-md p-4 h-[350px] overflow-y-auto">
               {CROSSWORD_WORDS.map((word, index) => {
                 const isComplete = correctWords.includes(word.word);
                 const isSelected = currentClue === word;
