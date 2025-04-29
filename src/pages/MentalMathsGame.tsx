@@ -1,11 +1,12 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Check, X, ArrowLeft, Plus, Minus, Divide, Timer } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 // Types for our math problem
 type Operation = "+" | "-" | "*" | "/";
@@ -14,19 +15,35 @@ type Problem = {
   num2: number;
   operation: Operation;
   answer: number;
+  options: number[];
 };
 
 const MentalMathsGame = () => {
   const [gameState, setGameState] = useState<"idle" | "playing" | "completed">("idle");
   const [currentProblem, setCurrentProblem] = useState<Problem | null>(null);
-  const [userAnswer, setUserAnswer] = useState("");
+  const [userAnswer, setUserAnswer] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [questionNumber, setQuestionNumber] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(6);
+  const [timeLeft, setTimeLeft] = useState(12);
   const [resultAnimation, setResultAnimation] = useState<"correct" | "incorrect" | null>(null);
   const [results, setResults] = useState<Array<{ correct: boolean; problem: Problem }>>([]);
-  const inputRef = useRef<HTMLInputElement>(null);
   const totalQuestions = 25;
+  
+  // Create random positions for the answer bubbles
+  const generateRandomPositions = (count: number) => {
+    const positions = [];
+    for (let i = 0; i < count; i++) {
+      positions.push({
+        top: Math.floor(Math.random() * 60) + 20 + "%",
+        left: Math.floor(Math.random() * 70) + 15 + "%",
+        animationDelay: `${Math.random() * 2}s`,
+        animationDuration: `${Math.random() * 3 + 4}s`
+      });
+    }
+    return positions;
+  };
+  
+  const [optionPositions, setOptionPositions] = useState<any[]>([]);
   
   const generateProblem = (): Problem => {
     const operations: Operation[] = ["+", "-", "*", "/"];
@@ -61,7 +78,25 @@ const MentalMathsGame = () => {
         answer = 2;
     }
     
-    return { num1, num2, operation, answer };
+    // Generate 4 options including the correct answer
+    const options = [answer];
+    
+    // Add incorrect options
+    while (options.length < 4) {
+      // Generate a random offset between -10 and +10 but not 0
+      const offset = Math.floor(Math.random() * 20) - 10;
+      const option = answer + (offset === 0 ? 1 : offset);
+      
+      // Make sure options are not negative and not duplicates
+      if (option > 0 && !options.includes(option)) {
+        options.push(option);
+      }
+    }
+    
+    // Shuffle options
+    const shuffledOptions = options.sort(() => Math.random() - 0.5);
+    
+    return { num1, num2, operation, answer, options: shuffledOptions };
   };
   
   const handleStartGame = () => {
@@ -80,24 +115,18 @@ const MentalMathsGame = () => {
     
     const problem = generateProblem();
     setCurrentProblem(problem);
-    setUserAnswer("");
-    setTimeLeft(6);
+    setUserAnswer(null);
+    setTimeLeft(12);
     setResultAnimation(null);
     setQuestionNumber((prev) => prev + 1);
-    
-    // Focus the input
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    }, 100);
+    setOptionPositions(generateRandomPositions(problem.options.length));
   };
   
-  const checkAnswer = () => {
+  const checkAnswer = (selectedAnswer: number) => {
     if (!currentProblem) return;
     
-    const userAnswerNum = parseInt(userAnswer);
-    const isCorrect = userAnswerNum === currentProblem.answer;
+    setUserAnswer(selectedAnswer);
+    const isCorrect = selectedAnswer === currentProblem.answer;
     
     setResults((prev) => [...prev, { correct: isCorrect, problem: currentProblem }]);
     
@@ -113,7 +142,7 @@ const MentalMathsGame = () => {
     // Short delay before next question
     setTimeout(() => {
       nextQuestion();
-    }, 500);
+    }, 1000);
   };
   
   const endGame = () => {
@@ -134,12 +163,6 @@ const MentalMathsGame = () => {
     });
   };
   
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      checkAnswer();
-    }
-  };
-  
   // Timer effect
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -148,8 +171,9 @@ const MentalMathsGame = () => {
       timer = setInterval(() => {
         setTimeLeft((prev) => prev - 0.1);
       }, 100);
-    } else if (timeLeft <= 0 && gameState === "playing") {
-      checkAnswer();
+    } else if (timeLeft <= 0 && gameState === "playing" && currentProblem) {
+      // Auto-select wrong answer when time runs out
+      checkAnswer(-1); // Invalid answer to mark as incorrect
     }
     
     return () => clearInterval(timer);
@@ -214,7 +238,7 @@ const MentalMathsGame = () => {
                   </li>
                   <li className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold">2</div>
-                    <span>You have only 6 seconds to answer</span>
+                    <span>You have only 12 seconds to select the correct answer</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold">3</div>
@@ -267,7 +291,7 @@ const MentalMathsGame = () => {
                   <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-orange-500 transition-all" 
-                      style={{ width: `${(timeLeft / 6) * 100}%` }}
+                      style={{ width: `${(timeLeft / 12) * 100}%` }}
                     />
                   </div>
                 </div>
@@ -299,21 +323,50 @@ const MentalMathsGame = () => {
                   {resultAnimation === "incorrect" && (
                     <X className="h-10 w-10 text-red-500" />
                   )}
-                  {!resultAnimation && (
-                    <Input
-                      ref={inputRef}
-                      type="number"
-                      value={userAnswer}
-                      onChange={(e) => setUserAnswer(e.target.value)}
-                      onKeyDown={handleKeyPress}
-                      className="text-4xl font-bold text-center h-16 w-full"
-                      autoFocus
-                    />
+                  {!resultAnimation && userAnswer === null && (
+                    <span className="text-4xl font-bold text-gray-400">?</span>
+                  )}
+                  {!resultAnimation && userAnswer !== null && (
+                    <span className="text-4xl font-bold">{userAnswer}</span>
                   )}
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground animate-fade-in">
-                Type your answer and press Enter
+
+              {/* Visual options bubbles */}
+              <div className="w-full h-64 relative mt-4 bg-gradient-to-br from-[#E5DEFF]/30 to-[#FEF7CD]/30 rounded-xl overflow-hidden">
+                {currentProblem.options.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => checkAnswer(option)}
+                    disabled={resultAnimation !== null || userAnswer !== null}
+                    className={`
+                      absolute transform -translate-x-1/2 -translate-y-1/2
+                      h-16 w-16 rounded-full 
+                      flex items-center justify-center
+                      text-2xl font-bold
+                      cursor-pointer
+                      transition-all duration-200
+                      bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6]
+                      text-white
+                      shadow-lg
+                      hover:scale-110
+                      focus:outline-none focus:ring-4 focus:ring-purple-500/50
+                      animate-float
+                    `}
+                    style={{
+                      top: optionPositions[index]?.top || "30%",
+                      left: optionPositions[index]?.left || "50%",
+                      animationDelay: optionPositions[index]?.animationDelay,
+                      animationDuration: optionPositions[index]?.animationDuration
+                    }}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+
+              <p className="text-sm text-muted-foreground animate-fade-in mt-4">
+                Select the correct answer
               </p>
             </CardContent>
           </>
@@ -405,6 +458,28 @@ const MentalMathsGame = () => {
           </>
         )}
       </Card>
+      
+      <style jsx>{`
+        @keyframes float {
+          0% {
+            transform: translate(-50%, -50%) translateY(0) rotate(0deg);
+          }
+          33% {
+            transform: translate(-50%, -50%) translateY(-10px) rotate(5deg);
+          }
+          66% {
+            transform: translate(-50%, -50%) translateY(5px) rotate(-5deg);
+          }
+          100% {
+            transform: translate(-50%, -50%) translateY(0) rotate(0deg);
+          }
+        }
+        .animate-float {
+          animation: float 5s ease-in-out infinite;
+          animation-duration: var(--duration, 5s);
+          animation-delay: var(--delay, 0s);
+        }
+      `}</style>
     </div>
   );
 };
