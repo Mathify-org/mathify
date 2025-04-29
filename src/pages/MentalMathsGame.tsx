@@ -459,27 +459,30 @@ const MentalMathsGame = () => {
         )}
       </Card>
       
-      <style jsx>{`
-        @keyframes float {
-          0% {
-            transform: translate(-50%, -50%) translateY(0) rotate(0deg);
+      {/* Fix: Remove the jsx property from the style tag */}
+      <style>
+        {`
+          @keyframes float {
+            0% {
+              transform: translate(-50%, -50%) translateY(0) rotate(0deg);
+            }
+            33% {
+              transform: translate(-50%, -50%) translateY(-10px) rotate(5deg);
+            }
+            66% {
+              transform: translate(-50%, -50%) translateY(5px) rotate(-5deg);
+            }
+            100% {
+              transform: translate(-50%, -50%) translateY(0) rotate(0deg);
+            }
           }
-          33% {
-            transform: translate(-50%, -50%) translateY(-10px) rotate(5deg);
+          .animate-float {
+            animation: float 5s ease-in-out infinite;
+            animation-duration: var(--duration, 5s);
+            animation-delay: var(--delay, 0s);
           }
-          66% {
-            transform: translate(-50%, -50%) translateY(5px) rotate(-5deg);
-          }
-          100% {
-            transform: translate(-50%, -50%) translateY(0) rotate(0deg);
-          }
-        }
-        .animate-float {
-          animation: float 5s ease-in-out infinite;
-          animation-duration: var(--duration, 5s);
-          animation-delay: var(--delay, 0s);
-        }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
