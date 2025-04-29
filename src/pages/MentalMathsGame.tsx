@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -6,7 +5,7 @@ import confetti from "canvas-confetti";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Check, X, ArrowLeft, Plus, Minus, Divide, Multiply, Timer } from "lucide-react";
+import { Check, X, ArrowLeft, Plus, Minus, Divide, Timer } from "lucide-react";
 
 // Types for our math problem
 type Operation = "+" | "-" | "*" | "/";
@@ -163,7 +162,7 @@ const MentalMathsGame = () => {
     switch (currentProblem.operation) {
       case "+": return <Plus className="h-8 w-8 text-emerald-500" />;
       case "-": return <Minus className="h-8 w-8 text-sky-500" />;
-      case "*": return <Multiply className="h-8 w-8 text-purple-500" />;
+      case "*": return <X className="h-8 w-8 text-purple-500" />;
       case "/": return <Divide className="h-8 w-8 text-orange-500" />;
       default: return null;
     }
@@ -234,7 +233,7 @@ const MentalMathsGame = () => {
                   <p>Subtraction</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-[#FEF7CD]">
-                  <Multiply className="h-8 w-8 mx-auto text-purple-500 mb-2" />
+                  <X className="h-8 w-8 mx-auto text-purple-500 mb-2" />
                   <p>Multiplication</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-[#FEF7CD]">
