@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -194,6 +195,11 @@ const MentalMathsGame = () => {
       const randomMessage = encouragingMessages[Math.floor(Math.random() * encouragingMessages.length)];
       setEncouragementMessage(randomMessage);
       setShowEncouragement(true);
+      
+      // Auto-dismiss the encouragement message after 2 seconds
+      setTimeout(() => {
+        setShowEncouragement(false);
+      }, 2000);
       
       // Small confetti burst for each correct answer
       confetti({
