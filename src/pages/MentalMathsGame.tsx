@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -7,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Check, X, ArrowLeft, Plus, Minus, Divide, Timer } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 // Types for our math problem
 type Operation = "+" | "-" | "*" | "/";
@@ -18,6 +18,20 @@ type Problem = {
   options: number[];
 };
 
+// Encouraging messages that will be displayed when student gets the answer correct
+const encouragingMessages = [
+  { message: "Fantastic work! You're a math wizard! ✨", color: "from-emerald-500 to-sky-500" },
+  { message: "Brilliant! Keep up the great work! 🌟", color: "from-purple-500 to-pink-500" },
+  { message: "Amazing job! Your brain is on fire! 🔥", color: "from-yellow-500 to-orange-500" },
+  { message: "Superb! You're unstoppable! 💪", color: "from-blue-500 to-indigo-500" },
+  { message: "Impressive skills! You're crushing it! 🏆", color: "from-pink-500 to-purple-500" },
+  { message: "Excellent! You're a math genius! 🧠", color: "from-green-500 to-teal-500" },
+  { message: "Outstanding! You're making great progress! 🚀", color: "from-orange-500 to-red-500" },
+  { message: "Phenomenal! Your mind is powerful! ⚡", color: "from-indigo-500 to-violet-500" },
+  { message: "Spectacular! You're absolutely brilliant! 💫", color: "from-teal-500 to-cyan-500" },
+  { message: "Incredible! Your skills are top-notch! 🌈", color: "from-red-500 to-pink-500" },
+];
+
 const MentalMathsGame = () => {
   const [gameState, setGameState] = useState<"idle" | "playing" | "completed">("idle");
   const [currentProblem, setCurrentProblem] = useState<Problem | null>(null);
@@ -27,17 +41,57 @@ const MentalMathsGame = () => {
   const [timeLeft, setTimeLeft] = useState(12);
   const [resultAnimation, setResultAnimation] = useState<"correct" | "incorrect" | null>(null);
   const [results, setResults] = useState<Array<{ correct: boolean; problem: Problem }>>([]);
+  const [showEncouragement, setShowEncouragement] = useState(false);
+  const [encouragementMessage, setEncouragementMessage] = useState({ message: "", color: "" });
   const totalQuestions = 25;
   
-  // Create random positions for the answer bubbles
+  // Create random positions for the answer bubbles with better spacing
   const generateRandomPositions = (count: number) => {
+    // Define grid cells to ensure better distribution
+    const gridSize = Math.ceil(Math.sqrt(count));
+    const cellWidth = 100 / gridSize;
+    const cellHeight = 100 / gridSize;
+    
+    const usedCells: {row: number, col: number}[] = [];
     const positions = [];
+    
     for (let i = 0; i < count; i++) {
+      let row, col, attempts = 0;
+      let cellFound = false;
+      
+      // Try to find an unused cell
+      while (!cellFound && attempts < 20) {
+        row = Math.floor(Math.random() * gridSize);
+        col = Math.floor(Math.random() * gridSize);
+        
+        const isCellUsed = usedCells.some(cell => cell.row === row && cell.col === col);
+        if (!isCellUsed) {
+          usedCells.push({ row, col });
+          cellFound = true;
+        }
+        attempts++;
+      }
+      
+      // If we couldn't find an unused cell, just pick a random one
+      if (!cellFound) {
+        row = Math.floor(Math.random() * gridSize);
+        col = Math.floor(Math.random() * gridSize);
+        usedCells.push({ row, col });
+      }
+      
+      // Calculate position within the cell with some randomness
+      const baseTop = (row * cellHeight) + 10 + (Math.random() * (cellHeight - 20));
+      const baseLeft = (col * cellWidth) + 10 + (Math.random() * (cellWidth - 20));
+      
+      // Ensure position is within bounds
+      const top = Math.min(Math.max(baseTop, 10), 90);
+      const left = Math.min(Math.max(baseLeft, 10), 90);
+      
       positions.push({
-        top: Math.floor(Math.random() * 60) + 20 + "%",
-        left: Math.floor(Math.random() * 70) + 15 + "%",
+        top: top + "%",
+        left: left + "%",
         animationDelay: `${Math.random() * 2}s`,
-        animationDuration: `${Math.random() * 3 + 4}s`
+        animationDuration: `${Math.random() * 2 + 2.5}s` // Faster animation (2.5-4.5s)
       });
     }
     return positions;
@@ -120,6 +174,7 @@ const MentalMathsGame = () => {
     setResultAnimation(null);
     setQuestionNumber((prev) => prev + 1);
     setOptionPositions(generateRandomPositions(problem.options.length));
+    setShowEncouragement(false);
   };
   
   const checkAnswer = (selectedAnswer: number) => {
@@ -134,6 +189,19 @@ const MentalMathsGame = () => {
       setScore((prev) => prev + 1);
       setResultAnimation("correct");
       toast.success("Correct!");
+      
+      // Show encouraging message
+      const randomMessage = encouragingMessages[Math.floor(Math.random() * encouragingMessages.length)];
+      setEncouragementMessage(randomMessage);
+      setShowEncouragement(true);
+      
+      // Small confetti burst for each correct answer
+      confetti({
+        particleCount: 30,
+        spread: 50,
+        origin: { y: 0.7, x: 0.5 },
+        colors: ['#9b87f5', '#7E69AB', '#6E59A5']
+      });
     } else {
       setResultAnimation("incorrect");
       toast.error(`Incorrect! The answer was ${currentProblem.answer}`);
@@ -142,7 +210,7 @@ const MentalMathsGame = () => {
     // Short delay before next question
     setTimeout(() => {
       nextQuestion();
-    }, 1000);
+    }, 1500); // Increased delay to show encouragement
   };
   
   const endGame = () => {
@@ -332,7 +400,7 @@ const MentalMathsGame = () => {
                 </div>
               </div>
 
-              {/* Visual options bubbles */}
+              {/* Visual options bubbles - with better spacing */}
               <div className="w-full h-64 relative mt-4 bg-gradient-to-br from-[#E5DEFF]/30 to-[#FEF7CD]/30 rounded-xl overflow-hidden">
                 {currentProblem.options.map((option, index) => (
                   <button
@@ -348,8 +416,8 @@ const MentalMathsGame = () => {
                       transition-all duration-200
                       bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6]
                       text-white
-                      shadow-lg
-                      hover:scale-110
+                      shadow-lg hover:shadow-xl
+                      glow hover:scale-110
                       focus:outline-none focus:ring-4 focus:ring-purple-500/50
                       animate-float
                     `}
@@ -459,7 +527,20 @@ const MentalMathsGame = () => {
         )}
       </Card>
       
-      {/* Fix: Remove the jsx property from the style tag */}
+      {/* Encouragement dialog */}
+      <Dialog open={showEncouragement} onOpenChange={setShowEncouragement}>
+        <DialogContent className="p-0 border-0 overflow-hidden max-w-md">
+          <div className={`p-8 bg-gradient-to-r ${encouragementMessage.color} text-white text-center`}>
+            <div className="animate-bounce mb-4">
+              <div className="text-6xl">🎉</div>
+            </div>
+            <h2 className="text-3xl font-bold mb-4">{encouragementMessage.message}</h2>
+            <p className="text-lg opacity-90">Keep up the great work!</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* CSS animations */}
       <style>
         {`
           @keyframes float {
