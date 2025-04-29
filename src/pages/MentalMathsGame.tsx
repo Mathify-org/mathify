@@ -22,11 +22,11 @@ const MentalMathsGame = () => {
   const [userAnswer, setUserAnswer] = useState("");
   const [score, setScore] = useState(0);
   const [questionNumber, setQuestionNumber] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(2);
+  const [timeLeft, setTimeLeft] = useState(6);
   const [resultAnimation, setResultAnimation] = useState<"correct" | "incorrect" | null>(null);
   const [results, setResults] = useState<Array<{ correct: boolean; problem: Problem }>>([]);
   const inputRef = useRef<HTMLInputElement>(null);
-  const totalQuestions = 20;
+  const totalQuestions = 25;
   
   const generateProblem = (): Problem => {
     const operations: Operation[] = ["+", "-", "*", "/"];
@@ -81,7 +81,7 @@ const MentalMathsGame = () => {
     const problem = generateProblem();
     setCurrentProblem(problem);
     setUserAnswer("");
-    setTimeLeft(2);
+    setTimeLeft(6);
     setResultAnimation(null);
     setQuestionNumber((prev) => prev + 1);
     
@@ -201,7 +201,7 @@ const MentalMathsGame = () => {
             <CardHeader className="text-center">
               <CardTitle className="text-3xl font-bold">Speed Math Challenge</CardTitle>
               <CardDescription className="text-lg mt-2">
-                Test your mental math skills with 20 quick-fire questions!
+                Test your mental math skills with {totalQuestions} quick-fire questions!
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -214,11 +214,11 @@ const MentalMathsGame = () => {
                   </li>
                   <li className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold">2</div>
-                    <span>You have only 2 seconds to answer</span>
+                    <span>You have only 6 seconds to answer</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold">3</div>
-                    <span>Answer all 20 questions to see your final score</span>
+                    <span>Answer all {totalQuestions} questions to see your final score</span>
                   </li>
                 </ul>
               </div>
@@ -267,7 +267,7 @@ const MentalMathsGame = () => {
                   <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-orange-500 transition-all" 
-                      style={{ width: `${(timeLeft / 2) * 100}%` }}
+                      style={{ width: `${(timeLeft / 6) * 100}%` }}
                     />
                   </div>
                 </div>
