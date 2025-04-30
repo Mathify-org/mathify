@@ -45,7 +45,7 @@ const AnimalsGame = () => {
               Back to Learning
             </Button>
           ) : (
-            <div className="w-28"></div> {/* Placeholder for layout balance */}
+            <div className="w-28">{/* Placeholder for layout balance */}</div>
           )}
         </nav>
 
