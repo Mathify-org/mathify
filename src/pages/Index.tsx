@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,25 @@ const Index = () => {
           <CardFooter>
             <Link to="/maths">
               <Button>Play Now</Button>
+            </Link>
+          </CardFooter>
+        </Card>
+        
+        {/* Animals Game Card */}
+        <Card className="hover:shadow-lg transition-shadow border-2 border-purple-200 relative overflow-hidden">
+          <div className="absolute -top-6 -right-6 bg-gradient-to-br from-purple-500 to-pink-500 text-white px-8 py-1 rotate-45 text-sm font-bold">
+            NEW!
+          </div>
+          <CardHeader>
+            <CardTitle>Animal Kingdom Explorer</CardTitle>
+            <CardDescription>Learn about animals, insects and birds</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p>Explore the fascinating world of animals! Learn to identify different creatures and test your knowledge.</p>
+          </CardContent>
+          <CardFooter>
+            <Link to="/animals">
+              <Button className="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600">Play Now</Button>
             </Link>
           </CardFooter>
         </Card>
