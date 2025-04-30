@@ -8,20 +8,23 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Bird, Bug, Cat } from "lucide-react";
 import AnimalQuiz from "@/components/AnimalQuiz";
 import AnimalLearning from "@/components/AnimalLearning";
+import EcosystemGame from "@/components/EcosystemGame";
 
 const AnimalsGame = () => {
-  const [gameStarted, setGameStarted] = useState(false);
-  const [showLearning, setShowLearning] = useState(true);
+  const [activeGame, setActiveGame] = useState<"learning" | "quiz" | "ecosystem">("learning");
 
   const startQuiz = () => {
-    setShowLearning(false);
-    setGameStarted(true);
+    setActiveGame("quiz");
     toast.success("Let's test your knowledge about animals!");
   };
 
+  const startEcosystemGame = () => {
+    setActiveGame("ecosystem");
+    toast.success("Welcome to the Ecosystem Balance Challenge!");
+  };
+
   const returnToLearning = () => {
-    setShowLearning(true);
-    setGameStarted(false);
+    setActiveGame("learning");
   };
 
   return (
@@ -36,7 +39,7 @@ const AnimalsGame = () => {
           <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">
             Animal Kingdom Explorer
           </h1>
-          {gameStarted ? (
+          {activeGame !== "learning" ? (
             <Button 
               onClick={returnToLearning} 
               variant="outline" 
@@ -50,32 +53,54 @@ const AnimalsGame = () => {
         </nav>
 
         <div className="max-w-6xl mx-auto">
-          {showLearning ? (
+          {activeGame === "learning" && (
             <>
               <div className="text-center mb-10">
                 <p className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto">
-                  Learn about the amazing world of animals, insects, and birds before testing your knowledge!
+                  Learn about the amazing world of animals, insects, and birds before testing your knowledge or trying the ecosystem challenge!
                 </p>
               </div>
 
               <AnimalLearning />
 
-              <motion.div 
-                className="mt-8 text-center"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                <Button 
-                  onClick={startQuiz} 
-                  className="text-lg px-8 py-6 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 shadow-lg hover:shadow-xl transition-all"
+              <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <motion.div 
+                  className="text-center"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
                 >
-                  Start Quiz Challenge!
-                </Button>
-              </motion.div>
+                  <Button 
+                    onClick={startQuiz} 
+                    className="text-lg px-8 py-6 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 shadow-lg hover:shadow-xl transition-all w-full md:w-auto"
+                  >
+                    Start Quiz Challenge!
+                  </Button>
+                </motion.div>
+
+                <motion.div 
+                  className="text-center"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <Button 
+                    onClick={startEcosystemGame} 
+                    className="text-lg px-8 py-6 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all w-full md:w-auto"
+                  >
+                    Play Ecosystem Challenge!
+                  </Button>
+                </motion.div>
+              </div>
             </>
-          ) : (
+          )}
+
+          {activeGame === "quiz" && (
             <AnimalQuiz />
+          )}
+
+          {activeGame === "ecosystem" && (
+            <EcosystemGame />
           )}
         </div>
       </div>

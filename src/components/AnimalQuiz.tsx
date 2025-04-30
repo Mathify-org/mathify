@@ -1,11 +1,11 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
-import { Bird, Bug, Cat, ArrowRight, Check, CircleCheck, CircleX } from "lucide-react";
+import { Bird, Bug, Cat, ArrowRight, Check, CircleCheck, CircleX, Timer } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface QuizItem {
@@ -60,8 +60,50 @@ const quizItems: QuizItem[] = [
   },
   {
     id: 8,
-    image: "https://images.unsplash.com/photo-1501286353178-1ec881214838",
+    image: "https://images.unsplash.com/photo-1501286353178-1ec871814838",
     name: "Monkey",
+    type: "animal"
+  },
+  {
+    id: 9,
+    image: "https://images.unsplash.com/photo-1444464666168-49d633b86797",
+    name: "Eagle",
+    type: "bird"
+  },
+  {
+    id: 10,
+    image: "https://images.unsplash.com/photo-1579210777452-3ff074542e42",
+    name: "Parrot",
+    type: "bird"
+  },
+  {
+    id: 11,
+    image: "https://images.unsplash.com/photo-1480044965905-02098d419e96",
+    name: "Robin",
+    type: "bird"
+  },
+  {
+    id: 12,
+    image: "https://images.unsplash.com/photo-1554490828-442467b562ff",
+    name: "Butterfly",
+    type: "insect"
+  },
+  {
+    id: 13,
+    image: "https://images.unsplash.com/photo-1452570053594-1b985d6ea890",
+    name: "Ladybug",
+    type: "insect"
+  },
+  {
+    id: 14,
+    image: "https://images.unsplash.com/photo-1574950578143-858c6fc58922",
+    name: "Spider",
+    type: "insect"
+  },
+  {
+    id: 15,
+    image: "https://images.unsplash.com/photo-1564349683136-77e08dba1ef3",
+    name: "Lion",
     type: "animal"
   }
 ];
@@ -88,6 +130,8 @@ const AnimalQuiz = () => {
   const [quizComplete, setQuizComplete] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [shuffledQuestions, setShuffledQuestions] = useState<QuizItem[]>([]);
+  const [timeRemaining, setTimeRemaining] = useState(5);
+  const [timerActive, setTimerActive] = useState(true);
 
   // Initialize with shuffled questions
   useEffect(() => {
@@ -95,9 +139,49 @@ const AnimalQuiz = () => {
     setShuffledQuestions(shuffled);
   }, []);
 
+  // Timer effect
+  useEffect(() => {
+    if (!timerActive || showFeedback) return;
+    
+    const timer = setTimeout(() => {
+      if (timeRemaining > 0) {
+        setTimeRemaining(prev => prev - 1);
+      } else {
+        // Time's up, treat as wrong answer
+        handleTimeUp();
+      }
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [timeRemaining, timerActive, showFeedback]);
+
   const currentQuestion = shuffledQuestions[currentQuestionIndex];
 
+  const handleTimeUp = () => {
+    setTimerActive(false);
+    setShowFeedback(true);
+    setFeedbackMessage(`Time's up! This is a ${currentQuestion?.type}.`);
+    toast.error("Time's up! Try to answer faster next time.");
+    
+    // Move to next question after a short delay
+    setTimeout(() => moveToNextQuestion(), 2000);
+  };
+
+  const moveToNextQuestion = useCallback(() => {
+    if (currentQuestionIndex < shuffledQuestions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setShowFeedback(false);
+      setSelectedAnswer(null);
+      setIsCorrect(null);
+      setTimeRemaining(5);
+      setTimerActive(true);
+    } else {
+      setQuizComplete(true);
+    }
+  }, [currentQuestionIndex, shuffledQuestions.length]);
+
   const checkAnswer = (answer: string) => {
+    setTimerActive(false);
     const correct = answer === currentQuestion?.type;
     setSelectedAnswer(answer);
     setIsCorrect(correct);
@@ -122,16 +206,7 @@ const AnimalQuiz = () => {
     }
     
     // Move to next question after a short delay
-    setTimeout(() => {
-      if (currentQuestionIndex < shuffledQuestions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
-        setShowFeedback(false);
-        setSelectedAnswer(null);
-        setIsCorrect(null);
-      } else {
-        setQuizComplete(true);
-      }
-    }, 2000);
+    setTimeout(() => moveToNextQuestion(), 2000);
   };
 
   const restartQuiz = () => {
@@ -146,6 +221,8 @@ const AnimalQuiz = () => {
     setShowFeedback(false);
     setSelectedAnswer(null);
     setIsCorrect(null);
+    setTimeRemaining(5);
+    setTimerActive(true);
     
     toast.info("Let's play again!");
   };
@@ -205,7 +282,13 @@ const AnimalQuiz = () => {
             exit={{ opacity: 0, x: -50 }}
             transition={{ duration: 0.3 }}
           >
-            <h3 className="text-2xl font-medium text-center mb-6">What type of creature is this?</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-2xl font-medium">What type of creature is this?</h3>
+              <div className="flex items-center gap-1 bg-purple-100 px-3 py-1 rounded-full text-purple-700">
+                <Timer className="animate-pulse" size={18} />
+                <span className="font-bold">{timeRemaining}</span>
+              </div>
+            </div>
             <div className="aspect-video max-h-[400px] overflow-hidden rounded-xl shadow-lg mb-6">
               <img 
                 src={currentQuestion.image}
