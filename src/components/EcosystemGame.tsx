@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -6,10 +7,6 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Bird, Bug, Cat, Fish, TreeDeciduous, Droplet, Sun } from "lucide-react";
-import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { Canvas } from "@react-three/fiber";
-import { Stats, Environment, Cloud, Sky, Stars } from "@react-three/drei";
 
 // Ecosystem entities and their relationships
 interface EcosystemEntity {
@@ -29,178 +26,116 @@ interface EcosystemEntity {
   prey: string[];
 }
 
-// 3D Models
-const Terrain = () => {
-  return (
-    <mesh receiveShadow position={[0, -1, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[100, 100]} />
-      <meshStandardMaterial color="#4f772d" />
-    </mesh>
-  );
-};
-
-const Water3D = ({ position }: { position: [number, number, number] }) => {
-  return (
-    <mesh position={position} receiveShadow>
-      <boxGeometry args={[5, 0.5, 5]} />
-      <meshStandardMaterial color="#1a73e8" transparent opacity={0.7} />
-    </mesh>
-  );
-};
-
-const Tree = ({ position }: { position: [number, number, number] }) => {
-  return (
-    <group position={position}>
-      <mesh position={[0, 2.5, 0]} castShadow>
-        <coneGeometry args={[2, 4, 8]} />
-        <meshStandardMaterial color="#2e7d32" />
-      </mesh>
-      <mesh position={[0, 0, 0]} castShadow>
-        <cylinderGeometry args={[0.5, 0.5, 2, 8]} />
-        <meshStandardMaterial color="#795548" />
-      </mesh>
-    </group>
-  );
-};
-
-const Animal3D = ({ 
-  position, 
-  color, 
-  scale = 1 
-}: { 
-  position: [number, number, number]; 
-  color: string; 
-  scale?: number;
-}) => {
-  return (
-    <group position={position} scale={scale}>
-      <mesh castShadow>
-        <boxGeometry args={[1, 0.6, 1.5]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-      <mesh position={[0, 0.5, 0.6]} castShadow>
-        <sphereGeometry args={[0.4, 16, 16]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-    </group>
-  );
-};
-
-const Bird3D = ({ 
-  position, 
-  color 
-}: { 
-  position: [number, number, number]; 
-  color: string; 
-}) => {
-  return (
-    <group position={position}>
-      <mesh castShadow>
-        <sphereGeometry args={[0.3, 16, 16]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-      <mesh position={[0, 0, 0.3]} castShadow>
-        <coneGeometry args={[0.1, 0.3, 8]} />
-        <meshStandardMaterial color="#ff9800" />
-      </mesh>
-    </group>
-  );
-};
-
-const Insect3D = ({ 
-  position, 
-  color 
-}: { 
-  position: [number, number, number]; 
-  color: string; 
-}) => {
-  return (
-    <group position={position} scale={0.3}>
-      <mesh castShadow>
-        <sphereGeometry args={[0.5, 16, 16]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-      <mesh position={[0.4, 0.2, 0]} castShadow>
-        <sphereGeometry args={[0.2, 16, 16]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-      <mesh position={[-0.4, 0.2, 0]} castShadow>
-        <sphereGeometry args={[0.2, 16, 16]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-    </group>
-  );
-};
-
-// Ecosystem simulation component
+// Simplified 3D visualization using CSS 3D transforms
 const Ecosystem3D: React.FC<{ entities: EcosystemEntity[] }> = ({ entities }) => {
   return (
-    <div className="h-[500px] rounded-xl overflow-hidden shadow-xl">
-      <Canvas shadows camera={{ position: [10, 10, 10], fov: 60 }}>
-        <ambientLight intensity={0.4} />
-        <directionalLight 
-          position={[10, 10, 5]} 
-          intensity={0.8} 
-          castShadow 
-          shadow-mapSize-width={2048} 
-          shadow-mapSize-height={2048} 
-        />
+    <div className="h-[500px] rounded-xl overflow-hidden shadow-xl bg-gradient-to-b from-blue-300 to-green-300 relative perspective-1000">
+      {/* Sky */}
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-300 to-blue-100 h-1/3" />
+      
+      {/* Ground */}
+      <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-b from-green-600 to-amber-700">
+        {/* Water */}
+        <div className="absolute right-0 bottom-0 w-1/3 h-1/4 bg-blue-400 rounded-tl-xl opacity-80" />
         
-        <Terrain />
-        <Water3D position={[5, 0, 5]} />
-        <Water3D position={[-5, 0, -5]} />
+        {/* Trees */}
+        <div className="absolute left-[20%] bottom-0 flex items-end">
+          <div className="flex flex-col items-center transform hover:scale-105 transition-transform">
+            <div className="w-10 h-16 bg-green-800 rounded-full transform -translate-y-2" />
+            <div className="w-2 h-8 bg-amber-800" />
+          </div>
+        </div>
         
-        <Tree position={[4, 0, -4]} />
-        <Tree position={[-3, 0, 2]} />
-        <Tree position={[0, 0, 5]} />
-        <Tree position={[-5, 0, -3]} />
-
-        {entities.map((entity, index) => {
-          const posX = Math.sin(index * 1.5) * 7;
-          const posZ = Math.cos(index * 1.5) * 7;
-          
-          const populationRatio = entity.currentPopulation / entity.initialPopulation;
-          const entityCount = Math.max(1, Math.round(populationRatio * 3));
-          
-          return Array.from({ length: entityCount }).map((_, subIndex) => {
-            const offsetX = (Math.random() - 0.5) * 2;
-            const offsetZ = (Math.random() - 0.5) * 2;
+        <div className="absolute left-[60%] bottom-0 flex items-end">
+          <div className="flex flex-col items-center transform hover:scale-105 transition-transform">
+            <div className="w-14 h-20 bg-green-700 rounded-full transform -translate-y-2" />
+            <div className="w-3 h-10 bg-amber-900" />
+          </div>
+        </div>
+        
+        {/* Entities */}
+        <div className="absolute inset-0 flex flex-wrap p-4">
+          {entities.map((entity, index) => {
+            const populationRatio = entity.currentPopulation / entity.initialPopulation;
+            const entityCount = Math.max(1, Math.round(populationRatio * 3));
             
-            if (entity.type === "animal") {
-              return (
-                <Animal3D 
-                  key={`${entity.id}-${subIndex}`}
-                  position={[posX + offsetX, 0, posZ + offsetZ]} 
-                  color={entity.color} 
-                />
-              );
-            } else if (entity.type === "bird") {
-              return (
-                <Bird3D 
-                  key={`${entity.id}-${subIndex}`}
-                  position={[posX + offsetX, 2 + Math.random(), posZ + offsetZ]} 
-                  color={entity.color} 
-                />
-              );
-            } else if (entity.type === "insect") {
-              return (
-                <Insect3D 
-                  key={`${entity.id}-${subIndex}`}
-                  position={[posX + offsetX, 0.2, posZ + offsetZ]} 
-                  color={entity.color} 
-                />
-              );
-            }
-            return null;
-          });
-        })}
-        
-        <Sky sunPosition={[100, 10, 100]} />
-        <Cloud position={[0, 10, -10]} opacity={0.5} speed={0.4} />
-        <Cloud position={[10, 15, 0]} opacity={0.3} speed={0.2} />
-        <Environment preset="sunset" />
-        <OrbitControls enablePan={false} maxPolarAngle={Math.PI / 2 - 0.1} />
-      </Canvas>
+            return Array.from({ length: entityCount }).map((_, subIndex) => {
+              const left = `${(index * 12 + subIndex * 5) % 80 + 10}%`;
+              const bottom = `${(index * 7 + subIndex * 9) % 50 + 5}%`;
+              
+              if (entity.type === "animal") {
+                return (
+                  <motion.div
+                    key={`${entity.id}-${subIndex}`}
+                    className="absolute transform hover:scale-110 transition-all cursor-pointer"
+                    style={{ left, bottom }}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <div className="p-2 rounded-full" style={{ backgroundColor: entity.color }}>
+                      {entity.icon}
+                    </div>
+                  </motion.div>
+                );
+              } else if (entity.type === "bird") {
+                return (
+                  <motion.div
+                    key={`${entity.id}-${subIndex}`}
+                    className="absolute transform hover:scale-110 transition-all cursor-pointer"
+                    style={{ left, bottom: `${parseInt(bottom) + 20}%` }}
+                    animate={{
+                      y: [0, -10, 0],
+                      x: [0, 5, 0],
+                    }}
+                    transition={{ repeat: Infinity, duration: 3 + index }}
+                  >
+                    <div className="p-2 rounded-full" style={{ backgroundColor: entity.color }}>
+                      {entity.icon}
+                    </div>
+                  </motion.div>
+                );
+              } else if (entity.type === "insect") {
+                return (
+                  <motion.div
+                    key={`${entity.id}-${subIndex}`}
+                    className="absolute transform hover:scale-110 transition-all cursor-pointer"
+                    style={{ left, bottom }}
+                    animate={{
+                      x: [0, 5, 0, -5, 0],
+                    }}
+                    transition={{ repeat: Infinity, duration: 2 + index * 0.5 }}
+                  >
+                    <div className="p-1 rounded-full" style={{ backgroundColor: entity.color }}>
+                      {entity.icon}
+                    </div>
+                  </motion.div>
+                );
+              }
+              return null;
+            });
+          })}
+        </div>
+      </div>
+      
+      {/* Clouds */}
+      <motion.div
+        className="absolute top-[10%] left-[10%] bg-white opacity-80 rounded-full w-20 h-8"
+        animate={{
+          x: [0, 100, 0],
+        }}
+        transition={{ repeat: Infinity, duration: 20 }}
+      />
+      <motion.div
+        className="absolute top-[15%] left-[30%] bg-white opacity-80 rounded-full w-24 h-10"
+        animate={{
+          x: [0, 80, 0],
+        }}
+        transition={{ repeat: Infinity, duration: 25, delay: 5 }}
+      />
+      
+      {/* Sun */}
+      <div className="absolute top-[10%] right-[10%] bg-yellow-300 rounded-full w-16 h-16 shadow-lg" />
     </div>
   );
 };
@@ -611,7 +546,7 @@ const EcosystemGame = () => {
             <div className="mt-4 p-4 bg-blue-50 rounded-lg">
               <h3 className="text-lg font-semibold text-blue-800 mb-2">Ecosystem Preview</h3>
               <p className="text-sm text-gray-600">
-                This 3D model shows your ecosystem. Drag to rotate, scroll to zoom. 
+                This visualization shows your ecosystem. Each creature is represented by its icon.
                 The number of creatures shown represents their current population.
               </p>
             </div>
@@ -730,7 +665,7 @@ const EcosystemGame = () => {
               <div className="mt-4 p-4 bg-blue-50 rounded-lg">
                 <h3 className="text-lg font-semibold text-blue-800 mb-2">Final Ecosystem State</h3>
                 <p className="text-sm text-gray-600">
-                  This 3D model shows the final state of your ecosystem after the simulation.
+                  This visualization shows the final state of your ecosystem after the simulation.
                   Notice how the populations have changed based on your resource allocations.
                 </p>
               </div>
