@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Bird, Bug, Cat, Fish, TreeDeciduous, Water, Sun } from "lucide-react";
+import { Bird, Bug, Cat, Fish, TreeDeciduous, Droplet, Sun } from "lucide-react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { Canvas } from "@react-three/fiber";
@@ -101,7 +100,7 @@ const Bird3D = ({
         <meshStandardMaterial color={color} />
       </mesh>
       <mesh position={[0, 0, 0.3]} castShadow>
-        <coneGeometry args={[0.1, 0.3, 8]} rotation={[Math.PI/2, 0, 0]} />
+        <coneGeometry args={[0.1, 0.3, 8]} />
         <meshStandardMaterial color="#ff9800" />
       </mesh>
     </group>
@@ -197,8 +196,8 @@ const Ecosystem3D: React.FC<{ entities: EcosystemEntity[] }> = ({ entities }) =>
         })}
         
         <Sky sunPosition={[100, 10, 100]} />
-        <Cloud position={[0, 10, -10]} opacity={0.5} speed={0.4} width={20} />
-        <Cloud position={[10, 15, 0]} opacity={0.3} speed={0.2} width={15} />
+        <Cloud position={[0, 10, -10]} opacity={0.5} speed={0.4} />
+        <Cloud position={[10, 15, 0]} opacity={0.3} speed={0.2} />
         <Environment preset="sunset" />
         <OrbitControls enablePan={false} maxPolarAngle={Math.PI / 2 - 0.1} />
       </Canvas>
@@ -468,7 +467,7 @@ const EcosystemGame = () => {
               <p>You are the guardian of an ecosystem with various animals, birds, and insects.</p>
             </li>
             <li className="flex items-start gap-2">
-              <div className="mt-1 text-blue-600"><Water size={18} /></div>
+              <div className="mt-1 text-blue-600"><Droplet size={18} /></div>
               <p>Allocate limited resources (food, water, shelter) among all creatures.</p>
             </li>
             <li className="flex items-start gap-2">
