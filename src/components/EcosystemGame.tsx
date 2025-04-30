@@ -6,13 +6,13 @@ import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Bird, Bug, Cat, Fish, TreeDeciduous, Droplet, Sun } from "lucide-react";
+import { Bird, Bug, Cat, Fish, TreeDeciduous, Droplet, Sun, RabbitIcon, DeerIcon, FoxIcon, MouseIcon, OwlIcon, RavenIcon, ButterflyIcon, BeeIcon, SnakeIcon, BearIcon, SquirrelIcon, TurtleIcon } from "lucide-react";
 
 // Ecosystem entities and their relationships
 interface EcosystemEntity {
   id: string;
   name: string;
-  type: "animal" | "insect" | "bird" | "plant";
+  type: "animal" | "insect" | "bird" | "plant" | "reptile" | "amphibian";
   icon: React.ReactNode;
   color: string;
   initialPopulation: number;
@@ -57,13 +57,13 @@ const Ecosystem3D: React.FC<{ entities: EcosystemEntity[] }> = ({ entities }) =>
         <div className="absolute inset-0 flex flex-wrap p-4">
           {entities.map((entity, index) => {
             const populationRatio = entity.currentPopulation / entity.initialPopulation;
-            const entityCount = Math.max(1, Math.round(populationRatio * 3));
+            const entityCount = Math.max(1, Math.round(populationRatio * 2));
             
             return Array.from({ length: entityCount }).map((_, subIndex) => {
-              const left = `${(index * 12 + subIndex * 5) % 80 + 10}%`;
-              const bottom = `${(index * 7 + subIndex * 9) % 50 + 5}%`;
+              const left = `${(index * 5 + subIndex * 3) % 90 + 5}%`;
+              const bottom = `${(index * 4 + subIndex * 5) % 50 + 5}%`;
               
-              if (entity.type === "animal") {
+              if (entity.type === "animal" || entity.type === "reptile" || entity.type === "amphibian") {
                 return (
                   <motion.div
                     key={`${entity.id}-${subIndex}`}
@@ -71,7 +71,7 @@ const Ecosystem3D: React.FC<{ entities: EcosystemEntity[] }> = ({ entities }) =>
                     style={{ left, bottom }}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ delay: index * 0.05 }}
                   >
                     <div className="p-2 rounded-full" style={{ backgroundColor: entity.color }}>
                       {entity.icon}
@@ -88,7 +88,7 @@ const Ecosystem3D: React.FC<{ entities: EcosystemEntity[] }> = ({ entities }) =>
                       y: [0, -10, 0],
                       x: [0, 5, 0],
                     }}
-                    transition={{ repeat: Infinity, duration: 3 + index }}
+                    transition={{ repeat: Infinity, duration: 3 + index * 0.2 }}
                   >
                     <div className="p-2 rounded-full" style={{ backgroundColor: entity.color }}>
                       {entity.icon}
@@ -104,7 +104,7 @@ const Ecosystem3D: React.FC<{ entities: EcosystemEntity[] }> = ({ entities }) =>
                     animate={{
                       x: [0, 5, 0, -5, 0],
                     }}
-                    transition={{ repeat: Infinity, duration: 2 + index * 0.5 }}
+                    transition={{ repeat: Infinity, duration: 2 + index * 0.3 }}
                   >
                     <div className="p-1 rounded-full" style={{ backgroundColor: entity.color }}>
                       {entity.icon}
@@ -146,9 +146,9 @@ const EcosystemGame = () => {
   const [gameFinished, setGameFinished] = useState(false);
   const [score, setScore] = useState(0);
   const [resources, setResources] = useState({
-    food: 100,
-    water: 100,
-    shelter: 100
+    food: 250,
+    water: 250,
+    shelter: 250
   });
   const [allocations, setAllocations] = useState<Record<string, { food: number; water: number; shelter: number }>>({});
   const [ecosystemEntities, setEcosystemEntities] = useState<EcosystemEntity[]>([
@@ -158,11 +158,35 @@ const EcosystemGame = () => {
       type: "animal",
       icon: <Cat size={24} />,
       color: "#78716c",
-      initialPopulation: 10,
-      currentPopulation: 10,
-      resourceNeeds: { food: 8, water: 5, shelter: 6 },
+      initialPopulation: 12,
+      currentPopulation: 12,
+      resourceNeeds: { food: 15, water: 10, shelter: 12 },
       predators: [],
-      prey: ["rabbit", "deer"]
+      prey: ["rabbit", "deer", "mouse", "squirrel"]
+    },
+    {
+      id: "bear",
+      name: "Bear",
+      type: "animal",
+      icon: <Cat size={26} />,
+      color: "#8b4513",
+      initialPopulation: 8,
+      currentPopulation: 8,
+      resourceNeeds: { food: 18, water: 14, shelter: 15 },
+      predators: [],
+      prey: ["deer", "rabbit", "fish", "mouse", "squirrel"]
+    },
+    {
+      id: "fox",
+      name: "Fox",
+      type: "animal",
+      icon: <Cat size={22} />,
+      color: "#d97706",
+      initialPopulation: 15,
+      currentPopulation: 15,
+      resourceNeeds: { food: 10, water: 8, shelter: 11 },
+      predators: ["wolf", "bear"],
+      prey: ["rabbit", "mouse", "squirrel", "frog"]
     },
     {
       id: "rabbit",
@@ -170,23 +194,47 @@ const EcosystemGame = () => {
       type: "animal",
       icon: <Cat size={20} />,
       color: "#a8a29e",
-      initialPopulation: 30,
-      currentPopulation: 30,
-      resourceNeeds: { food: 3, water: 2, shelter: 4 },
-      predators: ["wolf", "eagle"],
+      initialPopulation: 40,
+      currentPopulation: 40,
+      resourceNeeds: { food: 6, water: 5, shelter: 8 },
+      predators: ["wolf", "eagle", "fox", "bear", "snake"],
       prey: ["grass"]
     },
     {
       id: "deer",
       name: "Deer",
       type: "animal",
-      icon: <Cat size={22} />,
+      icon: <Cat size={24} />,
       color: "#a87c5b",
-      initialPopulation: 20,
-      currentPopulation: 20,
-      resourceNeeds: { food: 5, water: 6, shelter: 3 },
-      predators: ["wolf"],
-      prey: ["grass"]
+      initialPopulation: 25,
+      currentPopulation: 25,
+      resourceNeeds: { food: 12, water: 14, shelter: 9 },
+      predators: ["wolf", "bear"],
+      prey: ["grass", "shrub"]
+    },
+    {
+      id: "mouse",
+      name: "Mouse",
+      type: "animal",
+      icon: <Cat size={16} />,
+      color: "#94a3b8",
+      initialPopulation: 60,
+      currentPopulation: 60,
+      resourceNeeds: { food: 3, water: 2, shelter: 4 },
+      predators: ["wolf", "fox", "snake", "eagle", "owl"],
+      prey: ["grass", "seed", "insect"]
+    },
+    {
+      id: "squirrel",
+      name: "Squirrel",
+      type: "animal",
+      icon: <Cat size={18} />,
+      color: "#9a7b4f",
+      initialPopulation: 35,
+      currentPopulation: 35,
+      resourceNeeds: { food: 6, water: 4, shelter: 9 },
+      predators: ["fox", "wolf", "eagle", "owl"],
+      prey: ["nut", "seed"]
     },
     {
       id: "eagle",
@@ -194,11 +242,23 @@ const EcosystemGame = () => {
       type: "bird",
       icon: <Bird size={24} />,
       color: "#854d0e",
-      initialPopulation: 8,
-      currentPopulation: 8,
-      resourceNeeds: { food: 6, water: 3, shelter: 7 },
+      initialPopulation: 10,
+      currentPopulation: 10,
+      resourceNeeds: { food: 13, water: 7, shelter: 14 },
       predators: [],
-      prey: ["rabbit", "mouse", "butterfly"]
+      prey: ["rabbit", "mouse", "butterfly", "squirrel", "fish"]
+    },
+    {
+      id: "owl",
+      name: "Owl",
+      type: "bird",
+      icon: <Bird size={22} />,
+      color: "#7c6f64",
+      initialPopulation: 12,
+      currentPopulation: 12,
+      resourceNeeds: { food: 9, water: 6, shelter: 11 },
+      predators: [],
+      prey: ["mouse", "butterfly", "moth", "frog", "squirrel"]
     },
     {
       id: "sparrow",
@@ -206,11 +266,23 @@ const EcosystemGame = () => {
       type: "bird",
       icon: <Bird size={18} />,
       color: "#7f6e56",
-      initialPopulation: 25,
-      currentPopulation: 25,
-      resourceNeeds: { food: 2, water: 1, shelter: 3 },
-      predators: ["eagle"],
-      prey: ["ant", "butterfly"]
+      initialPopulation: 45,
+      currentPopulation: 45,
+      resourceNeeds: { food: 4, water: 3, shelter: 6 },
+      predators: ["eagle", "owl"],
+      prey: ["ant", "butterfly", "moth", "seed"]
+    },
+    {
+      id: "raven",
+      name: "Raven",
+      type: "bird",
+      icon: <Bird size={20} />,
+      color: "#1e293b",
+      initialPopulation: 20,
+      currentPopulation: 20,
+      resourceNeeds: { food: 7, water: 5, shelter: 8 },
+      predators: [],
+      prey: ["insect", "frog", "seed", "moth"]
     },
     {
       id: "butterfly",
@@ -218,11 +290,35 @@ const EcosystemGame = () => {
       type: "insect",
       icon: <Bug size={18} />,
       color: "#c084fc",
-      initialPopulation: 40,
-      currentPopulation: 40,
-      resourceNeeds: { food: 1, water: 1, shelter: 1 },
-      predators: ["sparrow", "eagle"],
-      prey: ["flower"]
+      initialPopulation: 70,
+      currentPopulation: 70,
+      resourceNeeds: { food: 2, water: 2, shelter: 3 },
+      predators: ["sparrow", "eagle", "bird", "frog"],
+      prey: ["flower", "nectar"]
+    },
+    {
+      id: "moth",
+      name: "Moth",
+      type: "insect",
+      icon: <Bug size={18} />,
+      color: "#a1a1aa",
+      initialPopulation: 65,
+      currentPopulation: 65,
+      resourceNeeds: { food: 2, water: 2, shelter: 3 },
+      predators: ["sparrow", "owl", "raven", "frog"],
+      prey: ["flower", "nectar"]
+    },
+    {
+      id: "bee",
+      name: "Bee",
+      type: "insect",
+      icon: <Bug size={16} />,
+      color: "#fbbf24",
+      initialPopulation: 80,
+      currentPopulation: 80,
+      resourceNeeds: { food: 3, water: 2, shelter: 4 },
+      predators: ["bird"],
+      prey: ["flower", "nectar"]
     },
     {
       id: "ant",
@@ -230,11 +326,59 @@ const EcosystemGame = () => {
       type: "insect",
       icon: <Bug size={16} />,
       color: "#525252",
+      initialPopulation: 100,
+      currentPopulation: 100,
+      resourceNeeds: { food: 2, water: 1, shelter: 3 },
+      predators: ["sparrow", "frog"],
+      prey: ["grass", "flower", "seed", "insect"]
+    },
+    {
+      id: "snake",
+      name: "Snake",
+      type: "reptile",
+      icon: <Cat size={22} />,
+      color: "#4b5320",
+      initialPopulation: 18,
+      currentPopulation: 18,
+      resourceNeeds: { food: 8, water: 6, shelter: 9 },
+      predators: ["eagle", "bear"],
+      prey: ["mouse", "rabbit", "frog"]
+    },
+    {
+      id: "turtle",
+      name: "Turtle",
+      type: "reptile",
+      icon: <Cat size={20} />,
+      color: "#3f704d",
+      initialPopulation: 15,
+      currentPopulation: 15,
+      resourceNeeds: { food: 5, water: 8, shelter: 7 },
+      predators: ["bear"],
+      prey: ["insect", "plant"]
+    },
+    {
+      id: "fish",
+      name: "Fish",
+      type: "animal",
+      icon: <Fish size={20} />,
+      color: "#0ea5e9",
+      initialPopulation: 75,
+      currentPopulation: 75,
+      resourceNeeds: { food: 4, water: 15, shelter: 6 },
+      predators: ["bear", "eagle"],
+      prey: ["insect", "plankton"]
+    },
+    {
+      id: "frog",
+      name: "Frog",
+      type: "amphibian",
+      icon: <Cat size={18} />,
+      color: "#4ade80",
       initialPopulation: 50,
       currentPopulation: 50,
-      resourceNeeds: { food: 1, water: 1, shelter: 1 },
-      predators: ["sparrow"],
-      prey: ["grass", "flower"]
+      resourceNeeds: { food: 5, water: 12, shelter: 7 },
+      predators: ["snake", "bird", "fox"],
+      prey: ["insect", "butterfly", "ant"]
     }
   ]);
 
@@ -455,7 +599,7 @@ const EcosystemGame = () => {
               </div>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
               {ecosystemEntities.map(entity => (
                 <Card key={entity.id} className="overflow-hidden border-l-4" style={{ borderLeftColor: entity.color }}>
                   <CardContent className="p-4">
@@ -546,7 +690,7 @@ const EcosystemGame = () => {
             <div className="mt-4 p-4 bg-blue-50 rounded-lg">
               <h3 className="text-lg font-semibold text-blue-800 mb-2">Ecosystem Preview</h3>
               <p className="text-sm text-gray-600">
-                This visualization shows your ecosystem. Each creature is represented by its icon.
+                This visualization shows your ecosystem with 20 different species. Each creature is represented by its icon.
                 The number of creatures shown represents their current population.
               </p>
             </div>
