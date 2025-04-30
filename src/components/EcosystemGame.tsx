@@ -6,7 +6,7 @@ import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Bird, Bug, Cat, Fish, TreeDeciduous, Droplet, Sun, RabbitIcon, DeerIcon, FoxIcon, MouseIcon, OwlIcon, RavenIcon, ButterflyIcon, BeeIcon, SnakeIcon, BearIcon, SquirrelIcon, TurtleIcon } from "lucide-react";
+import { Bird, Bug, Cat, Fish, TreeDeciduous, Droplet, Sun, Rabbit } from "lucide-react";
 
 // Ecosystem entities and their relationships
 interface EcosystemEntity {
@@ -146,9 +146,9 @@ const EcosystemGame = () => {
   const [gameFinished, setGameFinished] = useState(false);
   const [score, setScore] = useState(0);
   const [resources, setResources] = useState({
-    food: 250,
-    water: 250,
-    shelter: 250
+    food: 100,
+    water: 100,
+    shelter: 100
   });
   const [allocations, setAllocations] = useState<Record<string, { food: number; water: number; shelter: number }>>({});
   const [ecosystemEntities, setEcosystemEntities] = useState<EcosystemEntity[]>([
@@ -192,7 +192,7 @@ const EcosystemGame = () => {
       id: "rabbit",
       name: "Rabbit",
       type: "animal",
-      icon: <Cat size={20} />,
+      icon: <Rabbit size={20} />,
       color: "#a8a29e",
       initialPopulation: 40,
       currentPopulation: 40,
@@ -395,13 +395,24 @@ const EcosystemGame = () => {
 
   // Update allocation for a specific entity and resource
   const updateAllocation = (entityId: string, resourceType: 'food' | 'water' | 'shelter', value: number) => {
+    // Calculate how much of this resource is already allocated to other entities
+    const totalAllocated = Object.entries(allocations)
+      .filter(([id]) => id !== entityId)
+      .reduce((sum, [_, allocation]) => sum + allocation[resourceType], 0);
+    
+    // Calculate how much is available for this entity
+    const availableForThisEntity = resources[resourceType] - totalAllocated;
+    
+    // Ensure we don't exceed available resources
+    const newValue = Math.min(value, availableForThisEntity);
+    
     setAllocations(prev => {
       const entityAllocation = prev[entityId] || { food: 0, water: 0, shelter: 0 };
       return {
         ...prev,
         [entityId]: {
           ...entityAllocation,
-          [resourceType]: value
+          [resourceType]: newValue
         }
       };
     });
@@ -430,8 +441,47 @@ const EcosystemGame = () => {
 
   const remainingResources = calculateRemainingResources();
 
+  // Check if resources are overallocated
+  const checkResourceAllocation = () => {
+    const used = {
+      food: 0,
+      water: 0,
+      shelter: 0
+    };
+
+    Object.values(allocations).forEach(allocation => {
+      used.food += allocation.food;
+      used.water += allocation.water;
+      used.shelter += allocation.shelter;
+    });
+
+    const overallocated = {
+      food: used.food > resources.food,
+      water: used.water > resources.water,
+      shelter: used.shelter > resources.shelter
+    };
+
+    if (overallocated.food || overallocated.water || overallocated.shelter) {
+      let message = "You've allocated too many resources: ";
+      if (overallocated.food) message += "Food, ";
+      if (overallocated.water) message += "Water, ";
+      if (overallocated.shelter) message += "Shelter, ";
+      message = message.slice(0, -2) + ". Please reduce allocation before running the simulation.";
+      
+      toast.error(message);
+      return false;
+    }
+    
+    return true;
+  };
+
   // Run the simulation and calculate the score
   const runSimulation = () => {
+    // First check if resources are properly allocated
+    if (!checkResourceAllocation()) {
+      return;
+    }
+    
     // Clone entities for simulation
     const simulatedEntities = [...ecosystemEntities];
     
@@ -600,78 +650,103 @@ const EcosystemGame = () => {
             </div>
             
             <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
-              {ecosystemEntities.map(entity => (
-                <Card key={entity.id} className="overflow-hidden border-l-4" style={{ borderLeftColor: entity.color }}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-full" style={{ backgroundColor: `${entity.color}30` }}>
-                        {entity.icon}
-                      </div>
-                      <div>
-                        <h4 className="font-bold">{entity.name}</h4>
-                        <div className="text-xs text-gray-500 flex gap-2">
-                          <span>Type: {entity.type}</span>
-                          <span>Population: {entity.initialPopulation}</span>
+              {ecosystemEntities.map(entity => {
+                // Calculate max values for sliders based on remaining resources plus current allocation
+                const entityAllocation = allocations[entity.id] || { food: 0, water: 0, shelter: 0 };
+                const maxValues = {
+                  food: remainingResources.food + entityAllocation.food,
+                  water: remainingResources.water + entityAllocation.water,
+                  shelter: remainingResources.shelter + entityAllocation.shelter
+                };
+
+                return (
+                  <Card key={entity.id} className="overflow-hidden border-l-4" style={{ borderLeftColor: entity.color }}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 rounded-full" style={{ backgroundColor: `${entity.color}30` }}>
+                          {entity.icon}
+                        </div>
+                        <div>
+                          <h4 className="font-bold">{entity.name}</h4>
+                          <div className="text-xs text-gray-500 flex gap-2">
+                            <span>Type: {entity.type}</span>
+                            <span>Population: {entity.initialPopulation}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs">Food ({allocations[entity.id]?.food || 0}/{entity.resourceNeeds.food} needed)</span>
+                      
+                      <div className="space-y-3">
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-xs">Food ({entityAllocation.food || 0}/{entity.resourceNeeds.food} needed)</span>
+                            {maxValues.food < entity.resourceNeeds.food && (
+                              <span className="text-xs text-red-500">
+                                Not enough resources left!
+                              </span>
+                            )}
+                          </div>
+                          <Slider 
+                            value={[entityAllocation.food || 0]}
+                            min={0}
+                            max={Math.min(25, maxValues.food)}
+                            step={1}
+                            onValueChange={(value) => updateAllocation(entity.id, "food", value[0])}
+                            className="py-1"
+                          />
                         </div>
-                        <Slider 
-                          value={[allocations[entity.id]?.food || 0]}
-                          min={0}
-                          max={25}
-                          step={1}
-                          onValueChange={(value) => updateAllocation(entity.id, "food", value[0])}
-                          className="py-1"
-                        />
-                      </div>
-                      <div>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs">Water ({allocations[entity.id]?.water || 0}/{entity.resourceNeeds.water} needed)</span>
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-xs">Water ({entityAllocation.water || 0}/{entity.resourceNeeds.water} needed)</span>
+                            {maxValues.water < entity.resourceNeeds.water && (
+                              <span className="text-xs text-red-500">
+                                Not enough resources left!
+                              </span>
+                            )}
+                          </div>
+                          <Slider 
+                            value={[entityAllocation.water || 0]}
+                            min={0}
+                            max={Math.min(25, maxValues.water)}
+                            step={1}
+                            onValueChange={(value) => updateAllocation(entity.id, "water", value[0])}
+                            className="py-1"
+                          />
                         </div>
-                        <Slider 
-                          value={[allocations[entity.id]?.water || 0]}
-                          min={0}
-                          max={25}
-                          step={1}
-                          onValueChange={(value) => updateAllocation(entity.id, "water", value[0])}
-                          className="py-1"
-                        />
-                      </div>
-                      <div>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs">Shelter ({allocations[entity.id]?.shelter || 0}/{entity.resourceNeeds.shelter} needed)</span>
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-xs">Shelter ({entityAllocation.shelter || 0}/{entity.resourceNeeds.shelter} needed)</span>
+                            {maxValues.shelter < entity.resourceNeeds.shelter && (
+                              <span className="text-xs text-red-500">
+                                Not enough resources left!
+                              </span>
+                            )}
+                          </div>
+                          <Slider 
+                            value={[entityAllocation.shelter || 0]}
+                            min={0}
+                            max={Math.min(25, maxValues.shelter)}
+                            step={1}
+                            onValueChange={(value) => updateAllocation(entity.id, "shelter", value[0])}
+                            className="py-1"
+                          />
                         </div>
-                        <Slider 
-                          value={[allocations[entity.id]?.shelter || 0]}
-                          min={0}
-                          max={25}
-                          step={1}
-                          onValueChange={(value) => updateAllocation(entity.id, "shelter", value[0])}
-                          className="py-1"
-                        />
                       </div>
-                    </div>
-                    
-                    {entity.predators.length > 0 && (
-                      <div className="mt-2">
-                        <span className="text-xs text-red-500">Predators: {entity.predators.join(", ")}</span>
-                      </div>
-                    )}
-                    
-                    {entity.prey.length > 0 && (
-                      <div className="mt-1">
-                        <span className="text-xs text-green-500">Eats: {entity.prey.join(", ")}</span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+                      
+                      {entity.predators.length > 0 && (
+                        <div className="mt-2">
+                          <span className="text-xs text-red-500">Predators: {entity.predators.join(", ")}</span>
+                        </div>
+                      )}
+                      
+                      {entity.prey.length > 0 && (
+                        <div className="mt-1">
+                          <span className="text-xs text-green-500">Eats: {entity.prey.join(", ")}</span>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
             
             <div className="mt-6">
