@@ -35,7 +35,7 @@ const App = () => (
         <div className="flex flex-col min-h-screen">
           <Navbar />
           <ScrollToTop />
-          <div className="flex-1">
+          <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/maths" element={<MentalMathsGame />} />
@@ -46,7 +46,7 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </div>
+          </main>
           <Footer />
         </div>
         <Toaster />

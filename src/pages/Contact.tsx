@@ -27,20 +27,20 @@ const Contact = () => {
   };
   
   return (
-    <div className="bg-gradient-to-br from-purple-100 via-pink-100 to-indigo-100 pb-0">
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12 pt-4">
-          <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 mb-4 pb-1">
+    <div className="bg-gradient-to-br from-purple-100 via-pink-100 to-indigo-100">
+      <div className="container mx-auto px-4 py-10 md:py-16">
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 mb-4 pb-1">
             Contact Us
           </h1>
-          <p className="text-slate-600 max-w-2xl mx-auto">
+          <p className="text-slate-600 max-w-2xl mx-auto px-4 md:px-0">
             Have questions or feedback? We'd love to hear from you!
           </p>
         </div>
         
-        <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-8 mb-16">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 md:p-8 mb-8 md:mb-16">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
                 <label htmlFor="name" className="text-sm font-medium">Name</label>
                 <Input id="name" placeholder="Your name" required />
@@ -62,7 +62,7 @@ const Contact = () => {
               <Textarea 
                 id="message" 
                 placeholder="Your message..." 
-                className="min-h-[150px]"
+                className="min-h-[120px] md:min-h-[150px]"
                 required 
               />
             </div>

@@ -13,17 +13,23 @@ const Navbar = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const navLinks = [
+    { name: "Home", path: "/" },
+    { name: "Contact", path: "/contact" },
+    { name: "FAQ", path: "/faq" },
+  ];
+
   return (
     <nav className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white shadow-lg sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-3">
+          <Link to="/" className="flex items-center space-x-2">
             <img 
               src="/lovable-uploads/471e55df-9e2d-4051-b312-93edbd1dc0f0.png" 
               alt="Mathify Logo" 
-              className="h-10 w-10"
+              className="h-8 w-8 md:h-10 md:w-10"
             />
-            <span className="font-bold text-2xl tracking-tight">Mathify</span>
+            <span className="font-bold text-xl md:text-2xl tracking-tight">Mathify</span>
           </Link>
 
           {/* Mobile menu button */}
@@ -40,7 +46,16 @@ const Navbar = () => {
 
           {/* Desktop menu */}
           {!isMobile && (
-            <div className="flex items-center">
+            <div className="flex items-center space-x-4">
+              {navLinks.map((link) => (
+                <Link 
+                  key={link.path}
+                  to={link.path} 
+                  className="text-white hover:text-white/80 px-3 py-2"
+                >
+                  {link.name}
+                </Link>
+              ))}
               <Button className="bg-white text-purple-600 hover:bg-white/90">Sign Up</Button>
             </div>
           )}
@@ -49,6 +64,16 @@ const Navbar = () => {
         {/* Mobile menu */}
         {isMobile && isMenuOpen && (
           <div className="mt-4 pb-4 space-y-3 animate-fade-in">
+            {navLinks.map((link) => (
+              <Link 
+                key={link.path}
+                to={link.path}
+                className="block text-white hover:bg-white/10 px-3 py-2 rounded-md"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {link.name}
+              </Link>
+            ))}
             <Button 
               className="w-full bg-white text-purple-600 hover:bg-white/90"
               onClick={() => setIsMenuOpen(false)}

@@ -1,7 +1,10 @@
 
 import React from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Hero = () => {
+  const isMobile = useIsMobile();
+  
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 py-12 md:py-24">
       {/* Decorative math symbols */}
@@ -16,23 +19,22 @@ const Hero = () => {
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col md:flex-row items-center justify-center">
-          <div className="md:w-1/2 text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-              Fun and interactive ways to learn Mathematics.
-              <span className="block mt-2 whitespace-nowrap">Free and Open-Source.</span>
+          <div className={`md:w-1/2 text-center ${isMobile ? "mb-8" : ""}`}>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
+              Fun and interactive ways to<br className="hidden sm:block" /> learn Mathematics.
+              <span className="block mt-2 whitespace-normal">Free and Open-Source.</span>
             </h1>
-            <p className="text-white/90 text-lg md:text-xl mb-8 max-w-xl mx-auto">
+            <p className="text-white/90 text-base md:text-xl mb-8 max-w-xl mx-auto px-4 md:px-0">
               Mathify makes learning math fun and engaging with games designed for all ages and skill levels.
             </p>
           </div>
           
-          <div className="md:w-1/2 mt-6 md:mt-0 flex justify-center items-center md:justify-end">
-            <div className="relative w-72 h-72 md:w-96 md:h-96 -mt-4 -ml-4 md:ml-0">
+          <div className="md:w-1/2 flex justify-center items-center">
+            <div className="relative w-60 h-60 md:w-96 md:h-96 -mt-2 -ml-0 md:-mt-6 md:-ml-8">
               <img 
                 src="/lovable-uploads/471e55df-9e2d-4051-b312-93edbd1dc0f0.png" 
                 alt="Mathify Logo" 
                 className="w-full h-full object-contain"
-                style={{ transform: "translateY(-10px)" }}
               />
               <div className="absolute -inset-4 bg-white/30 rounded-full blur-3xl -z-10"></div>
             </div>

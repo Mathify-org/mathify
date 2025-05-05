@@ -1,9 +1,11 @@
+
 import React from "react";
 import Hero from "@/components/Hero";
 import GradeLevel from "@/components/GradeLevel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const gradeLevels = [
   {
@@ -153,71 +155,73 @@ const generalSkills = [
 ];
 
 const Index = () => {
+  const isMobile = useIsMobile();
+  
   return (
     <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Hero />
       
-      <section className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
+      <section className="container mx-auto px-4 py-12 md:py-16">
+        <div className="text-center mb-8 md:mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Features That Make Learning Fun</h2>
-          <p className="text-slate-600 max-w-2xl mx-auto text-lg md:text-xl">
+          <p className="text-slate-600 max-w-2xl mx-auto text-lg md:text-xl px-2">
             Discover why Mathify is the perfect platform for learners of all ages to improve their math skills.
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-gradient-to-br from-purple-100 to-indigo-100 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
-            <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-indigo-500 rounded-2xl flex items-center justify-center mb-6 text-white font-bold text-3xl shadow-md">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          <div className="bg-gradient-to-br from-purple-100 to-indigo-100 p-6 md:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-r from-purple-600 to-indigo-500 rounded-2xl flex items-center justify-center mb-4 md:mb-6 text-white font-bold text-2xl md:text-3xl shadow-md">
               1
             </div>
-            <h3 className="text-2xl font-bold mb-3">Adaptive Learning</h3>
-            <p className="text-slate-700 text-lg">
+            <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-3">Adaptive Learning</h3>
+            <p className="text-slate-700 text-base md:text-lg">
               Games adjust to your skill level, making learning both challenging and enjoyable.
             </p>
           </div>
           
-          <div className="bg-gradient-to-br from-pink-100 to-rose-100 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
-            <div className="w-20 h-20 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl flex items-center justify-center mb-6 text-white font-bold text-3xl shadow-md">
+          <div className="bg-gradient-to-br from-pink-100 to-rose-100 p-6 md:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl flex items-center justify-center mb-4 md:mb-6 text-white font-bold text-2xl md:text-3xl shadow-md">
               2
             </div>
-            <h3 className="text-2xl font-bold mb-3">Progress Tracking</h3>
-            <p className="text-slate-700 text-lg">
+            <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-3">Progress Tracking</h3>
+            <p className="text-slate-700 text-base md:text-lg">
               Monitor improvement over time with detailed statistics and achievement badges.
             </p>
           </div>
           
-          <div className="bg-gradient-to-br from-amber-100 to-orange-100 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
-            <div className="w-20 h-20 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center mb-6 text-white font-bold text-3xl shadow-md">
+          <div className="bg-gradient-to-br from-amber-100 to-orange-100 p-6 md:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center mb-4 md:mb-6 text-white font-bold text-2xl md:text-3xl shadow-md">
               3
             </div>
-            <h3 className="text-2xl font-bold mb-3">Reward System</h3>
-            <p className="text-slate-700 text-lg">
+            <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-3">Reward System</h3>
+            <p className="text-slate-700 text-base md:text-lg">
               Earn points, unlock new levels, and compete with friends to stay motivated.
             </p>
           </div>
         </div>
       </section>
       
-      <section id="grade-levels" className="py-16 bg-gradient-to-b from-blue-50 to-purple-50">
+      <section id="grade-levels" className="py-12 md:py-16 bg-gradient-to-b from-blue-50 to-purple-50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 md:mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Math Games By Grade Level</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">
+            <p className="text-slate-600 max-w-2xl mx-auto px-2">
               Explore age-appropriate math games designed specifically for different educational stages.
             </p>
           </div>
           
           <Tabs defaultValue="all" className="w-full">
-            <div className="flex justify-center mb-8">
+            <div className="flex justify-center mb-6 md:mb-8 overflow-x-auto pb-2">
               <TabsList className="bg-white/70">
-                <TabsTrigger value="all" className="px-6">All Levels</TabsTrigger>
-                <TabsTrigger value="elementary" className="px-6">Elementary</TabsTrigger>
-                <TabsTrigger value="middle" className="px-6">Middle School</TabsTrigger>
-                <TabsTrigger value="high" className="px-6">High School</TabsTrigger>
+                <TabsTrigger value="all" className={`px-3 md:px-6 text-sm md:text-base`}>All Levels</TabsTrigger>
+                <TabsTrigger value="elementary" className={`px-3 md:px-6 text-sm md:text-base`}>Elementary</TabsTrigger>
+                <TabsTrigger value="middle" className={`px-3 md:px-6 text-sm md:text-base`}>Middle School</TabsTrigger>
+                <TabsTrigger value="high" className={`px-3 md:px-6 text-sm md:text-base`}>High School</TabsTrigger>
               </TabsList>
             </div>
             
-            <TabsContent value="all" className="space-y-8 animate-fade-in">
+            <TabsContent value="all" className="space-y-6 md:space-y-8 animate-fade-in">
               {gradeLevels.map((level) => (
                 <GradeLevel
                   key={level.id}
@@ -245,28 +249,29 @@ const Index = () => {
         </div>
       </section>
       
-      <section id="general-skills" className="py-16 bg-gradient-to-b from-purple-50 to-pink-50">
+      <section id="general-skills" className="py-12 md:py-16 bg-gradient-to-b from-purple-50 to-pink-50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 md:mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">General Skills Games</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto text-xl md:text-2xl mb-2">
+            <p className="text-slate-600 max-w-2xl mx-auto text-xl md:text-2xl mb-4 px-2">
               Improve core mathematical abilities that are essential across all grade levels.
             </p>
+            <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mb-8 rounded-full"></div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {generalSkills.map((skill) => (
               <Card key={skill.id} className="overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1 border-0">
-                <div className={`h-4 ${skill.color}`}></div>
-                <CardContent className="p-6 bg-white">
-                  <h3 className="font-bold text-xl md:text-2xl mb-3">{skill.title}</h3>
-                  <p className="text-slate-600 mb-5 text-lg">{skill.description}</p>
+                <div className={`h-3 md:h-4 ${skill.color}`}></div>
+                <CardContent className="p-4 md:p-6 bg-white">
+                  <h3 className="font-bold text-xl md:text-2xl mb-2 md:mb-3">{skill.title}</h3>
+                  <p className="text-slate-600 mb-4 md:mb-5 text-base md:text-lg">{skill.description}</p>
                   <Link 
                     to={skill.path} 
-                    className="inline-flex items-center text-purple-600 font-medium text-lg hover:text-purple-800 hover:underline"
+                    className={`inline-flex items-center px-4 py-2 rounded-lg ${skill.color} text-white font-medium hover:opacity-90 transition-opacity`}
                   >
                     Play Now
-                    <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                   </Link>
@@ -277,10 +282,10 @@ const Index = () => {
         </div>
       </section>
       
-      <section className="py-16 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white">
+      <section className="py-12 md:py-16 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Make Math Fun?</h2>
-          <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 md:mb-6">Ready to Make Math Fun?</h2>
+          <p className="text-lg md:text-xl opacity-90 mb-6 md:mb-8 max-w-2xl mx-auto">
             Join thousands of students who are already improving their math skills through interactive games.
           </p>
         </div>

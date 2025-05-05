@@ -28,17 +28,17 @@ const Footer = () => {
   };
   
   return (
-    <footer className="bg-slate-900 text-white py-12 mt-16">
+    <footer className="bg-slate-900 text-white py-8 md:py-12">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
-            <div className="flex items-center space-x-3 mb-4">
+            <div className="flex items-center space-x-2 md:space-x-3 mb-4">
               <img 
                 src="/lovable-uploads/471e55df-9e2d-4051-b312-93edbd1dc0f0.png" 
                 alt="Mathify Logo" 
-                className="h-10 w-10"
+                className="h-8 w-8 md:h-10 md:w-10"
               />
-              <span className="font-bold text-2xl">Mathify</span>
+              <span className="font-bold text-xl md:text-2xl">Mathify</span>
             </div>
             <p className="text-slate-300 text-sm">
               Helping individuals of all ages learn mathematics through interactive games.
