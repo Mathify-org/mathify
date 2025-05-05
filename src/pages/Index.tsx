@@ -1,9 +1,9 @@
-
 import React from "react";
 import Hero from "@/components/Hero";
 import GradeLevel from "@/components/GradeLevel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "react-router-dom";
 
 const gradeLevels = [
   {
@@ -154,7 +154,7 @@ const generalSkills = [
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Hero />
       
       <section className="container mx-auto px-4 py-16">
@@ -198,7 +198,7 @@ const Index = () => {
         </div>
       </section>
       
-      <section id="grade-levels" className="py-16 bg-gradient-to-b from-white to-slate-100">
+      <section id="grade-levels" className="py-16 bg-gradient-to-b from-blue-50 to-purple-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Math Games By Grade Level</h2>
@@ -209,7 +209,7 @@ const Index = () => {
           
           <Tabs defaultValue="all" className="w-full">
             <div className="flex justify-center mb-8">
-              <TabsList className="bg-slate-100">
+              <TabsList className="bg-white/70">
                 <TabsTrigger value="all" className="px-6">All Levels</TabsTrigger>
                 <TabsTrigger value="elementary" className="px-6">Elementary</TabsTrigger>
                 <TabsTrigger value="middle" className="px-6">Middle School</TabsTrigger>
@@ -245,7 +245,7 @@ const Index = () => {
         </div>
       </section>
       
-      <section id="general-skills" className="py-16 bg-white">
+      <section id="general-skills" className="py-16 bg-gradient-to-b from-purple-50 to-pink-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">General Skills Games</h2>
@@ -256,20 +256,20 @@ const Index = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {generalSkills.map((skill) => (
-              <Card key={skill.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <Card key={skill.id} className="overflow-hidden hover:shadow-lg transition-shadow border-0">
                 <div className={`h-3 ${skill.color}`}></div>
                 <CardContent className="p-6">
                   <h3 className="font-bold text-xl mb-2">{skill.title}</h3>
                   <p className="text-slate-600 mb-4">{skill.description}</p>
-                  <a 
-                    href={skill.path} 
+                  <Link 
+                    to={skill.path} 
                     className="inline-flex items-center text-purple-600 font-medium hover:text-purple-800"
                   >
                     Play Now
                     <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
                     </svg>
-                  </a>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
@@ -283,9 +283,6 @@ const Index = () => {
           <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
             Join thousands of students who are already improving their math skills through interactive games.
           </p>
-          <button className="bg-white text-purple-600 hover:bg-white/90 px-8 py-3 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all">
-            Start Playing Now
-          </button>
         </div>
       </section>
     </div>
