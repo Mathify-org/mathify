@@ -3,8 +3,8 @@ import React from "react";
 
 const FAQ = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex flex-col">
-      <div className="container mx-auto px-4 py-16 flex-grow">
+    <div className="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 pb-0">
+      <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-12 pt-4">
           <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 mb-4 pb-1">
             Frequently Asked Questions
@@ -14,7 +14,7 @@ const FAQ = () => {
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto space-y-6">
+        <div className="max-w-3xl mx-auto space-y-6 mb-16">
           <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
             <h3 className="text-xl font-bold text-purple-700 mb-2">What is Mathify?</h3>
             <p className="text-slate-600">

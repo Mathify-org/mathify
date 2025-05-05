@@ -18,7 +18,8 @@ const Hero = () => {
         <div className="flex flex-col md:flex-row items-center justify-center">
           <div className="md:w-1/2 text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-              Fun and interactive ways to learn Mathematics.<br />Free and Open-Source.
+              Fun and interactive ways to learn Mathematics.<br />
+              <span className="inline-block whitespace-nowrap">Free and Open-Source.</span>
             </h1>
             <p className="text-white/90 text-lg md:text-xl mb-8 max-w-xl mx-auto">
               Mathify makes learning math fun and engaging with games designed for all ages and skill levels.
@@ -26,12 +27,12 @@ const Hero = () => {
           </div>
           
           <div className="md:w-1/2 mt-8 md:mt-0 flex justify-center items-center md:justify-end">
-            <div className="relative w-64 h-64 md:w-80 md:h-80">
+            <div className="relative w-72 h-72 md:w-96 md:h-96 -ml-6 md:ml-0">
               <img 
                 src="/lovable-uploads/471e55df-9e2d-4051-b312-93edbd1dc0f0.png" 
                 alt="Mathify Logo" 
                 className="w-full h-full object-contain"
-                style={{ transform: "translateY(10px)" }}
+                style={{ transform: "translateY(0)" }}
               />
               <div className="absolute -inset-4 bg-white/30 rounded-full blur-3xl -z-10"></div>
             </div>

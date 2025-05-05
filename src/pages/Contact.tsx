@@ -27,8 +27,8 @@ const Contact = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-100 to-indigo-100 flex flex-col">
-      <div className="container mx-auto px-4 py-16 flex-grow">
+    <div className="bg-gradient-to-br from-purple-100 via-pink-100 to-indigo-100 pb-0">
+      <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-12 pt-4">
           <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 mb-4 pb-1">
             Contact Us
@@ -38,7 +38,7 @@ const Contact = () => {
           </p>
         </div>
         
-        <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-8">
+        <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-8 mb-16">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
