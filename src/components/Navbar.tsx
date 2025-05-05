@@ -40,10 +40,7 @@ const Navbar = () => {
 
           {/* Desktop menu */}
           {!isMobile && (
-            <div className="flex items-center space-x-6">
-              <Link to="/" className="text-white hover:text-white/80 font-medium">Home</Link>
-              <Link to="#grade-levels" className="text-white hover:text-white/80 font-medium">Grade Levels</Link>
-              <Link to="#general-skills" className="text-white hover:text-white/80 font-medium">General Skills</Link>
+            <div className="flex items-center">
               <Button className="bg-white text-purple-600 hover:bg-white/90">Sign Up</Button>
             </div>
           )}
@@ -52,28 +49,12 @@ const Navbar = () => {
         {/* Mobile menu */}
         {isMobile && isMenuOpen && (
           <div className="mt-4 pb-4 space-y-3 animate-fade-in">
-            <Link 
-              to="/" 
-              className="block py-2 px-4 text-center rounded-md bg-white/10 hover:bg-white/20"
+            <Button 
+              className="w-full bg-white text-purple-600 hover:bg-white/90"
               onClick={() => setIsMenuOpen(false)}
             >
-              Home
-            </Link>
-            <Link 
-              to="#grade-levels" 
-              className="block py-2 px-4 text-center rounded-md bg-white/10 hover:bg-white/20"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Grade Levels
-            </Link>
-            <Link 
-              to="#general-skills" 
-              className="block py-2 px-4 text-center rounded-md bg-white/10 hover:bg-white/20"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              General Skills
-            </Link>
-            <Button className="w-full bg-white text-purple-600 hover:bg-white/90">Sign Up</Button>
+              Sign Up
+            </Button>
           </div>
         )}
       </div>

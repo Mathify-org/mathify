@@ -1,3 +1,4 @@
+
 import React from "react";
 import Hero from "@/components/Hero";
 import GradeLevel from "@/components/GradeLevel";
@@ -154,7 +155,7 @@ const generalSkills = [
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Hero />
       
       <section className="container mx-auto px-4 py-16">

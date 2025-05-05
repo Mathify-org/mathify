@@ -15,17 +15,17 @@ const Hero = () => {
       </div>
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col md:flex-row items-center">
-          <div className="md:w-1/2 text-center md:text-left">
+        <div className="flex flex-col md:flex-row items-center justify-center">
+          <div className="md:w-1/2 text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-              Learn Mathematics Through Interactive Games
+              Fun and interactive ways to learn Mathematics. Free and Open-Source.
             </h1>
-            <p className="text-white/90 text-lg md:text-xl mb-8 max-w-xl mx-auto md:mx-0">
+            <p className="text-white/90 text-lg md:text-xl mb-8 max-w-xl mx-auto">
               Mathify makes learning math fun and engaging with games designed for all ages and skill levels.
             </p>
           </div>
           
-          <div className="md:w-1/2 mt-8 md:mt-12 flex justify-center">
+          <div className="md:w-1/2 mt-8 md:mt-0 flex justify-center md:justify-end">
             <div className="relative w-64 h-64 md:w-80 md:h-80">
               <img 
                 src="/lovable-uploads/471e55df-9e2d-4051-b312-93edbd1dc0f0.png" 
