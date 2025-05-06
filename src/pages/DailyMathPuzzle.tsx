@@ -22,42 +22,42 @@ const MAX_HINTS = 2;
 const MAX_EQUATION_LENGTH = 9; // Increased to allow for more alternating numbers/operations
 const STORAGE_KEY = "mathify_daily_puzzle";
 
+// Default initial state to prevent undefined errors
+const defaultGameState: GameState = {
+  guesses: [],
+  currentGuess: {
+    values: Array(MAX_EQUATION_LENGTH).fill(null),
+    operations: Array(MAX_EQUATION_LENGTH - 1).fill(null)
+  },
+  dailyPuzzle: {
+    availableNumbers: [],
+    availableOperations: [],
+    solution: {
+      values: [],
+      operations: []
+    },
+    target: 0,
+  },
+  maxGuesses: MAX_GUESSES,
+  gameStatus: "playing" as GameStatusType,
+  streak: 0,
+  hintsUsed: 0,
+  maxHints: MAX_HINTS,
+  lastPlayedDate: null,
+};
+
 const DailyMathPuzzle: React.FC = () => {
   const { toast } = useToast();
-  const [gameState, setGameState] = useState<GameState>({
-    guesses: [],
-    currentGuess: {
-      values: Array(MAX_EQUATION_LENGTH).fill(null),
-      operations: Array(MAX_EQUATION_LENGTH - 1).fill(null)
-    },
-    dailyPuzzle: {
-      availableNumbers: [],
-      availableOperations: [],
-      solution: {
-        values: [],
-        operations: []
-      },
-      target: 0,
-    },
-    maxGuesses: MAX_GUESSES,
-    gameStatus: "playing" as GameStatusType,
-    streak: 0,
-    hintsUsed: 0,
-    maxHints: MAX_HINTS,
-    lastPlayedDate: null,
-  });
+  const [gameState, setGameState] = useState<GameState>(defaultGameState);
 
   const [showRules, setShowRules] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [revealedHint, setRevealedHint] = useState<NumberType | OperationType | null>(null);
   const [revealedHintIsOp, setRevealedHintIsOp] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Load game state from localStorage and initialize
   useEffect(() => {
-    initializeGame();
-  }, []);
-
-  const initializeGame = () => {
     try {
       // Get today's date as a string
       const today = new Date().toDateString();
@@ -65,12 +65,17 @@ const DailyMathPuzzle: React.FC = () => {
       // Try to load saved game state
       const savedState = localStorage.getItem(STORAGE_KEY);
       if (savedState) {
-        const parsedState = JSON.parse(savedState) as GameState;
-        
-        // Check if this is from today
-        if (parsedState.lastPlayedDate === today) {
-          setGameState(parsedState);
-          return;
+        try {
+          const parsedState = JSON.parse(savedState) as GameState;
+          
+          // Check if this is from today
+          if (parsedState.lastPlayedDate === today) {
+            setGameState(parsedState);
+            setIsInitialized(true);
+            return;
+          }
+        } catch (error) {
+          console.error("Error parsing saved game state:", error);
         }
       }
       
@@ -92,6 +97,7 @@ const DailyMathPuzzle: React.FC = () => {
         maxHints: MAX_HINTS,
         lastPlayedDate: today,
       });
+      setIsInitialized(true);
       
       // Show rules for first-time users
       if (!localStorage.getItem("mathify_puzzle_rules_seen")) {
@@ -106,14 +112,14 @@ const DailyMathPuzzle: React.FC = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
 
   // Save game state to localStorage when it changes
   useEffect(() => {
-    if (gameState.dailyPuzzle.availableNumbers.length > 0) {
+    if (isInitialized && gameState.dailyPuzzle.availableNumbers && gameState.dailyPuzzle.availableNumbers.length > 0) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
     }
-  }, [gameState]);
+  }, [gameState, isInitialized]);
 
   const handleDrop = useCallback((id: string, droppedId: string) => {
     if (gameState.gameStatus !== "playing") return;
@@ -508,7 +514,7 @@ const DailyMathPuzzle: React.FC = () => {
   };
 
   // Display a loading state while the game initializes
-  if (!gameState.dailyPuzzle.availableNumbers || gameState.dailyPuzzle.availableNumbers.length === 0) {
+  if (!isInitialized || !gameState.dailyPuzzle.availableNumbers || gameState.dailyPuzzle.availableNumbers.length === 0) {
     return (
       <div className="container max-w-md mx-auto py-8 px-4">
         <h1 className="text-2xl font-bold text-center mb-6">Daily Math Puzzle</h1>
