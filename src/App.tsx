@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import Index from "./pages/Index";
 import MentalMathsGame from "./pages/MentalMathsGame";
+import DailyMathPuzzle from "./pages/DailyMathPuzzle";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -39,6 +40,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/maths" element={<MentalMathsGame />} />
+              <Route path="/daily-puzzle" element={<DailyMathPuzzle />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
