@@ -37,3 +37,74 @@
     min-width: 40px;
   }
 }
+
+/* Animation for puzzle pieces */
+@keyframes bounce-in {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-in-out;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.4s ease-out forwards;
+}
+
+.animate-shake {
+  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* Slow spin animation for loading states */
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+/* Background colors for soil components */
+.bg-soil {
+  background-color: #8b5a2b;
+}
+
+.bg-water {
+  background-color: #0ea5e9;
+}
+
+.bg-plant {
+  background-color: #16a34a;
+}
+
+.bg-sun {
+  background-color: #fbbf24;
+}
+
+.bg-brown-300 {
+  background-color: #a78bfa;
+}
+
+.bg-brown-400 {
+  background-color: #8b5cf6;
+}
+
+.bg-brown-500 {
+  background-color: #7c3aed;
+}
