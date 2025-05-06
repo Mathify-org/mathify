@@ -180,7 +180,7 @@ const DailyMathPuzzle: React.FC = () => {
     const isCorrect = guessValue === gameState.dailyPuzzle.target;
     const isLastGuess = updatedGuesses.length >= MAX_GUESSES;
     
-    let newGameStatus = gameState.gameStatus;
+    let newGameStatus: GameStatusType = gameState.gameStatus;
     let newStreak = gameState.streak;
     
     if (isCorrect) {
