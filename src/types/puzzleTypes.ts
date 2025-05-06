@@ -1,6 +1,9 @@
 
-// Available value types (replacing shapes with numbers)
+// Available value types
 export type NumberType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+
+// Legacy shape types (for backward compatibility)
+export type ShapeType = "circle" | "square" | "triangle" | "hexagon" | "star" | "clock";
 
 // Available operation types
 export type OperationType = "+" | "-" | "*" | "/";

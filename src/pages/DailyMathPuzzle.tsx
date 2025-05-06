@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { NumberType, OperationType, FeedbackType, GameState, GameStatusType, Guess } from "@/types/puzzleTypes";
