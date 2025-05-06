@@ -1,12 +1,15 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { ShapeType, GameState, Guess, FeedbackType, GameStatusType } from "@/types/puzzleTypes";
+import { NumberType, OperationType, FeedbackType, GameState, GameStatusType, Guess } from "@/types/puzzleTypes";
 import { 
   generateDailyPuzzle, 
   checkGuess, 
-  evaluateEquation 
-} from "@/utils/dailyPuzzleUtils";
-import DraggableShape from "@/components/puzzle/DraggableShape";
+  evaluateEquation,
+  getTimeToNextPuzzle,
+  generateShareText
+} from "@/utils/numberPuzzleUtils";
+import DraggableNumber from "@/components/puzzle/DraggableNumber";
 import EquationSlot from "@/components/puzzle/EquationSlot";
 import CountdownTimer from "@/components/puzzle/CountdownTimer";
 import ShareResults from "@/components/puzzle/ShareResults";
@@ -17,20 +20,25 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 const MAX_GUESSES = 5;
 const MAX_HINTS = 2;
-const MAX_EQUATION_LENGTH = 5;
+const MAX_EQUATION_LENGTH = 9; // Increased to allow for more alternating numbers/operations
 const STORAGE_KEY = "mathify_daily_puzzle";
 
 const DailyMathPuzzle: React.FC = () => {
   const { toast } = useToast();
   const [gameState, setGameState] = useState<GameState>({
     guesses: [],
-    currentGuess: [],
+    currentGuess: {
+      values: Array(MAX_EQUATION_LENGTH).fill(null),
+      operations: Array(MAX_EQUATION_LENGTH - 1).fill(null)
+    },
     dailyPuzzle: {
-      shapes: [],
-      solution: [],
+      availableNumbers: [],
+      availableOperations: [],
+      solution: {
+        values: [],
+        operations: []
+      },
       target: 0,
-      shapeValues: {} as Record<ShapeType, number>,
-      operations: {} as Record<ShapeType, string>,
     },
     maxGuesses: MAX_GUESSES,
     gameStatus: "playing" as GameStatusType,
@@ -42,7 +50,8 @@ const DailyMathPuzzle: React.FC = () => {
 
   const [showRules, setShowRules] = useState(false);
   const [showHint, setShowHint] = useState(false);
-  const [revealedHint, setRevealedHint] = useState<ShapeType | null>(null);
+  const [revealedHint, setRevealedHint] = useState<NumberType | OperationType | null>(null);
+  const [revealedHintIsOp, setRevealedHintIsOp] = useState(false);
 
   // Load game state from localStorage and initialize
   useEffect(() => {
@@ -72,7 +81,10 @@ const DailyMathPuzzle: React.FC = () => {
       
       setGameState({
         guesses: [],
-        currentGuess: [],
+        currentGuess: {
+          values: Array(MAX_EQUATION_LENGTH).fill(null),
+          operations: Array(MAX_EQUATION_LENGTH - 1).fill(null)
+        },
         dailyPuzzle: newPuzzle,
         maxGuesses: MAX_GUESSES,
         gameStatus: "playing" as GameStatusType,
@@ -99,7 +111,7 @@ const DailyMathPuzzle: React.FC = () => {
 
   // Save game state to localStorage when it changes
   useEffect(() => {
-    if (gameState.dailyPuzzle.shapes.length > 0) {
+    if (gameState.dailyPuzzle.availableNumbers.length > 0) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
     }
   }, [gameState]);
@@ -108,31 +120,78 @@ const DailyMathPuzzle: React.FC = () => {
     if (gameState.gameStatus !== "playing") return;
     
     const slotIndex = parseInt(id.replace("slot-", ""), 10);
-    const shapeType = droppedId.replace("shape-", "") as ShapeType;
+    const isEvenIndex = slotIndex % 2 === 0; // Even indices for numbers, odd for operations
     
-    setGameState(prev => {
-      // Create a new currentGuess array
-      const newGuess = [...prev.currentGuess];
-      // Set the shape at the dropped position
-      newGuess[slotIndex] = shapeType;
+    let slotType: "value" | "operation" = isEvenIndex ? "value" : "operation";
+    
+    if (droppedId.startsWith("number-")) {
+      const numberValue = parseInt(droppedId.replace("number-", ""), 10) as NumberType;
       
-      return {
-        ...prev,
-        currentGuess: newGuess,
-      };
-    });
+      if (slotType !== "value") return; // Numbers can only go in value slots
+      
+      setGameState(prev => {
+        const newValues = [...prev.currentGuess.values];
+        newValues[slotIndex / 2] = numberValue;
+        
+        return {
+          ...prev,
+          currentGuess: {
+            ...prev.currentGuess,
+            values: newValues
+          }
+        };
+      });
+    } 
+    else if (droppedId.startsWith("op-")) {
+      const opValue = droppedId.replace("op-", "") as OperationType;
+      
+      if (slotType !== "operation") return; // Operations can only go in operation slots
+      
+      setGameState(prev => {
+        const newOps = [...prev.currentGuess.operations];
+        newOps[(slotIndex - 1) / 2] = opValue;
+        
+        return {
+          ...prev,
+          currentGuess: {
+            ...prev.currentGuess,
+            operations: newOps
+          }
+        };
+      });
+    }
   }, [gameState.gameStatus]);
 
-  const clearSlot = (index: number) => {
+  const clearValueSlot = (index: number) => {
     if (gameState.gameStatus !== "playing") return;
     
     setGameState(prev => {
-      const newGuess = [...prev.currentGuess];
-      newGuess[index] = undefined as unknown as ShapeType;
+      const newValues = [...prev.currentGuess.values];
+      newValues[index] = null;
       
       return {
         ...prev,
-        currentGuess: newGuess
+        currentGuess: {
+          ...prev.currentGuess,
+          values: newValues
+        }
+      };
+    });
+  };
+
+  const clearOpSlot = (index: number) => {
+    if (gameState.gameStatus !== "playing") return;
+    
+    setGameState(prev => {
+      const newOps = [...prev.currentGuess.operations];
+      newOps[index] = null;
+      
+      return {
+        ...prev,
+        currentGuess: {
+          ...prev.currentGuess,
+          operations: newOps
+        }
       };
     });
   };
@@ -140,38 +199,60 @@ const DailyMathPuzzle: React.FC = () => {
   const resetCurrentGuess = () => {
     setGameState(prev => ({
       ...prev,
-      currentGuess: []
+      currentGuess: {
+        values: Array(MAX_EQUATION_LENGTH).fill(null),
+        operations: Array(MAX_EQUATION_LENGTH - 1).fill(null)
+      }
     }));
   };
 
   const submitGuess = () => {
     if (gameState.gameStatus !== "playing") return;
 
-    // Filter out empty slots
-    const filledGuess = gameState.currentGuess.filter(shape => shape !== undefined);
+    // Extract non-null values and operations
+    const values = gameState.currentGuess.values.filter(val => val !== null) as NumberType[];
+    const operations = gameState.currentGuess.operations.filter((op, index) => 
+      op !== null && index < values.length - 1
+    ) as OperationType[];
     
-    if (filledGuess.length < 2) {
+    if (values.length < 2) {
       toast({
         title: "Too short",
-        description: "Your equation needs at least 2 symbols",
+        description: "Your equation needs at least 2 numbers",
+      });
+      return;
+    }
+
+    if (operations.length < values.length - 1) {
+      toast({
+        title: "Incomplete equation",
+        description: "Make sure you have operations between all numbers",
       });
       return;
     }
 
     // Calculate the result of the current guess
-    const guessValue = evaluateEquation(
-      filledGuess, 
-      gameState.dailyPuzzle.shapeValues, 
-      gameState.dailyPuzzle.operations
-    );
+    const guessValue = evaluateEquation(values, operations);
+
+    // Fill in operations array to match expected length
+    const paddedOps = [...operations];
+    while (paddedOps.length < values.length - 1) {
+      paddedOps.push(null);
+    }
 
     // Check the guess against the solution
-    const feedback = checkGuess(filledGuess, gameState.dailyPuzzle.solution);
+    const feedback = checkGuess(
+      values,
+      paddedOps,
+      gameState.dailyPuzzle.solution.values,
+      gameState.dailyPuzzle.solution.operations
+    );
     
     const newGuess: Guess = {
-      shapes: filledGuess,
+      values,
+      operations: paddedOps,
       feedback,
-      value: guessValue
+      result: guessValue
     };
 
     const updatedGuesses = [...gameState.guesses, newGuess];
@@ -224,7 +305,10 @@ const DailyMathPuzzle: React.FC = () => {
     setGameState(prev => ({
       ...prev,
       guesses: updatedGuesses,
-      currentGuess: [],
+      currentGuess: {
+        values: Array(MAX_EQUATION_LENGTH).fill(null),
+        operations: Array(MAX_EQUATION_LENGTH - 1).fill(null)
+      },
       gameStatus: newGameStatus,
       streak: newStreak,
     }));
@@ -233,77 +317,130 @@ const DailyMathPuzzle: React.FC = () => {
   const useHint = () => {
     if (gameState.hintsUsed >= MAX_HINTS || gameState.gameStatus !== "playing") return;
     
-    // Choose a random shape from the solution that hasn't been revealed yet
-    const availableShapes = gameState.dailyPuzzle.solution.filter(
-      shape => shape !== revealedHint
-    );
+    // Decide whether to reveal a number or an operation
+    const revealOperation = Math.random() > 0.5 && gameState.dailyPuzzle.solution.operations.some(op => op !== null);
     
-    if (availableShapes.length > 0) {
-      const randomShape = availableShapes[Math.floor(Math.random() * availableShapes.length)];
+    if (revealOperation) {
+      // Choose a random operation from the solution
+      const availableOps = gameState.dailyPuzzle.solution.operations.filter(op => op !== null) as OperationType[];
       
-      setRevealedHint(randomShape);
-      setShowHint(true);
+      if (availableOps.length > 0) {
+        const randomOp = availableOps[Math.floor(Math.random() * availableOps.length)];
+        
+        setRevealedHint(randomOp);
+        setRevealedHintIsOp(true);
+        setShowHint(true);
+      }
+    } else {
+      // Choose a random number from the solution
+      const availableNums = gameState.dailyPuzzle.solution.values;
       
-      setGameState(prev => ({
-        ...prev,
-        hintsUsed: prev.hintsUsed + 1
-      }));
+      if (availableNums.length > 0) {
+        const randomNum = availableNums[Math.floor(Math.random() * availableNums.length)];
+        
+        setRevealedHint(randomNum);
+        setRevealedHintIsOp(false);
+        setShowHint(true);
+      }
     }
+    
+    setGameState(prev => ({
+      ...prev,
+      hintsUsed: prev.hintsUsed + 1
+    }));
   };
 
   const getEquationSlots = () => {
-    // Create slots for the equation
+    // Create alternating slots for numbers and operations
     const slots = [];
+    let numOfValues = 0;
+    
     for (let i = 0; i < MAX_EQUATION_LENGTH; i++) {
-      const currentShape = gameState.currentGuess[i];
+      const isOperationSlot = i % 2 === 1;
       
-      // Check if this shape is an operator in the puzzle
-      const isOperator = currentShape && gameState.dailyPuzzle.operations[currentShape] !== "";
-      const operatorValue = isOperator ? gameState.dailyPuzzle.operations[currentShape] : "";
-      
-      slots.push(
-        <div key={`slot-${i}`} className="relative">
-          <EquationSlot 
-            id={`slot-${i}`} 
-            shape={currentShape || null}
-            isOperator={isOperator}
-            operatorValue={operatorValue} 
-          />
-          {currentShape && (
-            <button 
-              onClick={() => clearSlot(i)}
-              className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 shadow-sm"
-            >
-              <X size={12} />
-            </button>
-          )}
-        </div>
-      );
+      if (isOperationSlot) {
+        // This is an operation slot
+        const opIndex = (i - 1) / 2;
+        const currentOp = gameState.currentGuess.operations[opIndex];
+        
+        if (numOfValues < 2) {
+          continue; // Skip operation slots until we have at least 2 values
+        }
+        
+        slots.push(
+          <div key={`slot-${i}`} className="relative">
+            <EquationSlot 
+              id={`slot-${i}`} 
+              value={currentOp}
+              isOperator={true}
+            />
+            {currentOp && (
+              <button 
+                onClick={() => clearOpSlot(opIndex)}
+                className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 shadow-sm"
+              >
+                <X size={12} />
+              </button>
+            )}
+          </div>
+        );
+      } else {
+        // This is a value slot
+        const valueIndex = i / 2;
+        const currentValue = gameState.currentGuess.values[valueIndex];
+        
+        slots.push(
+          <div key={`slot-${i}`} className="relative">
+            <EquationSlot 
+              id={`slot-${i}`} 
+              value={currentValue}
+              isOperator={false}
+            />
+            {currentValue && (
+              <button 
+                onClick={() => clearValueSlot(valueIndex)}
+                className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 shadow-sm"
+              >
+                <X size={12} />
+              </button>
+            )}
+          </div>
+        );
+        
+        numOfValues++;
+      }
     }
     return slots;
   };
 
-  const getAvailableShapes = () => {
-    // Show all shapes available for the puzzle
-    return gameState.dailyPuzzle.shapes.map((shape) => {
-      // Check if this shape is an operator
-      const isOperator = gameState.dailyPuzzle.operations[shape] !== "";
-      const operatorValue = isOperator ? gameState.dailyPuzzle.operations[shape] : "";
+  const getAvailableNumbers = () => {
+    return gameState.dailyPuzzle.availableNumbers.map((num) => {
+      // Count how many times this number has been used in the current guess
+      const usedCount = gameState.currentGuess.values.filter(v => v === num).length;
       
-      // Count how many times this shape has been used in the current guess
-      const usedCount = gameState.currentGuess.filter(s => s === shape).length;
-      
-      // The shape is disabled if it's been used the maximum allowed times (e.g. once for operators)
-      const isDisabled = isOperator && usedCount > 0;
+      // Disable if we've already used this number too many times (e.g., 2 times)
+      const isDisabled = usedCount >= 2;
       
       return (
-        <DraggableShape 
-          key={`shape-${shape}`}
-          id={`shape-${shape}`}
-          type={shape}
-          isOperator={isOperator}
-          operatorValue={operatorValue}
+        <DraggableNumber 
+          key={`number-${num}`}
+          id={`number-${num}`}
+          value={num}
+          isOperator={false}
           disabled={isDisabled}
+        />
+      );
+    });
+  };
+
+  const getAvailableOperations = () => {
+    return gameState.dailyPuzzle.availableOperations.map((op) => {
+      return (
+        <DraggableNumber 
+          key={`op-${op}`}
+          id={`op-${op}`}
+          value={op}
+          isOperator={true}
         />
       );
     });
@@ -311,28 +448,41 @@ const DailyMathPuzzle: React.FC = () => {
 
   const getPreviousGuesses = () => {
     return gameState.guesses.map((guess, index) => {
+      // Create an array with alternating values and operations
+      const elements = [];
+      
+      for (let i = 0; i < guess.values.length; i++) {
+        elements.push(
+          <DraggableNumber 
+            key={`guess-${index}-value-${i}`}
+            id={`guess-${index}-value-${i}`}
+            value={guess.values[i]}
+            feedback={guess.feedback[2*i]} // Adjust feedback index
+            isOperator={false}
+            disabled={true}
+          />
+        );
+        
+        if (i < guess.values.length - 1) {
+          elements.push(
+            <DraggableNumber 
+              key={`guess-${index}-op-${i}`}
+              id={`guess-${index}-op-${i}`}
+              value={guess.operations[i] as OperationType}
+              feedback={guess.feedback[2*i+1]} // Adjust feedback index
+              isOperator={true}
+              disabled={true}
+            />
+          );
+        }
+      }
+      
       return (
         <div key={index} className="flex flex-col items-center gap-2 mb-4">
           <div className="flex items-center gap-2">
-            {guess.shapes.map((shape, shapeIndex) => {
-              // Check if this shape is an operator
-              const isOperator = gameState.dailyPuzzle.operations[shape] !== "";
-              const operatorValue = isOperator ? gameState.dailyPuzzle.operations[shape] : "";
-              
-              return (
-                <DraggableShape 
-                  key={`guess-${index}-${shapeIndex}`}
-                  id={`guess-${index}-${shapeIndex}`}
-                  type={shape}
-                  feedback={guess.feedback[shapeIndex]}
-                  isOperator={isOperator}
-                  operatorValue={operatorValue}
-                  disabled={true}
-                />
-              );
-            })}
+            {elements}
             <span className="ml-2 text-lg">=</span>
-            <span className="ml-2 text-lg font-semibold">{guess.value}</span>
+            <span className="ml-2 text-lg font-semibold">{guess.result}</span>
           </div>
         </div>
       );
@@ -340,7 +490,7 @@ const DailyMathPuzzle: React.FC = () => {
   };
 
   // Display a loading state while the game initializes
-  if (gameState.dailyPuzzle.shapes.length === 0) {
+  if (gameState.dailyPuzzle.availableNumbers.length === 0) {
     return (
       <div className="container max-w-md mx-auto py-8 px-4">
         <h1 className="text-2xl font-bold text-center mb-6">Daily Math Puzzle</h1>
@@ -428,10 +578,10 @@ const DailyMathPuzzle: React.FC = () => {
           <div className="bg-white rounded-lg shadow-md p-4 mb-6">
             <h2 className="text-lg font-medium mb-3">Build Your Equation</h2>
             <p className="text-sm text-gray-600 mb-4">
-              Create an equation using the shapes below that equals {gameState.dailyPuzzle.target}
+              Create an equation using the numbers and operations below that equals {gameState.dailyPuzzle.target}
             </p>
             
-            <div className="flex justify-center items-center gap-3 mb-6">
+            <div className="flex justify-center items-center gap-1 mb-6 flex-wrap">
               {getEquationSlots()}
               <span className="text-lg font-semibold ml-2">=</span>
               <span className="text-lg font-semibold ml-2">{gameState.dailyPuzzle.target}</span>
@@ -450,7 +600,6 @@ const DailyMathPuzzle: React.FC = () => {
               <Button
                 size="sm"
                 onClick={submitGuess}
-                disabled={gameState.currentGuess.filter(Boolean).length < 2}
                 className="flex items-center gap-2"
               >
                 <CheckCircle2 size={16} />
@@ -464,14 +613,20 @@ const DailyMathPuzzle: React.FC = () => {
             </div>
           </div>
           
-          {/* Available shapes */}
+          {/* Available numbers and operations */}
           <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-            <h2 className="text-lg font-medium mb-3">Available Shapes</h2>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-2 justify-items-center">
-              {getAvailableShapes()}
+            <h2 className="text-lg font-medium mb-3">Available Numbers</h2>
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-2 justify-items-center mb-4">
+              {getAvailableNumbers()}
             </div>
+            
+            <h2 className="text-lg font-medium my-3">Available Operations</h2>
+            <div className="grid grid-cols-4 gap-2 justify-items-center">
+              {getAvailableOperations()}
+            </div>
+            
             <p className="text-sm text-gray-500 mt-3 text-center">
-              Drag shapes to the slots above to build your equation
+              Drag numbers and operations to the slots above to build your equation
             </p>
           </div>
         </>
@@ -484,14 +639,14 @@ const DailyMathPuzzle: React.FC = () => {
             <AlertDialogTitle>How to Play</AlertDialogTitle>
             <AlertDialogDescription>
               <ul className="list-disc pl-5 space-y-2 mt-2">
-                <li>Create an equation using the shapes to reach the target number.</li>
-                <li>Each shape represents a number or an operation.</li>
+                <li>Create an equation using numbers and operations to reach the target number.</li>
+                <li>Drag numbers and operations to the slots to build your equation.</li>
                 <li>You have {MAX_GUESSES} attempts to solve the puzzle.</li>
                 <li>After each guess, you'll get feedback:
                   <ul className="pl-5 mt-1">
-                    <li><span className="text-green-600 font-medium">Green</span>: Correct shape in correct position</li>
-                    <li><span className="text-yellow-600 font-medium">Yellow</span>: Correct shape in wrong position</li>
-                    <li><span className="text-gray-500 font-medium">Gray</span>: Shape doesn't belong in the equation</li>
+                    <li><span className="text-green-600 font-medium">Green</span>: Correct value in correct position</li>
+                    <li><span className="text-yellow-600 font-medium">Yellow</span>: Correct value in wrong position</li>
+                    <li><span className="text-gray-500 font-medium">Gray</span>: Value doesn't belong in the equation</li>
                   </ul>
                 </li>
                 <li>You can use {MAX_HINTS} hints per day if you get stuck.</li>
@@ -513,13 +668,12 @@ const DailyMathPuzzle: React.FC = () => {
             <AlertDialogDescription>
               {revealedHint && (
                 <div className="flex flex-col items-center gap-2 py-4">
-                  <p>This shape is part of the solution:</p>
+                  <p>This {revealedHintIsOp ? "operation" : "number"} is part of the solution:</p>
                   <div className="p-2 bg-yellow-100 rounded-lg border border-yellow-300">
-                    <DraggableShape
-                      id="hint-shape"
-                      type={revealedHint}
-                      isOperator={!!gameState.dailyPuzzle.operations[revealedHint]}
-                      operatorValue={gameState.dailyPuzzle.operations[revealedHint]}
+                    <DraggableNumber
+                      id="hint-value"
+                      value={revealedHint}
+                      isOperator={revealedHintIsOp}
                       disabled={false}
                     />
                   </div>

@@ -1,38 +1,40 @@
 
 import React from "react";
 import { NumberType, OperationType, FeedbackType } from "@/types/puzzleTypes";
-import DroppableZone from "@/components/DroppableZone";
+import Draggable from "@/components/Draggable";
 
-interface EquationSlotProps {
+interface DraggableNumberProps {
+  value: NumberType | OperationType;
   id: string;
-  value: NumberType | OperationType | null;
   feedback?: FeedbackType;
   isOperator?: boolean;
+  disabled?: boolean;
 }
 
-const EquationSlot: React.FC<EquationSlotProps> = ({ 
-  id, 
+const DraggableNumber: React.FC<DraggableNumberProps> = ({ 
   value, 
+  id, 
   feedback,
-  isOperator = false
+  isOperator = false,
+  disabled = false
 }) => {
   const getFeedbackColor = () => {
-    if (!feedback) return "bg-gray-50 border-dashed";
+    if (!feedback) return "bg-white";
     
     switch (feedback) {
       case "correct":
-        return "bg-green-100 border-green-500";
+        return "bg-green-100 border-green-500 text-green-700";
       case "wrong-position":
-        return "bg-yellow-100 border-yellow-500";
+        return "bg-yellow-100 border-yellow-500 text-yellow-700";
       case "incorrect":
-        return "bg-gray-100 border-gray-300";
+        return "bg-gray-100 border-gray-300 text-gray-500";
       default:
-        return "bg-gray-50 border-dashed";
+        return "bg-white";
     }
   };
 
   const getValueColor = () => {
-    if (!value) return "text-gray-300";
+    if (disabled) return "text-gray-400";
     
     if (isOperator) {
       switch (value) {
@@ -67,20 +69,16 @@ const EquationSlot: React.FC<EquationSlotProps> = ({
   };
 
   return (
-    <DroppableZone id={id}>
+    <Draggable id={id}>
       <div 
-        className={`border-2 ${getFeedbackColor()} rounded-lg p-2 md:p-3 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 transition-colors`}
+        className={`${getFeedbackColor()} border-2 rounded-lg p-2 md:p-3 shadow-sm flex items-center justify-center w-12 h-12 md:w-14 md:h-14 cursor-grab active:cursor-grabbing ${disabled ? 'opacity-50' : ''}`}
       >
-        {value ? (
-          <span className={`text-xl md:text-2xl font-bold ${getValueColor()}`}>
-            {value}
-          </span>
-        ) : (
-          <div className="w-8 h-8 md:w-10 md:h-10 rounded-md bg-gray-100 opacity-30"></div>
-        )}
+        <span className={`text-xl md:text-2xl font-bold ${getValueColor()}`}>
+          {value}
+        </span>
       </div>
-    </DroppableZone>
+    </Draggable>
   );
 };
 
-export default EquationSlot;
+export default DraggableNumber;
