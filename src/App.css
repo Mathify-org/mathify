@@ -5,6 +5,7 @@
   margin: 0;
   padding: 0;
   text-align: left;
+  overflow-x: hidden; /* Prevent horizontal overflow on mobile */
 }
 
 /* Keep the logo animations if needed */
@@ -20,5 +21,19 @@
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
+  }
+}
+
+/* Add some mobile-specific styles */
+@media (max-width: 640px) {
+  /* Ensure proper font scaling on very small screens */
+  html {
+    font-size: 95%;
+  }
+  
+  /* Improve tap targets for better mobile experience */
+  button, a {
+    min-height: 40px;
+    min-width: 40px;
   }
 }

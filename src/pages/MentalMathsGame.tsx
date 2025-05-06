@@ -1,13 +1,12 @@
-
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, X, ArrowLeft, Plus, Minus, Divide, Timer } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Types for our math problem
 type Operation = "+" | "-" | "*" | "/";
@@ -34,6 +33,7 @@ const encouragingMessages = [
 ];
 
 const MentalMathsGame = () => {
+  const isMobile = useIsMobile();
   const [gameState, setGameState] = useState<"idle" | "playing" | "completed">("idle");
   const [currentProblem, setCurrentProblem] = useState<Problem | null>(null);
   const [userAnswer, setUserAnswer] = useState<number | null>(null);
@@ -46,7 +46,7 @@ const MentalMathsGame = () => {
   const [encouragementMessage, setEncouragementMessage] = useState({ message: "", color: "" });
   const totalQuestions = 25;
   
-  // Create random positions for the answer bubbles with better spacing
+  // Create random positions for the answer bubbles with better spacing and mobile optimization
   const generateRandomPositions = (count: number) => {
     // Define grid cells to ensure better distribution
     const gridSize = Math.ceil(Math.sqrt(count));
@@ -81,12 +81,13 @@ const MentalMathsGame = () => {
       }
       
       // Calculate position within the cell with some randomness
-      const baseTop = (row * cellHeight) + 10 + (Math.random() * (cellHeight - 20));
+      // On mobile, ensure better vertical distribution to avoid overflow
+      const baseTop = (row * cellHeight) + (isMobile ? 15 : 10) + (Math.random() * (cellHeight - (isMobile ? 30 : 20)));
       const baseLeft = (col * cellWidth) + 10 + (Math.random() * (cellWidth - 20));
       
       // Ensure position is within bounds
-      const top = Math.min(Math.max(baseTop, 10), 90);
-      const left = Math.min(Math.max(baseLeft, 10), 90);
+      const top = Math.min(Math.max(baseTop, 10), 85); // Prevent overflow at bottom
+      const left = Math.min(Math.max(baseLeft, 10), 85); // Prevent overflow at sides
       
       positions.push({
         top: top + "%",
@@ -258,10 +259,10 @@ const MentalMathsGame = () => {
     if (!currentProblem) return null;
     
     switch (currentProblem.operation) {
-      case "+": return <Plus className="h-8 w-8 text-emerald-500" />;
-      case "-": return <Minus className="h-8 w-8 text-sky-500" />;
-      case "*": return <X className="h-8 w-8 text-purple-500" />;
-      case "/": return <Divide className="h-8 w-8 text-orange-500" />;
+      case "+": return <Plus className={`h-${isMobile ? '6' : '8'} w-${isMobile ? '6' : '8'} text-emerald-500`} />;
+      case "-": return <Minus className={`h-${isMobile ? '6' : '8'} w-${isMobile ? '6' : '8'} text-sky-500`} />;
+      case "*": return <X className={`h-${isMobile ? '6' : '8'} w-${isMobile ? '6' : '8'} text-purple-500`} />;
+      case "/": return <Divide className={`h-${isMobile ? '6' : '8'} w-${isMobile ? '6' : '8'} text-orange-500`} />;
       default: return null;
     }
   };
@@ -278,72 +279,72 @@ const MentalMathsGame = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#E5DEFF] to-[#FEF7CD] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#E5DEFF] to-[#FEF7CD] flex flex-col items-center justify-center p-3 md:p-4">
       {/* Header */}
-      <div className="w-full max-w-4xl flex justify-between items-center mb-8">
+      <div className="w-full max-w-4xl flex justify-between items-center mb-4 md:mb-8">
         <Link to="/">
-          <Button variant="ghost" size="sm" className="gap-2">
-            <ArrowLeft className="h-4 w-4" /> Back to Home
+          <Button variant="ghost" size="sm" className="gap-1 md:gap-2 text-xs md:text-sm p-1 md:p-2">
+            <ArrowLeft className="h-3 w-3 md:h-4 md:w-4" /> Back
           </Button>
         </Link>
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6] bg-clip-text text-transparent">
-          Mental Maths Challenge
+        <h1 className="text-xl md:text-4xl font-bold bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6] bg-clip-text text-transparent">
+          Mental Maths
         </h1>
-        <div className="w-24" /> {/* Spacer for balanced layout */}
+        <div className="w-12 md:w-24" /> {/* Spacer for balanced layout */}
       </div>
       
       {/* Main content */}
       <Card className="w-full max-w-2xl shadow-lg border-none glass-morphism bg-white/90">
         {gameState === "idle" && (
           <>
-            <CardHeader className="text-center">
-              <CardTitle className="text-3xl font-bold">Speed Math Challenge</CardTitle>
-              <CardDescription className="text-lg mt-2">
+            <CardHeader className="text-center p-4 md:p-6">
+              <CardTitle className="text-xl md:text-3xl font-bold">Speed Math Challenge</CardTitle>
+              <CardDescription className="text-sm md:text-lg mt-1 md:mt-2">
                 Test your mental math skills with {totalQuestions} quick-fire questions!
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="bg-[#E5DEFF] rounded-lg p-6 text-center">
-                <h3 className="text-xl font-bold mb-4">How to Play</h3>
-                <ul className="text-left space-y-3">
+            <CardContent className="space-y-4 md:space-y-6 px-3 md:px-6">
+              <div className="bg-[#E5DEFF] rounded-lg p-3 md:p-6 text-center">
+                <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4">How to Play</h3>
+                <ul className="text-left space-y-2 md:space-y-3">
                   <li className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold">1</div>
-                    <span>You'll see a math problem</span>
+                    <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold text-sm md:text-base">1</div>
+                    <span className="text-sm md:text-base">You'll see a math problem</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold">2</div>
-                    <span>You have only 12 seconds to select the correct answer</span>
+                    <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold text-sm md:text-base">2</div>
+                    <span className="text-sm md:text-base">You have only 12 seconds to select the correct answer</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold">3</div>
-                    <span>Answer all {totalQuestions} questions to see your final score</span>
+                    <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold text-sm md:text-base">3</div>
+                    <span className="text-sm md:text-base">Answer all {totalQuestions} questions to see your final score</span>
                   </li>
                 </ul>
               </div>
               
-              <div className="flex gap-4 justify-center">
-                <div className="text-center p-4 rounded-lg bg-[#FEF7CD]">
-                  <Plus className="h-8 w-8 mx-auto text-emerald-500 mb-2" />
-                  <p>Addition</p>
+              <div className="flex flex-wrap gap-2 md:gap-4 justify-center">
+                <div className="text-center p-2 md:p-4 rounded-lg bg-[#FEF7CD]">
+                  <Plus className="h-5 w-5 md:h-8 md:w-8 mx-auto text-emerald-500 mb-1 md:mb-2" />
+                  <p className="text-xs md:text-base">Addition</p>
                 </div>
-                <div className="text-center p-4 rounded-lg bg-[#FEF7CD]">
-                  <Minus className="h-8 w-8 mx-auto text-sky-500 mb-2" />
-                  <p>Subtraction</p>
+                <div className="text-center p-2 md:p-4 rounded-lg bg-[#FEF7CD]">
+                  <Minus className="h-5 w-5 md:h-8 md:w-8 mx-auto text-sky-500 mb-1 md:mb-2" />
+                  <p className="text-xs md:text-base">Subtraction</p>
                 </div>
-                <div className="text-center p-4 rounded-lg bg-[#FEF7CD]">
-                  <X className="h-8 w-8 mx-auto text-purple-500 mb-2" />
-                  <p>Multiplication</p>
+                <div className="text-center p-2 md:p-4 rounded-lg bg-[#FEF7CD]">
+                  <X className="h-5 w-5 md:h-8 md:w-8 mx-auto text-purple-500 mb-1 md:mb-2" />
+                  <p className="text-xs md:text-base">Multiplication</p>
                 </div>
-                <div className="text-center p-4 rounded-lg bg-[#FEF7CD]">
-                  <Divide className="h-8 w-8 mx-auto text-orange-500 mb-2" />
-                  <p>Division</p>
+                <div className="text-center p-2 md:p-4 rounded-lg bg-[#FEF7CD]">
+                  <Divide className="h-5 w-5 md:h-8 md:w-8 mx-auto text-orange-500 mb-1 md:mb-2" />
+                  <p className="text-xs md:text-base">Division</p>
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-center">
+            <CardFooter className="flex justify-center px-4 pb-4 md:pb-6">
               <Button 
-                size="lg" 
-                className="bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6] hover:opacity-90 text-white px-8 py-6 text-xl"
+                size={isMobile ? "default" : "lg"}
+                className="bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6] hover:opacity-90 text-white px-6 py-2 md:px-8 md:py-6 text-base md:text-xl"
                 onClick={handleStartGame}
               >
                 Start Challenge!
@@ -354,15 +355,15 @@ const MentalMathsGame = () => {
         
         {gameState === "playing" && currentProblem && (
           <>
-            <CardHeader className="text-center">
+            <CardHeader className="text-center p-3 md:p-6">
               <div className="flex justify-between items-center">
                 <div className="text-left">
-                  <span className="text-sm font-medium text-muted-foreground">Question</span>
-                  <h3 className="text-2xl font-bold">{questionNumber} of {totalQuestions}</h3>
+                  <span className="text-xs md:text-sm font-medium text-muted-foreground">Question</span>
+                  <h3 className="text-base md:text-2xl font-bold">{questionNumber} of {totalQuestions}</h3>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Timer className="h-5 w-5 text-orange-500" />
-                  <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="flex items-center gap-1 md:gap-2">
+                  <Timer className="h-4 w-4 md:h-5 md:w-5 text-orange-500" />
+                  <div className="w-16 md:w-24 h-1.5 md:h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-orange-500 transition-all" 
                       style={{ width: `${(timeLeft / 12) * 100}%` }}
@@ -370,44 +371,44 @@ const MentalMathsGame = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm font-medium text-muted-foreground">Score</span>
-                  <h3 className="text-2xl font-bold">{score}</h3>
+                  <span className="text-xs md:text-sm font-medium text-muted-foreground">Score</span>
+                  <h3 className="text-base md:text-2xl font-bold">{score}</h3>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex flex-col items-center justify-center py-6">
-              <div className="flex items-center justify-center gap-4 mb-8">
-                <div className="text-6xl font-bold">{currentProblem.num1}</div>
-                <div className="flex items-center justify-center h-16 w-16 rounded-full bg-[#E5DEFF]">
+            <CardContent className="flex flex-col items-center justify-center py-3 md:py-6 px-3 md:px-6">
+              <div className="flex items-center justify-center gap-2 md:gap-4 mb-4 md:mb-8">
+                <div className="text-3xl md:text-6xl font-bold">{currentProblem.num1}</div>
+                <div className="flex items-center justify-center h-10 w-10 md:h-16 md:w-16 rounded-full bg-[#E5DEFF]">
                   <OperationIcon />
                 </div>
-                <div className="text-6xl font-bold">{currentProblem.num2}</div>
-                <div className="text-6xl font-bold">=</div>
+                <div className="text-3xl md:text-6xl font-bold">{currentProblem.num2}</div>
+                <div className="text-3xl md:text-6xl font-bold">=</div>
                 <div 
                   className={`
-                    h-20 w-32 flex items-center justify-center rounded-lg 
+                    h-12 w-20 md:h-20 md:w-32 flex items-center justify-center rounded-lg 
                     ${resultAnimation === "correct" ? "bg-green-100 border-2 border-green-500" : ""}
                     ${resultAnimation === "incorrect" ? "bg-red-100 border-2 border-red-500" : ""}
                     ${!resultAnimation ? "border-2 border-dashed border-gray-300" : ""}
                   `}
                 >
                   {resultAnimation === "correct" && (
-                    <Check className="h-10 w-10 text-green-500" />
+                    <Check className="h-6 w-6 md:h-10 md:w-10 text-green-500" />
                   )}
                   {resultAnimation === "incorrect" && (
-                    <X className="h-10 w-10 text-red-500" />
+                    <X className="h-6 w-6 md:h-10 md:w-10 text-red-500" />
                   )}
                   {!resultAnimation && userAnswer === null && (
-                    <span className="text-4xl font-bold text-gray-400">?</span>
+                    <span className="text-2xl md:text-4xl font-bold text-gray-400">?</span>
                   )}
                   {!resultAnimation && userAnswer !== null && (
-                    <span className="text-4xl font-bold">{userAnswer}</span>
+                    <span className="text-2xl md:text-4xl font-bold">{userAnswer}</span>
                   )}
                 </div>
               </div>
 
-              {/* Visual options bubbles - with better spacing */}
-              <div className="w-full h-64 relative mt-4 bg-gradient-to-br from-[#E5DEFF]/30 to-[#FEF7CD]/30 rounded-xl overflow-hidden">
+              {/* Visual options bubbles - with better spacing for mobile */}
+              <div className="w-full h-40 md:h-64 relative mt-2 md:mt-4 bg-gradient-to-br from-[#E5DEFF]/30 to-[#FEF7CD]/30 rounded-xl overflow-hidden">
                 {currentProblem.options.map((option, index) => (
                   <button
                     key={index}
@@ -415,9 +416,9 @@ const MentalMathsGame = () => {
                     disabled={resultAnimation !== null || userAnswer !== null}
                     className={`
                       absolute transform -translate-x-1/2 -translate-y-1/2
-                      h-16 w-16 rounded-full 
+                      h-12 w-12 md:h-16 md:w-16 rounded-full 
                       flex items-center justify-center
-                      text-2xl font-bold
+                      text-lg md:text-2xl font-bold
                       cursor-pointer
                       transition-all duration-200
                       bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6]
@@ -439,7 +440,7 @@ const MentalMathsGame = () => {
                 ))}
               </div>
 
-              <p className="text-sm text-muted-foreground animate-fade-in mt-4">
+              <p className="text-xs md:text-sm text-muted-foreground animate-fade-in mt-3 md:mt-4">
                 Select the correct answer
               </p>
             </CardContent>
@@ -448,17 +449,17 @@ const MentalMathsGame = () => {
         
         {gameState === "completed" && (
           <>
-            <CardHeader className="text-center">
-              <CardTitle className="text-3xl font-bold">Challenge Complete!</CardTitle>
-              <CardDescription className="text-lg mt-2">
+            <CardHeader className="text-center p-4 md:p-6">
+              <CardTitle className="text-xl md:text-3xl font-bold">Challenge Complete!</CardTitle>
+              <CardDescription className="text-sm md:text-lg mt-1 md:mt-2">
                 You scored {score} out of {totalQuestions}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex justify-center mb-4">
-                <div className="relative h-40 w-40">
+            <CardContent className="space-y-4 md:space-y-6 px-4">
+              <div className="flex justify-center mb-2 md:mb-4">
+                <div className="relative h-32 w-32 md:h-40 md:w-40">
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-5xl font-bold bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6] bg-clip-text text-transparent">
+                    <div className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6] bg-clip-text text-transparent">
                       {Math.round((score / totalQuestions) * 100)}%
                     </div>
                   </div>
@@ -487,24 +488,24 @@ const MentalMathsGame = () => {
                 </div>
               </div>
               
-              <div className="bg-white rounded-lg shadow p-4">
-                <h3 className="text-lg font-medium mb-2">Your Results</h3>
-                <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+              <div className="bg-white rounded-lg shadow p-3 md:p-4">
+                <h3 className="text-base md:text-lg font-medium mb-2">Your Results</h3>
+                <div className="space-y-2 max-h-32 md:max-h-48 overflow-y-auto pr-2">
                   {results.map((result, index) => (
                     <div 
                       key={index} 
-                      className={`flex items-center justify-between p-2 rounded-md ${result.correct ? "bg-green-50" : "bg-red-50"}`}
+                      className={`flex items-center justify-between p-1.5 md:p-2 rounded-md text-xs md:text-sm ${result.correct ? "bg-green-50" : "bg-red-50"}`}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 md:gap-2">
                         {result.correct ? 
-                          <Check className="h-5 w-5 text-green-500" /> : 
-                          <X className="h-5 w-5 text-red-500" />
+                          <Check className="h-4 w-4 md:h-5 md:w-5 text-green-500" /> : 
+                          <X className="h-4 w-4 md:h-5 md:w-5 text-red-500" />
                         }
                         <div>
                           {result.problem.num1} {result.problem.operation} {result.problem.num2} = {result.problem.answer}
                         </div>
                       </div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-xs md:text-sm text-muted-foreground">
                         {getOperationName(result.problem.operation)}
                       </div>
                     </div>
@@ -512,18 +513,20 @@ const MentalMathsGame = () => {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-center gap-4">
+            <CardFooter className="flex justify-center gap-2 md:gap-4 p-4">
               <Button
                 variant="outline"
                 onClick={handleStartGame}
-                className="px-6"
+                className="text-xs md:text-sm px-4 py-1 md:px-6"
+                size={isMobile ? "sm" : "default"}
               >
                 Try Again
               </Button>
               <Link to="/">
                 <Button
                   variant="secondary"
-                  className="px-6"
+                  className="text-xs md:text-sm px-4 py-1 md:px-6"
+                  size={isMobile ? "sm" : "default"}
                 >
                   Back to Home
                 </Button>
@@ -533,20 +536,20 @@ const MentalMathsGame = () => {
         )}
       </Card>
       
-      {/* Encouragement dialog */}
+      {/* Encouragement dialog - optimized for mobile */}
       <Dialog open={showEncouragement} onOpenChange={setShowEncouragement}>
-        <DialogContent className="p-0 border-0 overflow-hidden max-w-md">
-          <div className={`p-8 bg-gradient-to-r ${encouragementMessage.color} text-white text-center`}>
-            <div className="animate-bounce mb-4">
-              <div className="text-6xl">🎉</div>
+        <DialogContent className="p-0 border-0 overflow-hidden max-w-xs md:max-w-md mx-auto">
+          <div className={`p-4 md:p-8 bg-gradient-to-r ${encouragementMessage.color} text-white text-center`}>
+            <div className="animate-bounce mb-2 md:mb-4">
+              <div className="text-4xl md:text-6xl">🎉</div>
             </div>
-            <h2 className="text-3xl font-bold mb-4">{encouragementMessage.message}</h2>
-            <p className="text-lg opacity-90">Keep up the great work!</p>
+            <h2 className="text-xl md:text-3xl font-bold mb-2 md:mb-4">{encouragementMessage.message}</h2>
+            <p className="text-base md:text-lg opacity-90">Keep up the great work!</p>
           </div>
         </DialogContent>
       </Dialog>
       
-      {/* CSS animations */}
+      {/* CSS animations - enhanced for mobile */}
       <style>
         {`
           @keyframes float {
@@ -554,10 +557,10 @@ const MentalMathsGame = () => {
               transform: translate(-50%, -50%) translateY(0) rotate(0deg);
             }
             33% {
-              transform: translate(-50%, -50%) translateY(-10px) rotate(5deg);
+              transform: translate(-50%, -50%) translateY(-6px) rotate(3deg);
             }
             66% {
-              transform: translate(-50%, -50%) translateY(5px) rotate(-5deg);
+              transform: translate(-50%, -50%) translateY(3px) rotate(-3deg);
             }
             100% {
               transform: translate(-50%, -50%) translateY(0) rotate(0deg);

@@ -6,7 +6,7 @@ const Hero = () => {
   const isMobile = useIsMobile();
   
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 py-12 md:py-24">
+    <div className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 py-10 md:py-24">
       {/* Decorative math symbols */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-[10%] left-[5%] text-6xl">+</div>
@@ -19,18 +19,18 @@ const Hero = () => {
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col md:flex-row items-center justify-center">
-          <div className={`md:w-1/2 text-center ${isMobile ? "mb-8" : ""}`}>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
+          <div className={`md:w-1/2 text-center ${isMobile ? "mb-6" : ""}`}>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2 md:mb-4 leading-tight mt-2 md:mt-0">
               Fun and interactive ways to<br className="hidden sm:block" /> learn Mathematics.
-              <span className="block mt-2 whitespace-normal">Free and Open-Source.</span>
+              <span className="block mt-3 whitespace-normal">Free and Open-Source.</span>
             </h1>
-            <p className="text-white/90 text-base md:text-xl mb-8 max-w-xl mx-auto px-4 md:px-0">
+            <p className="text-white/90 text-base md:text-xl mb-6 md:mb-8 max-w-xl mx-auto px-3 md:px-0">
               Mathify makes learning math fun and engaging with games designed for all ages and skill levels.
             </p>
           </div>
           
           <div className="md:w-1/2 flex justify-center items-center">
-            <div className="relative w-60 h-60 md:w-96 md:h-96 -mt-2 -ml-0 md:-mt-6 md:-ml-8">
+            <div className="relative w-64 h-64 md:w-96 md:h-96 -mt-0 -ml-1 md:-mt-6 md:-ml-8">
               <img 
                 src="/lovable-uploads/471e55df-9e2d-4051-b312-93edbd1dc0f0.png" 
                 alt="Mathify Logo" 
