@@ -12,6 +12,9 @@ export interface Guess {
   value: number;
 }
 
+// Game status type
+export type GameStatusType = "playing" | "won" | "lost";
+
 // Game state interface
 export interface GameState {
   guesses: Guess[];
@@ -24,7 +27,7 @@ export interface GameState {
     operations: Record<ShapeType, string>;
   };
   maxGuesses: number;
-  gameStatus: "playing" | "won" | "lost";
+  gameStatus: GameStatusType;
   streak: number;
   hintsUsed: number;
   maxHints: number;

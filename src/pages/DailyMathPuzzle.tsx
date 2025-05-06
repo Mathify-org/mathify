@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { ShapeType, GameState, Guess, FeedbackType } from "@/types/puzzleTypes";
+import { ShapeType, GameState, Guess, FeedbackType, GameStatusType } from "@/types/puzzleTypes";
 import { 
   generateDailyPuzzle, 
   checkGuess, 
@@ -34,7 +33,7 @@ const DailyMathPuzzle: React.FC = () => {
       operations: {} as Record<ShapeType, string>,
     },
     maxGuesses: MAX_GUESSES,
-    gameStatus: "playing",
+    gameStatus: "playing" as GameStatusType,
     streak: 0,
     hintsUsed: 0,
     maxHints: MAX_HINTS,
@@ -76,7 +75,7 @@ const DailyMathPuzzle: React.FC = () => {
         currentGuess: [],
         dailyPuzzle: newPuzzle,
         maxGuesses: MAX_GUESSES,
-        gameStatus: "playing",
+        gameStatus: "playing" as GameStatusType,
         streak: streakValue,
         hintsUsed: 0,
         maxHints: MAX_HINTS,
