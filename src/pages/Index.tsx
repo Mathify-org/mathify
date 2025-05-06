@@ -142,7 +142,7 @@ const generalSkills = [
     id: "math-puzzles",
     title: "Daily Math Puzzles",
     description: "Solve a new mathematical puzzle each day",
-    path: "/daily-puzzle", 
+    path: "#", 
     color: "bg-gradient-to-r from-rose-500 to-orange-500"
   },
   {
