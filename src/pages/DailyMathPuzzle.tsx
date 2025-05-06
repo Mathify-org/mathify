@@ -13,7 +13,7 @@ import CountdownTimer from "@/components/puzzle/CountdownTimer";
 import ShareResults from "@/components/puzzle/ShareResults";
 import HintButton from "@/components/puzzle/HintButton";
 import { Button } from "@/components/ui/button";
-import { Refresh, X, CheckCircle2 } from "lucide-react";
+import { RefreshCw, X, CheckCircle2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const MAX_GUESSES = 5;
@@ -445,7 +445,7 @@ const DailyMathPuzzle: React.FC = () => {
                 onClick={resetCurrentGuess}
                 className="flex items-center gap-2"
               >
-                <Refresh size={16} />
+                <RefreshCw size={16} />
                 Reset
               </Button>
               <Button
@@ -492,7 +492,7 @@ const DailyMathPuzzle: React.FC = () => {
                   <ul className="pl-5 mt-1">
                     <li><span className="text-green-600 font-medium">Green</span>: Correct shape in correct position</li>
                     <li><span className="text-yellow-600 font-medium">Yellow</span>: Correct shape in wrong position</li>
-                    <li><span className="text-gray-500 font-medium">Gray</span>: Shape doesn't belong in the solution</li>
+                    <li><span className="text-gray-500 font-medium">Gray</span>: Shape doesn't belong in the equation</li>
                   </ul>
                 </li>
                 <li>You can use {MAX_HINTS} hints per day if you get stuck.</li>
