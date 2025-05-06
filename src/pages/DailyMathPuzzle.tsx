@@ -413,6 +413,11 @@ const DailyMathPuzzle: React.FC = () => {
   };
 
   const getAvailableNumbers = () => {
+    // Safety check in case availableNumbers is undefined
+    if (!gameState.dailyPuzzle.availableNumbers || !Array.isArray(gameState.dailyPuzzle.availableNumbers)) {
+      return [];
+    }
+    
     return gameState.dailyPuzzle.availableNumbers.map((num) => {
       // Count how many times this number has been used in the current guess
       const usedCount = gameState.currentGuess.values.filter(v => v === num).length;
@@ -433,6 +438,11 @@ const DailyMathPuzzle: React.FC = () => {
   };
 
   const getAvailableOperations = () => {
+    // Safety check in case availableOperations is undefined
+    if (!gameState.dailyPuzzle.availableOperations || !Array.isArray(gameState.dailyPuzzle.availableOperations)) {
+      return [];
+    }
+    
     return gameState.dailyPuzzle.availableOperations.map((op) => {
       return (
         <DraggableNumber 
@@ -446,9 +456,18 @@ const DailyMathPuzzle: React.FC = () => {
   };
 
   const getPreviousGuesses = () => {
+    // Safety check in case guesses is undefined
+    if (!gameState.guesses || !Array.isArray(gameState.guesses)) {
+      return [];
+    }
+    
     return gameState.guesses.map((guess, index) => {
       // Create an array with alternating values and operations
       const elements = [];
+      
+      if (!guess.values || !Array.isArray(guess.values)) {
+        return <div key={index}>Invalid guess data</div>;
+      }
       
       for (let i = 0; i < guess.values.length; i++) {
         elements.push(
@@ -456,19 +475,19 @@ const DailyMathPuzzle: React.FC = () => {
             key={`guess-${index}-value-${i}`}
             id={`guess-${index}-value-${i}`}
             value={guess.values[i]}
-            feedback={guess.feedback[2*i]} // Adjust feedback index
+            feedback={guess.feedback && guess.feedback[2*i] ? guess.feedback[2*i] : "incorrect"} // Safe access with fallback
             isOperator={false}
             disabled={true}
           />
         );
         
-        if (i < guess.values.length - 1) {
+        if (i < guess.values.length - 1 && guess.operations && guess.operations[i]) {
           elements.push(
             <DraggableNumber 
               key={`guess-${index}-op-${i}`}
               id={`guess-${index}-op-${i}`}
               value={guess.operations[i] as OperationType}
-              feedback={guess.feedback[2*i+1]} // Adjust feedback index
+              feedback={guess.feedback && guess.feedback[2*i+1] ? guess.feedback[2*i+1] : "incorrect"} // Safe access with fallback
               isOperator={true}
               disabled={true}
             />
@@ -489,7 +508,7 @@ const DailyMathPuzzle: React.FC = () => {
   };
 
   // Display a loading state while the game initializes
-  if (gameState.dailyPuzzle.availableNumbers.length === 0) {
+  if (!gameState.dailyPuzzle.availableNumbers || gameState.dailyPuzzle.availableNumbers.length === 0) {
     return (
       <div className="container max-w-md mx-auto py-8 px-4">
         <h1 className="text-2xl font-bold text-center mb-6">Daily Math Puzzle</h1>

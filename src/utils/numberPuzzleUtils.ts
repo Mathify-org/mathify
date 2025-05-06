@@ -1,3 +1,4 @@
+
 import { NumberType, OperationType, ShapeType } from "@/types/puzzleTypes";
 
 // Function to generate a unique seed based on the date
@@ -109,7 +110,7 @@ export const evaluateEquation = (
         break;
       case "/":
         // Prevent division by zero
-        if (nextValue !== 0) {
+        if (nextValue !== 0 as NumberType) { // Fix here: compare with 0 as NumberType
           result /= nextValue;
           // Round to 2 decimal places to prevent floating point issues
           result = Math.round(result * 100) / 100;
