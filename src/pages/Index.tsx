@@ -121,14 +121,14 @@ const generalSkills = [
     id: "times-tables",
     title: "Times Tables Master",
     description: "Perfect your multiplication tables with fun challenges",
-    path: "#",
+    path: "/times-tables",
     color: "bg-gradient-to-r from-green-400 to-blue-500"
   },
   {
     id: "math-facts",
     title: "Math Facts Race",
     description: "Race against time to answer math facts quickly",
-    path: "#", 
+    path: "#",
     color: "bg-gradient-to-r from-purple-500 to-indigo-500"
   },
   {

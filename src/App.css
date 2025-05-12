@@ -35,5 +35,32 @@
   button, a {
     min-height: 40px;
     min-width: 40px;
+    touch-action: manipulation;
   }
+  
+  /* Prevent content overflow */
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    width: 100%;
+  }
+  
+  /* Fix for overflow on mobile screens */
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  
+  /* Ensure buttons and interactive elements have proper touch area */
+  .button, .interactive-element {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Fix for mobile safari and other mobile browsers */
+html, body {
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
 }
