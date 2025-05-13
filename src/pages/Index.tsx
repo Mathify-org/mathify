@@ -128,14 +128,14 @@ const generalSkills = [
     id: "math-facts",
     title: "Math Facts Race",
     description: "Race against time to answer math facts quickly",
-    path: "#",
+    path: "/math-facts",
     color: "bg-gradient-to-r from-purple-500 to-indigo-500"
   },
   {
     id: "number-sense",
     title: "Number Sense Builder",
     description: "Develop intuition for numbers and their relationships",
-    path: "#",
+    path: "/number-sense",
     color: "bg-gradient-to-r from-cyan-500 to-blue-500"
   },
   {
