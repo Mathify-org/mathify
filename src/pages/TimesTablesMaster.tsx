@@ -41,18 +41,9 @@ interface GameStats {
   lastCompleted: string | null;
 }
 
-// Generate a secure-random seed for the puzzle based on the current date
-const generateDailySeed = (): number => {
-  const now = new Date();
-  const dateString = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-  
-  // Simple hash function to convert date string to number
-  let hash = 0;
-  for (let i = 0; i < dateString.length; i++) {
-    hash = ((hash << 5) - hash) + dateString.charCodeAt(i);
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return Math.abs(hash);
+// Generate a random seed for the puzzle
+const generateRandomSeed = (): number => {
+  return Math.floor(Math.random() * 1000000);
 };
 
 // Seeded random number generator
@@ -82,9 +73,8 @@ const TimesTablesMaster = () => {
   });
   const [showHowToPlay, setShowHowToPlay] = useState<boolean>(false);
   const [showShareModal, setShowShareModal] = useState<boolean>(false);
-  const [puzzleSolved, setPuzzleSolved] = useState<boolean>(false);
+  const [currentSeed, setCurrentSeed] = useState<number>(generateRandomSeed());
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const [dailySeed, setDailySeed] = useState<number>(generateDailySeed());
 
   // Generate grid with row and column factors
   const generateGrid = (size: GridSize): GridData => {
@@ -93,14 +83,14 @@ const TimesTablesMaster = () => {
     const rowFactors: number[] = [];
     const colFactors: number[] = [];
     
-    // Generate row factors using the daily seed
+    // Generate row factors using the random seed
     for (let i = 0; i < size; i++) {
-      rowFactors.push(seededRandom(dailySeed + i, maxFactor, minFactor));
+      rowFactors.push(seededRandom(currentSeed + i, maxFactor, minFactor));
     }
     
-    // Generate column factors using the daily seed
+    // Generate column factors using the random seed
     for (let i = 0; i < size; i++) {
-      colFactors.push(seededRandom(dailySeed + size + i, maxFactor, minFactor));
+      colFactors.push(seededRandom(currentSeed + size + i, maxFactor, minFactor));
     }
     
     // Create grid cells with multiplication results
@@ -188,7 +178,6 @@ const TimesTablesMaster = () => {
   const completePuzzle = () => {
     setGameState("completed");
     setTimerActive(false);
-    setPuzzleSolved(true);
     
     // Launch celebration confetti
     confetti({
@@ -202,29 +191,19 @@ const TimesTablesMaster = () => {
     const today = new Date().toISOString().split('T')[0];
     const newStats = { ...gameStats };
     
-    // Only update stats if this is the first time completing today's puzzle
-    if (newStats.lastCompleted !== today) {
-      newStats.streak = newStats.lastCompleted === getPreviousDate() ? 
-                        newStats.streak + 1 : 1;
-      newStats.gamesCompleted += 1;
-      newStats.lastCompleted = today;
-      
-      if (newStats.bestTime === null || timer < newStats.bestTime) {
-        newStats.bestTime = timer;
-      }
-      
-      setGameStats(newStats);
-      saveGameStats(newStats);
-      
-      toast.success("Congratulations! You've solved today's puzzle! 🎉");
+    // Always update stats when completing a puzzle
+    newStats.streak += 1;
+    newStats.gamesCompleted += 1;
+    newStats.lastCompleted = today;
+    
+    if (newStats.bestTime === null || timer < newStats.bestTime) {
+      newStats.bestTime = timer;
     }
-  };
-  
-  // Get previous date string for streak calculation
-  const getPreviousDate = (): string => {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    return yesterday.toISOString().split('T')[0];
+    
+    setGameStats(newStats);
+    saveGameStats(newStats);
+    
+    toast.success("Congratulations! You've solved the puzzle! 🎉");
   };
   
   // Format timer to MM:SS
@@ -237,7 +216,7 @@ const TimesTablesMaster = () => {
   // Share results
   const shareResults = () => {
     const timeText = formatTime(timer);
-    const shareText = `🧮 Times Tables Master\n🔢 Puzzle solved in ${timeText}\n🔥 Streak: ${gameStats.streak}\n\nhttps://mathify.app/times-tables`;
+    const shareText = `🧮 Times Tables Master\n🔢 Puzzle solved in ${timeText}\n🔥 Streak: ${gameStats.streak}\n\nhttps://mathify.org/times-tables`;
     
     if (navigator.share) {
       navigator.share({
@@ -270,14 +249,6 @@ const TimesTablesMaster = () => {
         setGameStats(JSON.parse(savedStats));
       }
       
-      // Check if today's puzzle has been completed
-      const today = new Date().toISOString().split('T')[0];
-      const lastCompleted = JSON.parse(savedStats || '{}').lastCompleted;
-      
-      if (lastCompleted === today) {
-        setPuzzleSolved(true);
-      }
-      
       // Load dark mode preference
       const darkMode = localStorage.getItem('timesTablesDarkMode');
       if (darkMode) {
@@ -287,7 +258,6 @@ const TimesTablesMaster = () => {
           document.documentElement.classList.add('dark');
         }
       }
-      
     } catch (error) {
       console.error("Error loading game data:", error);
     }
@@ -304,19 +274,9 @@ const TimesTablesMaster = () => {
   
   // Start a new game
   const startGame = () => {
-    // If already solved today's puzzle, just show it
-    if (puzzleSolved) {
-      const newGrid = generateGrid(gridSize);
-      setGrid(newGrid);
-      setGameState("completed");
-      
-      // Pre-fill with solution for already solved puzzle
-      setUserGuess({
-        rowFactors: newGrid.rowFactors,
-        colFactors: newGrid.colFactors
-      });
-      return;
-    }
+    // Generate new random seed for this game
+    const newSeed = generateRandomSeed();
+    setCurrentSeed(newSeed);
     
     // Start fresh game
     const newGrid = generateGrid(gridSize);
@@ -328,6 +288,12 @@ const TimesTablesMaster = () => {
     setGameState("playing");
     setTimer(0);
     setTimerActive(false);
+  };
+  
+  // Start a new game after completing one
+  const startNewGame = () => {
+    setShowShareModal(false);
+    startGame();
   };
   
   // Toggle dark mode
@@ -363,8 +329,6 @@ const TimesTablesMaster = () => {
   // Initial load
   useEffect(() => {
     loadGameData();
-    const newSeed = generateDailySeed();
-    setDailySeed(newSeed);
   }, []);
   
   // Get cell background color based on status
@@ -434,10 +398,10 @@ const TimesTablesMaster = () => {
             </div>
             <div className="text-center">
               <CardTitle className={`text-base md:text-2xl font-bold ${isDarkMode ? 'text-white' : ''}`}>
-                Daily Puzzle
+                Times Tables Puzzle
               </CardTitle>
               <CardDescription className={`text-xs md:text-sm ${isDarkMode ? 'text-gray-400' : ''}`}>
-                {new Date().toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                Unlimited Puzzles!
               </CardDescription>
             </div>
             <div className="text-xs md:text-sm text-right">
@@ -456,7 +420,7 @@ const TimesTablesMaster = () => {
               <div className={`${isDarkMode ? 'bg-gray-700' : 'bg-indigo-50'} p-4 rounded-lg`}>
                 <h3 className="text-lg md:text-xl font-bold mb-3">Welcome to Times Tables Master!</h3>
                 <p className="text-sm md:text-base mb-4">
-                  Solve the daily multiplication puzzle by figuring out the row and column factors.
+                  Solve multiplication puzzles by figuring out the row and column factors.
                 </p>
                 <div className="flex justify-center">
                   <Dialog open={showHowToPlay} onOpenChange={setShowHowToPlay}>
@@ -531,11 +495,6 @@ const TimesTablesMaster = () => {
                             <li>Solve as quickly as you can to improve your best time</li>
                           </ol>
                         </div>
-                        
-                        <div>
-                          <h4 className="font-bold mb-1">Daily Puzzle</h4>
-                          <p>A new puzzle is available every day. Come back daily to maintain your streak!</p>
-                        </div>
                       </div>
                     </DialogContent>
                   </Dialog>
@@ -572,14 +531,8 @@ const TimesTablesMaster = () => {
                 }`}
                 size={isMobile ? "default" : "lg"}
               >
-                {puzzleSolved ? "See Today's Puzzle" : "Start Puzzle"}
+                Start New Puzzle
               </Button>
-              
-              {puzzleSolved && (
-                <p className={`text-sm italic ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                  You've already solved today's puzzle. Come back tomorrow for a new challenge!
-                </p>
-              )}
             </div>
           )}
           
@@ -692,7 +645,7 @@ const TimesTablesMaster = () => {
                     Puzzle Solved! 🎉
                   </h3>
                   <p className="text-sm md:text-base">
-                    {puzzleSolved ? "You solved today's puzzle" : `You solved it in ${formatTime(timer)}`}
+                    You solved it in {formatTime(timer)}
                   </p>
                   <div className="flex justify-center gap-2 mt-3">
                     <Dialog open={showShareModal} onOpenChange={setShowShareModal}>
@@ -720,11 +673,13 @@ const TimesTablesMaster = () => {
                         </div>
                       </DialogContent>
                     </Dialog>
-                    <Link to="/">
-                      <Button variant={isDarkMode ? "outline" : "secondary"} className={isDarkMode ? 'border-gray-600' : ''}>
-                        Back to Home
-                      </Button>
-                    </Link>
+                    <Button 
+                      variant={isDarkMode ? "outline" : "secondary"} 
+                      className={isDarkMode ? 'border-gray-600' : ''}
+                      onClick={startNewGame}
+                    >
+                      New Puzzle
+                    </Button>
                   </div>
                 </div>
               )}
