@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,7 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Trophy, Timer, Share2, Flag, List, Users, UserPlus, UserRound } from "lucide-react";
+import { Trophy, Timer, Share2, Flag, List } from "lucide-react";
 import { 
   Dialog, 
   DialogContent, 
@@ -20,37 +21,11 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useParams, useNavigate } from "react-router-dom";
-import { MathFactsMultiplayer } from "@/components/MathFactsMultiplayer";
-import { MathFactsWaitingRoom } from "@/components/MathFactsWaitingRoom";
 
 // Type for a math question
 type MathQuestion = {
   text: string;
   answer: number;
-};
-
-// Type for game mode
-type GameMode = "single" | "create" | "join" | "waiting" | "multiplayer";
-
-// Type for a player
-type Player = {
-  id: string;
-  username: string;
-  progress: number;
-  time: number | null;
-  isComplete: boolean;
-};
-
-// Type for a multiplayer game
-type MultiplayerGame = {
-  gameId: string;
-  hostId: string;
-  players: Player[];
-  maxPlayers: number;
-  questions: MathQuestion[];
-  isStarted: boolean;
-  startTime: number | null;
 };
 
 // Generate a random integer between min and max (inclusive)
@@ -194,16 +169,6 @@ const generateSeedFromDate = (dateString: string): number => {
   return Math.abs(hash);
 };
 
-// Generate a random ID for multiplayer games
-const generateGameId = (): string => {
-  return Math.random().toString(36).substring(2, 8).toUpperCase();
-};
-
-// Generate a unique player ID
-const generatePlayerId = (): string => {
-  return Math.random().toString(36).substring(2, 10);
-};
-
 const MathFactsRace = () => {
   const [questions, setQuestions] = useState<MathQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
@@ -217,28 +182,12 @@ const MathFactsRace = () => {
   const [streak, setStreak] = useState<number>(0);
   const [totalRaces, setTotalRaces] = useState<number>(0);
   const [feedback, setFeedback] = useState<string>("");
-  const [gameMode, setGameMode] = useState<GameMode>("single");
-  const [username, setUsername] = useState<string>("");
-  const [maxPlayers, setMaxPlayers] = useState<number>(4);
-  const [multiplayerGame, setMultiplayerGame] = useState<MultiplayerGame | null>(null);
-  const [playerId, setPlayerId] = useState<string>("");
-  const [countdownTime, setCountdownTime] = useState<number>(5);
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<number | null>(null);
-  const countdownRef = useRef<number | null>(null);
   const isMobile = useIsMobile();
-  const { gameId } = useParams();
-  const navigate = useNavigate();
 
-  // Initialize single player game
+  // Initialize game
   useEffect(() => {
-    // If gameId is present in URL, switch to join mode
-    if (gameId) {
-      setGameMode("join");
-      return;
-    }
-    
-    // Otherwise proceed with single player initialization
     const today = getTodayString();
     const seed = generateSeedFromDate(today);
     const dailyQuestions = generateDailyQuestions(seed);
@@ -267,15 +216,10 @@ const MathFactsRace = () => {
     }
     
     // Focus the input when the component mounts
-    if (inputRef.current && gameMode === "single") {
+    if (inputRef.current) {
       inputRef.current.focus();
     }
-    
-    // Generate a player ID for this session
-    const id = localStorage.getItem("mathFactsPlayerId") || generatePlayerId();
-    localStorage.setItem("mathFactsPlayerId", id);
-    setPlayerId(id);
-  }, [gameId]);
+  }, []);
 
   // Start timer if game has started but timer hasn't
   useEffect(() => {
@@ -285,59 +229,6 @@ const MathFactsRace = () => {
       
       timerRef.current = window.setInterval(() => {
         setElapsedTime(Date.now() - currentTime);
-        
-        // Update player progress in multiplayer mode
-        if (gameMode === "multiplayer" && multiplayerGame) {
-          const updatedPlayers = multiplayerGame.players.map(p => {
-            if (p.id === playerId) {
-              return {
-                ...p,
-                progress: currentQuestionIndex,
-                time: Date.now() - (multiplayerGame.startTime || 0)
-              };
-            }
-            return p;
-          });
-          
-          setMultiplayerGame({
-            ...multiplayerGame,
-            players: updatedPlayers
-          });
-          
-          // Simulate other players progress
-          if (multiplayerGame.players.some(p => p.id !== playerId)) {
-            const simulateOthers = setInterval(() => {
-              setMultiplayerGame(prev => {
-                if (!prev) return null;
-                
-                return {
-                  ...prev,
-                  players: prev.players.map(p => {
-                    if (p.id !== playerId && !p.isComplete && Math.random() > 0.7) {
-                      const newProgress = Math.min(p.progress + 1, questions.length);
-                      const newTime = Date.now() - (prev.startTime || 0);
-                      const newIsComplete = newProgress === questions.length;
-                      
-                      if (newIsComplete && !p.isComplete) {
-                        toast.info(`${p.username} has finished!`);
-                      }
-                      
-                      return {
-                        ...p,
-                        progress: newProgress,
-                        time: newTime,
-                        isComplete: newIsComplete
-                      };
-                    }
-                    return p;
-                  })
-                };
-              });
-            }, 2000); // Simulate progress every 2 seconds
-            
-            return () => clearInterval(simulateOthers);
-          }
-        }
       }, 100);
     }
     
@@ -346,7 +237,7 @@ const MathFactsRace = () => {
         clearInterval(timerRef.current);
       }
     };
-  }, [isGameStarted, currentQuestionIndex, gameMode, multiplayerGame, playerId, questions.length]);
+  }, [isGameStarted]);
 
   // Handle user input
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -359,7 +250,7 @@ const MathFactsRace = () => {
     }
     
     // Check if the answer is correct
-    if (parseInt(value) === questions[currentQuestionIndex]?.answer) {
+    if (parseInt(value) === questions[currentQuestionIndex].answer) {
       // Move to next question or finish game
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -384,78 +275,33 @@ const MathFactsRace = () => {
     
     setIsGameComplete(true);
     
-    if (gameMode === "single") {
-      // Update personal best if achieved
-      let isNewRecord = false;
-      if (!personalBest || totalTime < personalBest) {
-        setPersonalBest(totalTime);
-        isNewRecord = true;
-        setFeedback("New Record! 🎉");
-      } else if (totalTime < personalBest * 1.2) {
-        setFeedback("Speedy Solver! ⚡");
-      } else {
-        setFeedback("Well done! 👍");
-      }
-      
-      // Update streak and total races
-      const newStreak = streak + 1;
-      const newTotalRaces = totalRaces + 1;
-      setStreak(newStreak);
-      setTotalRaces(newTotalRaces);
-      
-      // Save stats to localStorage
-      const today = getTodayString();
-      const stats = {
-        personalBest: isNewRecord ? totalTime : personalBest,
-        streak: newStreak,
-        totalRaces: newTotalRaces,
-        lastPlayedDate: today
-      };
-      localStorage.setItem("mathFactsStats", JSON.stringify(stats));
-    } else if (gameMode === "multiplayer" && multiplayerGame) {
-      // Update player status in multiplayer game
-      const updatedPlayers = multiplayerGame.players.map(p => {
-        if (p.id === playerId) {
-          return {
-            ...p,
-            progress: questions.length,
-            time: totalTime,
-            isComplete: true
-          };
-        }
-        return p;
-      });
-      
-      setMultiplayerGame({
-        ...multiplayerGame,
-        players: updatedPlayers
-      });
-      
-      setFeedback("Waiting for others to finish...");
-      
-      // Check if all players have finished
-      const allFinished = updatedPlayers.every(p => p.isComplete);
-      if (allFinished) {
-        // Sort players by completion time
-        const sortedPlayers = [...updatedPlayers].sort((a, b) => {
-          if (a.time === null) return 1;
-          if (b.time === null) return -1;
-          return a.time - b.time;
-        });
-        
-        const currentPlayerRank = sortedPlayers.findIndex(p => p.id === playerId) + 1;
-        
-        if (currentPlayerRank === 1) {
-          setFeedback("You won! 🏆");
-        } else {
-          setFeedback(`You finished ${currentPlayerRank}${
-            currentPlayerRank === 1 ? "st" :
-            currentPlayerRank === 2 ? "nd" :
-            currentPlayerRank === 3 ? "rd" : "th"
-          } place!`);
-        }
-      }
+    // Update personal best if achieved
+    let isNewRecord = false;
+    if (!personalBest || totalTime < personalBest) {
+      setPersonalBest(totalTime);
+      isNewRecord = true;
+      setFeedback("New Record! 🎉");
+    } else if (totalTime < personalBest * 1.2) {
+      setFeedback("Speedy Solver! ⚡");
+    } else {
+      setFeedback("Well done! 👍");
     }
+    
+    // Update streak and total races
+    const newStreak = streak + 1;
+    const newTotalRaces = totalRaces + 1;
+    setStreak(newStreak);
+    setTotalRaces(newTotalRaces);
+    
+    // Save stats to localStorage
+    const today = getTodayString();
+    const stats = {
+      personalBest: isNewRecord ? totalTime : personalBest,
+      streak: newStreak,
+      totalRaces: newTotalRaces,
+      lastPlayedDate: today
+    };
+    localStorage.setItem("mathFactsStats", JSON.stringify(stats));
   };
 
   // Start a new game
@@ -474,17 +320,10 @@ const MathFactsRace = () => {
     setEndTime(null);
     setElapsedTime(0);
     setFeedback("");
-    setGameMode("single");
-    setMultiplayerGame(null);
     
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
-    }
-    
-    if (countdownRef.current) {
-      clearInterval(countdownRef.current);
-      countdownRef.current = null;
     }
     
     // Focus the input
@@ -493,150 +332,6 @@ const MathFactsRace = () => {
         inputRef.current.focus();
       }
     }, 0);
-  };
-
-  // Create a multiplayer game
-  const createMultiplayerGame = () => {
-    if (!username) {
-      toast.error("Please enter a username");
-      return;
-    }
-    
-    const gameId = generateGameId();
-    
-    // Create new questions for multiplayer game
-    const seed = Date.now();
-    const multiplayerQuestions = generateDailyQuestions(seed);
-    
-    const newGame: MultiplayerGame = {
-      gameId,
-      hostId: playerId,
-      players: [
-        {
-          id: playerId,
-          username,
-          progress: 0,
-          time: null,
-          isComplete: false
-        }
-      ],
-      maxPlayers,
-      questions: multiplayerQuestions,
-      isStarted: false,
-      startTime: null
-    };
-    
-    setMultiplayerGame(newGame);
-    setGameMode("waiting");
-    setQuestions(multiplayerQuestions);
-    setCountdownTime(5);
-    
-    // Generate shareable URL
-    const shareableUrl = `${window.location.origin}/math-facts/${gameId}`;
-    
-    // Copy link to clipboard
-    navigator.clipboard.writeText(shareableUrl).then(() => {
-      toast.success("Game created! Share link copied to clipboard");
-    }).catch(() => {
-      toast.error("Could not copy game link automatically");
-    });
-  };
-
-  // Join a multiplayer game
-  const joinMultiplayerGame = () => {
-    if (!username || !gameId) {
-      toast.error("Please enter a username");
-      return;
-    }
-    
-    // In a real app, we would fetch the game data from a backend
-    // For this demo, we'll simulate joining
-    const simulatedGame: MultiplayerGame = {
-      gameId: gameId,
-      hostId: "simulated-host",
-      players: [
-        {
-          id: "simulated-host",
-          username: "Host",
-          progress: 0,
-          time: null,
-          isComplete: false
-        },
-        {
-          id: playerId,
-          username,
-          progress: 0,
-          time: null,
-          isComplete: false
-        }
-      ],
-      maxPlayers: 4,
-      questions: generateDailyQuestions(Date.now()),
-      isStarted: false,
-      startTime: null
-    };
-    
-    // Add some simulated players
-    const simulatedPlayerCount = Math.floor(Math.random() * 2) + 1; // 1-2 simulated players
-    
-    for (let i = 0; i < simulatedPlayerCount; i++) {
-      const simId = `simulated-${i}`;
-      const simNames = ["Alex", "Sam", "Jordan", "Taylor", "Riley", "Casey"];
-      
-      simulatedGame.players.push({
-        id: simId,
-        username: simNames[Math.floor(Math.random() * simNames.length)],
-        progress: 0,
-        time: null,
-        isComplete: false
-      });
-    }
-    
-    setMultiplayerGame(simulatedGame);
-    setGameMode("waiting");
-    setQuestions(simulatedGame.questions);
-    
-    // Redirect to non-parameterized URL to avoid issues with refreshing
-    navigate("/math-facts", { replace: true });
-    
-    // Simulate host starting the game after a short delay
-    setTimeout(() => {
-      startCountdown();
-    }, 3000);
-  };
-
-  // Start the countdown for multiplayer game
-  const startCountdown = () => {
-    setCountdownTime(5);
-    
-    if (countdownRef.current) {
-      clearInterval(countdownRef.current);
-    }
-    
-    countdownRef.current = window.setInterval(() => {
-      setCountdownTime(prev => {
-        if (prev <= 1) {
-          // Start the game
-          if (countdownRef.current) {
-            clearInterval(countdownRef.current);
-            countdownRef.current = null;
-          }
-          
-          if (multiplayerGame) {
-            setMultiplayerGame({
-              ...multiplayerGame,
-              isStarted: true,
-              startTime: Date.now()
-            });
-          }
-          
-          setGameMode("multiplayer");
-          setIsGameStarted(true);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
   };
 
   // Share results
@@ -686,230 +381,6 @@ const MathFactsRace = () => {
     </DialogContent>
   );
 
-  // Game Mode Selection
-  const renderModeSelection = () => (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 py-8 px-4">
-      <div className="max-w-md mx-auto">
-        <header className="text-center mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
-            Math Facts Race
-          </h1>
-          
-          <div className="flex justify-center items-center gap-2 mt-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="text-xs md:text-sm">
-                  How to Play
-                </Button>
-              </DialogTrigger>
-              <Instructions />
-            </Dialog>
-          </div>
-        </header>
-        
-        <Card className="mb-6 shadow-lg border-0 bg-white/90 backdrop-blur">
-          <CardHeader className="pb-2">
-            <CardTitle className="font-semibold text-lg">Choose Game Mode</CardTitle>
-          </CardHeader>
-          
-          <CardContent className="space-y-6">
-            <Button 
-              onClick={() => setGameMode("single")}
-              className="w-full h-20 text-xl bg-gradient-to-r from-blue-500 to-indigo-600"
-            >
-              <UserRound className="w-6 h-6 mr-2" />
-              Play Single Player
-            </Button>
-            
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-slate-500">or</span>
-              </div>
-            </div>
-            
-            <Button 
-              onClick={() => setGameMode("create")}
-              className="w-full h-16 text-lg bg-gradient-to-r from-indigo-500 to-violet-600"
-            >
-              <UserPlus className="w-5 h-5 mr-2" />
-              Create Multiplayer Game
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-
-  // Create Multiplayer Game Form
-  const renderCreateGame = () => (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 py-8 px-4">
-      <div className="max-w-md mx-auto">
-        <header className="text-center mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
-            Create Multiplayer Game
-          </h1>
-        </header>
-        
-        <Card className="mb-6 shadow-lg border-0 bg-white/90 backdrop-blur">
-          <CardHeader className="pb-2">
-            <CardTitle className="font-semibold text-lg">Game Setup</CardTitle>
-          </CardHeader>
-          
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="username" className="text-sm font-medium">
-                Your Username
-              </label>
-              <Input
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="bg-white"
-                placeholder="Enter your name"
-                maxLength={15}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label htmlFor="players" className="text-sm font-medium">
-                Maximum Players
-              </label>
-              <div className="flex items-center space-x-2">
-                {[2, 3, 4, 5, 6].map((num) => (
-                  <Button
-                    key={num}
-                    variant={maxPlayers === num ? "default" : "outline"}
-                    className={maxPlayers === num ? "bg-indigo-600" : ""}
-                    onClick={() => setMaxPlayers(num)}
-                  >
-                    {num}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-          
-          <CardFooter className="flex justify-between">
-            <Button 
-              variant="outline"
-              onClick={() => setGameMode("single")}
-            >
-              Back
-            </Button>
-            
-            <Button 
-              onClick={createMultiplayerGame}
-              className="bg-indigo-600 hover:bg-indigo-700"
-            >
-              <Users className="w-4 h-4 mr-2" />
-              Create Game
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-    </div>
-  );
-
-  // Join Multiplayer Game Form
-  const renderJoinGame = () => (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 py-8 px-4">
-      <div className="max-w-md mx-auto">
-        <header className="text-center mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
-            Join Multiplayer Game
-          </h1>
-        </header>
-        
-        <Card className="mb-6 shadow-lg border-0 bg-white/90 backdrop-blur">
-          <CardHeader className="pb-2">
-            <CardTitle className="font-semibold text-lg">Game {gameId}</CardTitle>
-          </CardHeader>
-          
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="username" className="text-sm font-medium">
-                Your Username
-              </label>
-              <Input
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="bg-white"
-                placeholder="Enter your name"
-                maxLength={15}
-              />
-            </div>
-          </CardContent>
-          
-          <CardFooter className="flex justify-between">
-            <Button 
-              variant="outline"
-              onClick={() => navigate("/math-facts")}
-            >
-              Back
-            </Button>
-            
-            <Button 
-              onClick={joinMultiplayerGame}
-              className="bg-indigo-600 hover:bg-indigo-700"
-            >
-              <Users className="w-4 h-4 mr-2" />
-              Join Game
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-    </div>
-  );
-
-  // Render the main component based on gameMode
-  if (gameMode === "create") {
-    return renderCreateGame();
-  }
-
-  if (gameMode === "join") {
-    return renderJoinGame();
-  }
-
-  if (gameMode === "waiting" && multiplayerGame) {
-    return (
-      <MathFactsWaitingRoom
-        game={multiplayerGame}
-        playerId={playerId}
-        onStart={startCountdown}
-        countdown={countdownTime}
-        isCountingDown={countdownRef.current !== null}
-      />
-    );
-  }
-
-  if (gameMode === "multiplayer" && multiplayerGame) {
-    return (
-      <MathFactsMultiplayer
-        game={multiplayerGame}
-        playerId={playerId}
-        questions={questions}
-        currentQuestionIndex={currentQuestionIndex}
-        userAnswer={userAnswer}
-        handleInputChange={handleInputChange}
-        isGameComplete={isGameComplete}
-        feedback={feedback}
-        elapsedTime={elapsedTime}
-        startNewGame={startNewGame}
-        shareResults={shareResults}
-      />
-    );
-  }
-
-  // Mode selection screen
-  if (gameMode === "single" && !isGameStarted && !isGameComplete) {
-    return renderModeSelection();
-  }
-
-  // Regular single player game
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 py-8 px-4">
       <div className="max-w-md mx-auto">
@@ -965,6 +436,7 @@ const MathFactsRace = () => {
                   <Progress
                     value={(currentQuestionIndex / questions.length) * 100}
                     className="h-2"
+                    indicatorClassName="bg-gradient-to-r from-indigo-500 to-violet-500"
                   />
                 </div>
                 

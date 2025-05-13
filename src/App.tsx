@@ -44,7 +44,6 @@ const App = () => (
               <Route path="/maths" element={<MentalMathsGame />} />
               <Route path="/times-tables" element={<TimesTablesMaster />} />
               <Route path="/math-facts" element={<MathFactsRace />} />
-              <Route path="/math-facts/:gameId" element={<MathFactsRace />} />
               <Route path="/number-sense" element={<NumberSenseBuilder />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/faq" element={<FAQ />} />
