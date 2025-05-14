@@ -1,4 +1,3 @@
-
 import React from "react";
 import Hero from "@/components/Hero";
 import GradeLevel from "@/components/GradeLevel";
@@ -25,7 +24,7 @@ const gradeLevels = [
         id: "shapes",
         title: "Shape Explorer",
         description: "Discover geometric shapes through interactive puzzles",
-        path: "#"
+        path: "/shape-explorer"
       },
       {
         id: "addition",
