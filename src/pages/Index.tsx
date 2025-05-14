@@ -139,11 +139,11 @@ const generalSkills = [
     color: "bg-gradient-to-r from-cyan-500 to-blue-500"
   },
   {
-    id: "math-puzzles",
-    title: "Daily Math Puzzles",
-    description: "Solve a new mathematical puzzle each day",
-    path: "#", 
-    color: "bg-gradient-to-r from-rose-500 to-orange-500"
+    id: "shape-explorer",
+    title: "Shape Explorer",
+    description: "Discover the fascinating world of 2D and 3D geometric shapes",
+    path: "/shape-explorer", 
+    color: "bg-gradient-to-r from-indigo-500 to-purple-600"
   },
   {
     id: "quick-calc",
