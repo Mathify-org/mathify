@@ -193,7 +193,7 @@ const getQuestions = (challengeId: string): AngleQuestion[] => {
       svg: (
         <svg width="150" height="150" viewBox="0 0 150 150">
           <path d="M 30 120 L 30 30 L 120 30" stroke="#3b82f6" strokeWidth="4" fill="none" />
-          <path d="M 30 50 A 20 20 0 0 1 50 30" stroke="#3b82f6" strokeWidth="2" fill="none" />
+          <text x="60" y="65" fontSize="12" fill="#3b82f6">Interior angle</text>
           <circle cx="30" cy="30" r="3" fill="#3b82f6" />
         </svg>
       ),
@@ -205,7 +205,7 @@ const getQuestions = (challengeId: string): AngleQuestion[] => {
       svg: (
         <svg width="150" height="150" viewBox="0 0 150 150">
           <path d="M 30 75 L 120 30 L 120 120" stroke="#10b981" strokeWidth="4" fill="none" />
-          <path d="M 90 45 A 30 30 0 0 1 105 90" stroke="#10b981" strokeWidth="2" fill="none" />
+          <text x="85" y="75" fontSize="12" fill="#10b981">Interior angle</text>
           <circle cx="120" cy="75" r="3" fill="#10b981" />
         </svg>
       ),
@@ -217,7 +217,7 @@ const getQuestions = (challengeId: string): AngleQuestion[] => {
       svg: (
         <svg width="150" height="150" viewBox="0 0 150 150">
           <path d="M 30 30 L 120 75 L 30 120" stroke="#8b5cf6" strokeWidth="4" fill="none" />
-          <path d="M 45 50 A 35 35 0 0 1 45 100" stroke="#8b5cf6" strokeWidth="2" fill="none" />
+          <text x="55" y="85" fontSize="12" fill="#8b5cf6">Interior angle</text>
           <circle cx="30" cy="75" r="3" fill="#8b5cf6" />
         </svg>
       ),

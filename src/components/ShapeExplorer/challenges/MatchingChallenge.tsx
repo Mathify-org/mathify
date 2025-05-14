@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -389,7 +390,8 @@ const getChallengeData = (challengeId: string) => {
             <div className="flex justify-center">
               <svg width="60" height="60" viewBox="0 0 60 60">
                 <path d="M 10 50 L 10 10 L 50 10" stroke="blue" strokeWidth="3" fill="none" />
-                <path d="M 10 25 A 15 15 0 0 1 25 10" stroke="blue" strokeWidth="1" fill="none" />
+                <text x="25" y="25" fontSize="10" fill="blue">Interior angle</text>
+                <circle cx="10" cy="10" r="3" fill="blue" />
               </svg>
             </div>
           ),
@@ -401,7 +403,8 @@ const getChallengeData = (challengeId: string) => {
             <div className="flex justify-center">
               <svg width="60" height="60" viewBox="0 0 60 60">
                 <path d="M 10 30 L 50 10 L 50 50" stroke="green" strokeWidth="3" fill="none" />
-                <path d="M 35 20 A 20 20 0 0 1 40 40" stroke="green" strokeWidth="1" fill="none" />
+                <text x="30" y="30" fontSize="10" fill="green">Interior angle</text>
+                <circle cx="50" cy="30" r="3" fill="green" />
               </svg>
             </div>
           ),
@@ -413,7 +416,8 @@ const getChallengeData = (challengeId: string) => {
             <div className="flex justify-center">
               <svg width="60" height="60" viewBox="0 0 60 60">
                 <path d="M 10 10 L 50 30 L 10 50" stroke="purple" strokeWidth="3" fill="none" />
-                <path d="M 20 25 A 15 15 0 0 1 20 35" stroke="purple" strokeWidth="1" fill="none" />
+                <text x="20" y="35" fontSize="10" fill="purple">Interior angle</text>
+                <circle cx="10" cy="30" r="3" fill="purple" />
               </svg>
             </div>
           ),
