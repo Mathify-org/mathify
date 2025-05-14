@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -307,8 +306,16 @@ const getChallengeData = (challengeId: string) => {
           id: "t3",
           content: (
             <div className="flex justify-center">
-              <div className="w-0 h-0 border-l-[40px] border-r-[40px] border-b-[40px] 
-                border-l-transparent border-r-transparent border-b-purple-500"></div>
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <polygon 
+                  points="10,70 70,70 40,10" 
+                  fill="purple"
+                  stroke="purple"
+                  strokeWidth="1"
+                />
+                {/* Draw a small square to indicate the right angle */}
+                <path d="M 15,65 L 15,60 L 20,60" fill="none" stroke="white" strokeWidth="2" />
+              </svg>
             </div>
           ),
           matchId: "tri3"
