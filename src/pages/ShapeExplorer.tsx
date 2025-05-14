@@ -33,9 +33,9 @@ const islands = [
       },
       {
         id: "poly-2",
-        name: "Triangle Types",
+        name: "Polygon Corners",
         type: "match",
-        description: "Match triangles with their correct names",
+        description: "Match shapes with their number of vertices",
         completed: false,
         stars: 0
       },

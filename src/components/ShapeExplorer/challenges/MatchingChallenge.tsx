@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -256,7 +257,7 @@ const MatchingChallenge: React.FC<MatchingChallengeProps> = ({ challengeId, onSu
 // Challenge-specific content
 const getChallengeTitle = (challengeId: string): string => {
   const titles: Record<string, string> = {
-    "poly-2": "Triangle Types",
+    "poly-2": "Polygon Corners",
     "ang-1": "Types of Angles",
     "3d-1": "3D Shapes and Properties",
     "sym-1": "Line Symmetry",
@@ -266,7 +267,7 @@ const getChallengeTitle = (challengeId: string): string => {
 
 const getChallengeInstructions = (challengeId: string): string => {
   const instructions: Record<string, string> = {
-    "poly-2": "Match each triangle with its correct classification.",
+    "poly-2": "Match each shape with its correct number of vertices (corners).",
     "ang-1": "Match each angle with its correct name.",
     "3d-1": "Match 3D shapes with their correct properties.",
     "sym-1": "Match shapes with their line(s) of symmetry.",
@@ -283,59 +284,101 @@ const getChallengeData = (challengeId: string) => {
     case "poly-2":
       leftItems = [
         {
-          id: "t1",
+          id: "s1",
           content: (
             <div className="flex justify-center">
-              <div className="w-0 h-0 border-l-[30px] border-r-[30px] border-b-[60px] 
-                border-l-transparent border-r-transparent border-b-blue-500"></div>
-            </div>
-          ),
-          matchId: "tri1"
-        },
-        {
-          id: "t2",
-          content: (
-            <div className="flex justify-center">
-              <div className="w-0 h-0 border-l-[50px] border-r-[20px] border-b-[60px] 
-                border-l-transparent border-r-transparent border-b-green-500"></div>
-            </div>
-          ),
-          matchId: "tri2"
-        },
-        {
-          id: "t3",
-          content: (
-            <div className="flex justify-center">
-              <svg width="80" height="80" viewBox="0 0 80 80">
+              <svg width="60" height="60" viewBox="0 0 60 60">
                 <polygon 
-                  points="10,70 70,70 40,10" 
-                  fill="purple"
-                  stroke="purple"
-                  strokeWidth="1"
+                  points="30,5 55,30 30,55 5,30" 
+                  fill="#4f46e5"
+                  stroke="#4338ca"
+                  strokeWidth="2"
                 />
-                {/* Draw a small square to indicate the right angle */}
-                <path d="M 15,65 L 15,60 L 20,60" fill="none" stroke="white" strokeWidth="2" />
+                {/* Dots at vertices */}
+                <circle cx="30" cy="5" r="3" fill="#f97316" />
+                <circle cx="55" cy="30" r="3" fill="#f97316" />
+                <circle cx="30" cy="55" r="3" fill="#f97316" />
+                <circle cx="5" cy="30" r="3" fill="#f97316" />
               </svg>
             </div>
           ),
-          matchId: "tri3"
+          matchId: "v4"
         },
         {
-          id: "t4",
+          id: "s2",
           content: (
             <div className="flex justify-center">
-              <div className="w-0 h-0 border-l-[35px] border-r-[35px] border-b-[50px] 
-                border-l-transparent border-r-transparent border-b-orange-500"></div>
+              <svg width="60" height="60" viewBox="0 0 60 60">
+                <polygon 
+                  points="30,5 50,20 40,50 20,50 10,20" 
+                  fill="#2dd4bf"
+                  stroke="#0d9488"
+                  strokeWidth="2"
+                />
+                {/* Dots at vertices */}
+                <circle cx="30" cy="5" r="3" fill="#f97316" />
+                <circle cx="50" cy="20" r="3" fill="#f97316" />
+                <circle cx="40" cy="50" r="3" fill="#f97316" />
+                <circle cx="20" cy="50" r="3" fill="#f97316" />
+                <circle cx="10" cy="20" r="3" fill="#f97316" />
+              </svg>
             </div>
           ),
-          matchId: "tri4"
+          matchId: "v5"
+        },
+        {
+          id: "s3",
+          content: (
+            <div className="flex justify-center">
+              <svg width="60" height="60" viewBox="0 0 60 60">
+                <polygon 
+                  points="30,5 55,15 55,45 30,55 5,45 5,15" 
+                  fill="#a855f7"
+                  stroke="#9333ea"
+                  strokeWidth="2"
+                />
+                {/* Dots at vertices */}
+                <circle cx="30" cy="5" r="3" fill="#f97316" />
+                <circle cx="55" cy="15" r="3" fill="#f97316" />
+                <circle cx="55" cy="45" r="3" fill="#f97316" />
+                <circle cx="30" cy="55" r="3" fill="#f97316" />
+                <circle cx="5" cy="45" r="3" fill="#f97316" />
+                <circle cx="5" cy="15" r="3" fill="#f97316" />
+              </svg>
+            </div>
+          ),
+          matchId: "v6"
+        },
+        {
+          id: "s4",
+          content: (
+            <div className="flex justify-center">
+              <svg width="60" height="60" viewBox="0 0 60 60">
+                <polygon 
+                  points="30,5 45,15 50,35 35,50 15,50 10,35 15,15" 
+                  fill="#ec4899"
+                  stroke="#db2777"
+                  strokeWidth="2"
+                />
+                {/* Dots at vertices */}
+                <circle cx="30" cy="5" r="3" fill="#f97316" />
+                <circle cx="45" cy="15" r="3" fill="#f97316" />
+                <circle cx="50" cy="35" r="3" fill="#f97316" />
+                <circle cx="35" cy="50" r="3" fill="#f97316" />
+                <circle cx="15" cy="50" r="3" fill="#f97316" />
+                <circle cx="10" cy="35" r="3" fill="#f97316" />
+                <circle cx="15" cy="15" r="3" fill="#f97316" />
+              </svg>
+            </div>
+          ),
+          matchId: "v7"
         },
       ];
       rightItems = [
-        { id: "tri1", content: "Equilateral Triangle", matchId: "t1" },
-        { id: "tri2", content: "Scalene Triangle", matchId: "t2" },
-        { id: "tri3", content: "Right Triangle", matchId: "t3" },
-        { id: "tri4", content: "Isosceles Triangle", matchId: "t4" },
+        { id: "v4", content: "4 vertices", matchId: "s1" },
+        { id: "v5", content: "5 vertices", matchId: "s2" },
+        { id: "v6", content: "6 vertices", matchId: "s3" },
+        { id: "v7", content: "7 vertices", matchId: "s4" },
       ];
       break;
       

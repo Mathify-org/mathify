@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -187,7 +186,7 @@ const ShapeChallenge: React.FC<ShapeChallengeProps> = ({ challenge, onComplete, 
 const getFunFactForChallenge = (challengeId: string) => {
   const facts: Record<string, string> = {
     "poly-1": "The word 'polygon' comes from Greek, where 'poly' means 'many' and 'gon' means 'angle'.",
-    "poly-2": "An equilateral triangle has three equal sides and three equal angles of 60 degrees each.",
+    "poly-2": "Vertices are the points where two or more edges meet. The word 'vertex' comes from Latin, meaning 'peak' or 'summit'.",
     "poly-3": "A square is a special type of rectangle where all sides are equal in length.",
     "poly-4": "A regular polygon has all sides and angles equal, like a square or equilateral triangle.",
     "ang-1": "A full circle contains 360 degrees, which was established by ancient Babylonians!",
