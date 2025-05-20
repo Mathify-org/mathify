@@ -50,8 +50,8 @@ const gradeLevels = [
       {
         id: "fractions",
         title: "Fraction Frenzy",
-        description: "Master fractions with interactive visual games",
-        path: "#"
+        description: "Master fractions with a fast-paced visual matching game",
+        path: "/fraction-frenzy"
       },
       {
         id: "decimals",
@@ -145,11 +145,11 @@ const generalSkills = [
     color: "bg-gradient-to-r from-indigo-500 to-purple-600"
   },
   {
-    id: "quick-calc",
-    title: "Quick Calculator",
-    description: "Improve estimation and mental calculation skills",
-    path: "#",
-    color: "bg-gradient-to-r from-teal-400 to-green-500"
+    id: "fraction-frenzy",
+    title: "Fraction Frenzy",
+    description: "Match fractions with visuals in this fast-paced game",
+    path: "/fraction-frenzy",
+    color: "bg-gradient-to-r from-pink-500 to-orange-400"
   }
 ];
 

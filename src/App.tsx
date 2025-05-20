@@ -11,6 +11,7 @@ import TimesTablesMaster from "./pages/TimesTablesMaster";
 import MathFactsRace from "./pages/MathFactsRace";
 import NumberSenseBuilder from "./pages/NumberSenseBuilder";
 import ShapeExplorer from "./pages/ShapeExplorer";
+import FractionFrenzy from "./pages/FractionFrenzy";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -47,6 +48,7 @@ const App = () => (
               <Route path="/math-facts" element={<MathFactsRace />} />
               <Route path="/number-sense" element={<NumberSenseBuilder />} />
               <Route path="/shape-explorer" element={<ShapeExplorer />} />
+              <Route path="/fraction-frenzy" element={<FractionFrenzy />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
