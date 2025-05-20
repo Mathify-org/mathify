@@ -18,6 +18,11 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/sonner";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Cake, Star, Medal, Trophy, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
