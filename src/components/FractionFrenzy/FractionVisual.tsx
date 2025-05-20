@@ -1,4 +1,3 @@
-
 import React from "react";
 import { cn } from "@/lib/utils";
 import { FractionData, Theme } from "@/types/fractionFrenzy";
@@ -88,7 +87,7 @@ const FractionVisual = ({ fraction, theme, size = "medium" }: FractionVisualProp
     );
   };
   
-  // Pie chart visualization
+  // Pie chart visualization - Removing unnecessary dots
   const renderPieChart = () => {
     const slices = [];
     const sliceAngle = 360 / denominator;

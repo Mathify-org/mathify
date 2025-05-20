@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -117,7 +116,7 @@ const FractionFrenzy = () => {
     return fractions;
   };
 
-  // Get visual options for current game
+  // Get visual options for current game - Fixed to ensure the correct answer is always included
   const getOptions = (current: FractionData | null, count: number = 4): FractionData[] => {
     if (!current) return [];
     
@@ -133,7 +132,20 @@ const FractionFrenzy = () => {
     const selectedOptions = shuffled.slice(0, count - 1);
     
     // Add the correct answer and shuffle again
-    return [...selectedOptions, current].sort(() => 0.5 - Math.random());
+    const result = [...selectedOptions, current].sort(() => 0.5 - Math.random());
+    
+    // Double-check that the correct answer is included
+    const hasCorrectAnswer = result.some(
+      option => option.numerator === current.numerator && option.denominator === current.denominator
+    );
+    
+    // If somehow the correct answer isn't in the array (which shouldn't happen), add it
+    if (!hasCorrectAnswer) {
+      result.pop(); // Remove the last item
+      result.push(current); // Add the correct answer
+    }
+    
+    return result;
   };
 
   // Start a new round
