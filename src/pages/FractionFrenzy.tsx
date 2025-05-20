@@ -34,6 +34,7 @@ import { FractionData, FractionType, GameMode, GameStats, Theme, Difficulty } fr
 
 // Game settings
 const FRENZY_TIME = 60; // seconds
+const FRACTION_TIME = 10; // seconds for each fraction in frenzy mode
 const SPEED_INCREASE_INTERVAL = 10; // seconds
 const INITIAL_CAROUSEL_SPEED = 5000; // ms
 const MIN_CAROUSEL_SPEED = 2000; // ms
@@ -63,6 +64,7 @@ const FractionFrenzy = () => {
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(MAX_LIVES);
   const [timeRemaining, setTimeRemaining] = useState(FRENZY_TIME);
+  const [fractionTimer, setFractionTimer] = useState(FRACTION_TIME);
   const [currentFraction, setCurrentFraction] = useState<FractionData | null>(null);
   const [options, setOptions] = useState<FractionData[]>([]);
   const [carouselSpeed, setCarouselSpeed] = useState(INITIAL_CAROUSEL_SPEED);
@@ -161,6 +163,10 @@ const FractionFrenzy = () => {
     setCurrentFraction(newFraction);
     setOptions(getOptions(newFraction));
     setShowAnswer(false);
+    
+    if (gameMode === "frenzy") {
+      setFractionTimer(FRACTION_TIME);
+    }
   };
 
   // Answer handler
@@ -229,12 +235,23 @@ const FractionFrenzy = () => {
     
     if (mode === "frenzy") {
       setTimeRemaining(FRENZY_TIME);
+      setFractionTimer(FRACTION_TIME);
+      
       // Set up timer for Frenzy Mode
       timerRef.current = setInterval(() => {
         setTimeRemaining(prev => {
           if (prev <= 1) {
             endGame();
             return 0;
+          }
+          return prev - 1;
+        });
+        
+        setFractionTimer(prev => {
+          if (prev <= 1) {
+            // Time's up for this fraction, move to the next one
+            startNewRound();
+            return FRACTION_TIME;
           }
           return prev - 1;
         });
@@ -381,10 +398,15 @@ const FractionFrenzy = () => {
           
           <div className="flex items-center gap-4">
             {gameMode === "frenzy" && (
-              <GameTimer 
-                timeRemaining={timeRemaining} 
-                totalTime={FRENZY_TIME}
-              />
+              <>
+                <GameTimer 
+                  timeRemaining={timeRemaining} 
+                  totalTime={FRENZY_TIME}
+                />
+                <div className="bg-amber-100 px-3 py-1 rounded-md text-amber-800 font-medium">
+                  {fractionTimer}s
+                </div>
+              </>
             )}
             
             {gameMode === "survival" && (
