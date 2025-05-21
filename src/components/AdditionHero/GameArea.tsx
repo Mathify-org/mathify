@@ -272,13 +272,38 @@ const GameArea: React.FC<GameAreaProps> = ({ level, onGameOver }) => {
         }));
         break;
       case "multiZap":
-        // Immediately solve all visible problems
+        // Safely handle multiZap powerup - ensure we don't access undefined properties
         setProblems(prev => {
-          const visibleProblems = prev.filter(p => !p.isSolved);
+          // Create a safe copy of problems that are valid and not solved
+          const visibleProblems = prev.filter(p => p && !p.isSolved);
+          
+          // Process each visible problem
           visibleProblems.forEach(problem => {
-            handleCorrectAnswer(problem.id);
+            if (problem && problem.id) {
+              // Clone the problem to avoid any reference issues
+              const problemCopy = { ...problem };
+              
+              // Create a zap effect for this problem
+              setZapEffects(zapEffects => [
+                ...zapEffects, 
+                {
+                  id: `zap-multi-${Date.now()}-${problemCopy.id}`,
+                  x: problemCopy.position.x,
+                  y: problemCopy.position.y
+                }
+              ]);
+              
+              // Update the stats for each solved problem
+              setGameStats(stats => ({
+                ...stats,
+                score: stats.score + BASE_POINTS * level,
+                correctAnswers: stats.correctAnswers + 1
+              }));
+            }
           });
-          return prev.map(p => ({...p, isSolved: true}));
+          
+          // Mark all problems as solved
+          return prev.map(p => p ? {...p, isSolved: true} : p);
         });
         break;
     }
@@ -356,24 +381,22 @@ const GameArea: React.FC<GameAreaProps> = ({ level, onGameOver }) => {
         activePowerups={activePowerups}
       />
       
-      {/* Falling problems */}
+      {/* Falling problems - add null check */}
       <AnimatePresence>
-        {problems.map((problem) => (
-          !problem.isSolved && (
-            <FallingProblem
-              key={problem.id}
-              problem={problem}
-              speed={getAdjustedSpeed(problem.speed)}
-              onMissed={handleProblemMissed}
-              onCorrectAnswer={handleCorrectAnswer}
-            />
-          )
+        {problems.filter(p => p !== undefined && !p.isSolved).map((problem) => (
+          <FallingProblem
+            key={problem.id}
+            problem={problem}
+            speed={getAdjustedSpeed(problem.speed)}
+            onMissed={handleProblemMissed}
+            onCorrectAnswer={handleCorrectAnswer}
+          />
         ))}
       </AnimatePresence>
       
-      {/* Answer input area */}
+      {/* Answer input area - add null check */}
       <AnswerInput
-        problems={problems.filter(p => !p.isSolved)}
+        problems={problems.filter(p => p !== undefined && !p.isSolved)}
         onCorrectAnswer={handleCorrectAnswer}
         onWrongAnswer={handleWrongAnswer}
       />
