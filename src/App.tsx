@@ -49,6 +49,7 @@ const App = () => (
               <Route path="/number-sense" element={<NumberSenseBuilder />} />
               <Route path="/shape-explorer" element={<ShapeExplorer />} />
               <Route path="/fraction-frenzy" element={<FractionFrenzy />} />
+              <Route path="/addition-hero" element={<AdditionHero />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />

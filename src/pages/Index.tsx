@@ -110,6 +110,13 @@ const gradeLevels = [
 
 const generalSkills = [
   {
+    id: "addition-hero",
+    title: "Addition Hero",
+    description: "Become a math superhero by solving addition problems",
+    path: "/addition-hero",
+    color: "bg-gradient-to-r from-blue-600 to-purple-600"
+  },
+  {
     id: "mental-maths",
     title: "Mental Maths Challenge",
     description: "Test your mental math skills with quick calculations",
