@@ -12,7 +12,7 @@ import MathFactsRace from "./pages/MathFactsRace";
 import NumberSenseBuilder from "./pages/NumberSenseBuilder";
 import ShapeExplorer from "./pages/ShapeExplorer";
 import FractionFrenzy from "./pages/FractionFrenzy";
-import AdditionHero from "./pages/AdditionHero";
+import ArithmeticHero from "./pages/ArithmeticHero";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -50,7 +50,7 @@ const App = () => (
               <Route path="/number-sense" element={<NumberSenseBuilder />} />
               <Route path="/shape-explorer" element={<ShapeExplorer />} />
               <Route path="/fraction-frenzy" element={<FractionFrenzy />} />
-              <Route path="/addition-hero" element={<AdditionHero />} />
+              <Route path="/arithmetic-hero" element={<ArithmeticHero />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
