@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Zap, Shield } from 'lucide-react';
-import { gameService } from '@/services/additionHero/gameService';
+import { gameService, generateNumberWithDigits } from '@/services/additionHero/gameService';
 import { MathProblem } from '@/types/additionHero';
 import FallingProblem from './FallingProblem';
 import GameHUD from './GameHUD';
@@ -80,12 +80,12 @@ const HeroChallenge: React.FC<HeroChallengeProps> = ({ onGameOver }) => {
       }
       
       // Generate one new problem
-      const firstNumber = gameService.generateNumberWithDigits(
+      const firstNumber = generateNumberWithDigits(
         minDigits[0], 
         maxDigits[0]
       );
       
-      const secondNumber = gameService.generateNumberWithDigits(
+      const secondNumber = generateNumberWithDigits(
         minDigits[1], 
         maxDigits[1]
       );

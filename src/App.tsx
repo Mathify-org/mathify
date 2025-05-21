@@ -12,6 +12,7 @@ import MathFactsRace from "./pages/MathFactsRace";
 import NumberSenseBuilder from "./pages/NumberSenseBuilder";
 import ShapeExplorer from "./pages/ShapeExplorer";
 import FractionFrenzy from "./pages/FractionFrenzy";
+import AdditionHero from "./pages/AdditionHero";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";

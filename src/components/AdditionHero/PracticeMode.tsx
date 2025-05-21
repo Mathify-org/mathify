@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Check, X, Zap, Shield } from 'lucide-react';
-import { gameService, levels } from '@/services/additionHero/gameService';
+import { gameService, levels, generateNumberWithDigits } from '@/services/additionHero/gameService';
 import { MathProblem } from '@/types/additionHero';
 import ZapEffect from './ZapEffect';
 
@@ -35,12 +35,12 @@ const PracticeMode: React.FC<PracticeModeProps> = ({ level, onExit }) => {
   // Generate a new problem
   const generateNewProblem = () => {
     // Use the digit options to create numbers with specific digit counts
-    const firstNumber = gameService.generateNumberWithDigits(
+    const firstNumber = generateNumberWithDigits(
       digitOptions.first.min, 
       digitOptions.first.max
     );
     
-    const secondNumber = gameService.generateNumberWithDigits(
+    const secondNumber = generateNumberWithDigits(
       digitOptions.second.min, 
       digitOptions.second.max
     );

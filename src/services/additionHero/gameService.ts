@@ -1,4 +1,3 @@
-
 import { 
   PlayerProgress, 
   LevelConfig,
@@ -162,7 +161,8 @@ const generateRandomNumber = (min: number, max: number): number => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-const generateNumberWithDigits = (minDigits: number, maxDigits: number): number => {
+// Export this function so it's available to components
+export const generateNumberWithDigits = (minDigits: number, maxDigits: number): number => {
   const min = Math.pow(10, minDigits - 1);
   const max = Math.pow(10, maxDigits) - 1;
   return generateRandomNumber(min, max);
@@ -416,5 +416,8 @@ export const gameService = {
   getAvatar: (): { cape: string, mask: string, color: string, emblem: string } => {
     const progress = gameService.getPlayerProgress();
     return progress.avatarItems;
-  }
+  },
+  
+  // Add generateNumberWithDigits to the service object
+  generateNumberWithDigits
 };
