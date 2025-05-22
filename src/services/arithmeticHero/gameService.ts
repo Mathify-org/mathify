@@ -1,4 +1,3 @@
-
 import { 
   PlayerProgress, 
   LevelConfig,
@@ -344,24 +343,41 @@ export const gameService = {
   },
 
   // Update high scores
-  updateHighScore: (mode: "arcade" | "challenge", level: number, score: number): boolean => {
-    const progress = gameService.getPlayerProgress();
-    let isNewHighScore = false;
-    
-    if (mode === "arcade") {
-      if (score > (progress.highScores.arcade[level - 1] || 0)) {
-        progress.highScores.arcade[level - 1] = score;
-        isNewHighScore = true;
-      }
-    } else if (mode === "challenge") {
-      if (score > progress.highScores.challenge) {
-        progress.highScores.challenge = score;
-        isNewHighScore = true;
-      }
+  updateHighScore: (mode: GameMode, level: number, score: number): boolean => {
+    try {
+      // Get existing progress data
+      const progress = gameService.getPlayerProgress();
+      let isNewHighScore = false;
+
+      // Update high scores based on game mode
+      if (mode === "arcade") {
+        // Ensure the level exists in the array
+        while (progress.highScores.arcade.length < level) {
+          progress.highScores.arcade.push(0);
+        }
+
+        // Check if this is a new high score for this level
+        if (score > progress.highScores.arcade[level - 1]) {
+          progress.highScores.arcade[level - 1] = score;
+          isNewHighScore = true;
+        }
+      } else if (mode === "challenge") {
+        // Update challenge high score if better
+        if (score > progress.highScores.challenge) {
+          progress.highScores.challenge = score;
+          isNewHighScore = true;
+        }
+      } 
+      // Practice mode doesn't update high scores, but we need to handle it
+      // to avoid the type error
+
+      // Save updated progress
+      gameService.savePlayerProgress(progress);
+      return isNewHighScore;
+    } catch (err) {
+      console.error("Failed to update high score:", err);
+      return false;
     }
-    
-    gameService.savePlayerProgress(progress);
-    return isNewHighScore;
   },
 
   // Check if level should unlock and update progress

@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { gameService } from '@/services/arithmeticHero/gameService';
-import { MathProblem, GameStats, OperationType } from '@/types/arithmeticHero';
+import { MathProblem, GameStats, OperationType, PowerupType } from '@/types/arithmeticHero';
 import { AnswerMethod } from '@/types/arithmeticHero';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -36,8 +35,9 @@ const HeroChallenge: React.FC<HeroChallengeProps> = ({ onGameOver }) => {
   const [answerMethod, setAnswerMethod] = useState<AnswerMethod>("type");
   const [difficulty, setDifficulty] = useState<1 | 2 | 3>(1);
   const [activeZapEffects, setActiveZapEffects] = useState<{id: string, x: number, y: number, streak: number}[]>([]);
-  const [activePowerup, setActivePowerup] = useState<{type: string, remaining: number} | null>(null);
-  const [showPowerupNotification, setShowPowerupNotification] = useState<string | null>(null);
+  const [activePowerup, setActivePowerup] = useState<{type: PowerupType, remaining: number} | null>(null);
+  const [showPowerupNotification, setShowPowerupNotification] = useState<PowerupType | null>(null);
+  const [currentWave, setCurrentWave] = useState<number>(1);
   
   // Refs to store timer and interval IDs
   const problemTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -91,6 +91,16 @@ const HeroChallenge: React.FC<HeroChallengeProps> = ({ onGameOver }) => {
       
       const correctAnswer = gameService.calculateResult(firstNumber, secondNumber, operation);
       
+      // Determine if this should be a powerup (10% chance)
+      const isPowerup = Math.random() < 0.1;
+      
+      // Select a powerup type if this is a powerup
+      let powerupType: PowerupType | undefined = undefined;
+      if (isPowerup) {
+        const powerupTypes: PowerupType[] = ["slowMotion", "doublePoints", "shield", "multiZap"];
+        powerupType = powerupTypes[Math.floor(Math.random() * powerupTypes.length)];
+      }
+      
       return {
         id: `challenge-${Date.now()}-${idx}`,
         firstNumber,
@@ -105,10 +115,8 @@ const HeroChallenge: React.FC<HeroChallengeProps> = ({ onGameOver }) => {
         speed: 4000 + (Math.random() * 1000), // Random speed between 4-5 seconds
         isSolved: false,
         // Add powerups with small chance 
-        isPowerup: Math.random() < 0.1,
-        powerupType: Math.random() < 0.1 
-          ? ["slowMotion", "doublePoints", "shield", "multiZap"][Math.floor(Math.random() * 4)]
-          : undefined
+        isPowerup,
+        powerupType
       };
     });
     
@@ -262,7 +270,7 @@ const HeroChallenge: React.FC<HeroChallengeProps> = ({ onGameOver }) => {
   };
   
   // Activate powerup
-  const activatePowerup = (type: string) => {
+  const activatePowerup = (type: PowerupType) => {
     let duration: number;
     
     switch (type) {
@@ -351,6 +359,22 @@ const HeroChallenge: React.FC<HeroChallengeProps> = ({ onGameOver }) => {
     }
   };
   
+  // Handle wrong answer input
+  const handleWrongAnswer = () => {
+    // Reduce shield health less severely than a complete miss
+    setStats(prev => {
+      const newShieldHealth = prev.shieldHealth - 10; // Wrong answer reduces shield by 10%
+      
+      // Reset streak
+      return {
+        ...prev,
+        shieldHealth: Math.max(0, newShieldHealth),
+        streak: 0,
+        incorrectAnswers: prev.incorrectAnswers + 1
+      };
+    });
+  };
+  
   // Effects
   useEffect(() => {
     // Update difficulty based on time
@@ -423,6 +447,9 @@ const HeroChallenge: React.FC<HeroChallengeProps> = ({ onGameOver }) => {
             streak={stats.streak} 
             level={difficulty} 
             shieldHealth={stats.shieldHealth} 
+            wave={currentWave}
+            maxShield={SHIELD_MAX_HEALTH}
+            activePowerups={activePowerup ? [{ type: activePowerup.type, endTime: Date.now() + (activePowerup.remaining * 1000) }] : []}
           />
           
           {/* Timer */}
@@ -455,10 +482,9 @@ const HeroChallenge: React.FC<HeroChallengeProps> = ({ onGameOver }) => {
             <FallingProblem
               key={problem.id}
               problem={problem}
-              onSolve={() => handleCorrectAnswer(problem.id)}
-              onMiss={() => handleMissedProblem(problem.id)}
-              answerMethod={answerMethod}
-              slowMotion={activePowerup?.type === "slowMotion"}
+              speed={problem.speed}
+              onMissed={() => handleMissedProblem(problem.id)}
+              onCorrectAnswer={() => handleCorrectAnswer(problem.id)}
             />
           ))}
         </AnimatePresence>
@@ -468,14 +494,14 @@ const HeroChallenge: React.FC<HeroChallengeProps> = ({ onGameOver }) => {
           <AnswerInput
             problems={problems.filter(p => !p.isSolved)}
             onCorrectAnswer={handleCorrectAnswer}
-            answerMethod={answerMethod}
+            onWrongAnswer={handleWrongAnswer}
           />
         </div>
         
         {/* Powerup notification */}
         <AnimatePresence>
           {showPowerupNotification && (
-            <PowerupNotification type={showPowerupNotification as any} />
+            <PowerupNotification type={showPowerupNotification} />
           )}
         </AnimatePresence>
         

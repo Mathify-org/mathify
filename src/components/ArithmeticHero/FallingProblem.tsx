@@ -9,6 +9,11 @@ interface FallingProblemProps {
   speed: number;
   onMissed: (id: string) => void;
   onCorrectAnswer: (id: string) => void;
+  // Add support for the HeroChallenge usage
+  onSolve?: () => void;
+  onMiss?: () => void;
+  answerMethod?: string;
+  slowMotion?: boolean;
 }
 
 const FallingProblem: React.FC<FallingProblemProps> = ({ 
@@ -16,6 +21,9 @@ const FallingProblem: React.FC<FallingProblemProps> = ({
   speed,
   onMissed,
   onCorrectAnswer,
+  onSolve, // Optional prop for HeroChallenge
+  onMiss,   // Optional prop for HeroChallenge
+  slowMotion = false,
 }) => {
   const [animationComplete, setAnimationComplete] = useState(false);
 
@@ -23,8 +31,10 @@ const FallingProblem: React.FC<FallingProblemProps> = ({
     // When animation completes, mark as missed
     if (animationComplete) {
       onMissed(problem.id);
+      // Also call the optional onMiss if provided
+      if (onMiss) onMiss();
     }
-  }, [animationComplete, problem.id, onMissed]);
+  }, [animationComplete, problem.id, onMissed, onMiss]);
 
   // Get powerup icon
   const getPowerupIcon = () => {
@@ -79,12 +89,15 @@ const FallingProblem: React.FC<FallingProblemProps> = ({
     }
   }
 
+  // Adjust animation duration if slow motion is active
+  const animationDuration = slowMotion ? speed * 1.5 / 1000 : speed / 1000;
+
   return (
     <motion.div
       initial={{ x: `${problem.position.x}%`, y: "-10%" }}
       animate={{ y: "100%" }}
       transition={{ 
-        duration: speed / 1000, // Convert ms to seconds
+        duration: animationDuration, // Convert ms to seconds
         ease: "linear"
       }}
       onAnimationComplete={() => setAnimationComplete(true)}
