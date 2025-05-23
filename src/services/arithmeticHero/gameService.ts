@@ -1,3 +1,4 @@
+
 import { 
   PlayerProgress, 
   LevelConfig,
@@ -5,7 +6,6 @@ import {
   Achievement,
   OperationType,
   GameMode,
-  Avatar,
   PowerupType,
   GameState
 } from "@/types/arithmeticHero";
