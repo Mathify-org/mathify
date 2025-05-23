@@ -3,7 +3,11 @@ import {
   LevelConfig,
   MathProblem,
   Achievement,
-  OperationType
+  OperationType,
+  GameMode,
+  Avatar,
+  PowerupType,
+  GameState
 } from "@/types/arithmeticHero";
 
 // Level configurations
