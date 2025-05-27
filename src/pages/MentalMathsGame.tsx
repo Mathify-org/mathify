@@ -1,13 +1,14 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, X, ArrowLeft, Plus, Minus, Divide, Timer } from "lucide-react";
+import { Check, X, ArrowLeft, Plus, Minus, Divide, Timer, Users } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import MultiplayerLobby from "@/components/MentalMaths/MultiplayerLobby";
+import MultiplayerGame from "@/components/MentalMaths/MultiplayerGame";
 
 // Types for our math problem
 type Operation = "+" | "-" | "*" | "/";
@@ -35,7 +36,10 @@ const encouragingMessages = [
 
 const MentalMathsGame = () => {
   const isMobile = useIsMobile();
+  const [gameMode, setGameMode] = useState<"menu" | "singleplayer" | "multiplayer-lobby" | "multiplayer-game">("menu");
   const [gameState, setGameState] = useState<"idle" | "playing" | "completed">("idle");
+  const [currentMultiplayerRoom, setCurrentMultiplayerRoom] = useState<string | null>(null);
+  
   const [currentProblem, setCurrentProblem] = useState<Problem | null>(null);
   const [userAnswer, setUserAnswer] = useState<number | null>(null);
   const [score, setScore] = useState(0);
@@ -156,7 +160,8 @@ const MentalMathsGame = () => {
     return { num1, num2, operation, answer, options: shuffledOptions };
   };
   
-  const handleStartGame = () => {
+  const handleStartSinglePlayer = () => {
+    setGameMode("singleplayer");
     setGameState("playing");
     setQuestionNumber(0);
     setScore(0);
@@ -278,6 +283,48 @@ const MentalMathsGame = () => {
       default: return "";
     }
   };
+
+  const handleMultiplayerJoinGame = (roomId: string) => {
+    setCurrentMultiplayerRoom(roomId);
+    setGameMode("multiplayer-game");
+  };
+
+  const handleMultiplayerGameEnd = () => {
+    setGameMode("multiplayer-lobby");
+    setCurrentMultiplayerRoom(null);
+  };
+
+  const handleMultiplayerLeaveRoom = () => {
+    setGameMode("menu");
+    setCurrentMultiplayerRoom(null);
+  };
+
+  const handleBackToMenu = () => {
+    setGameMode("menu");
+    setGameState("idle");
+    setCurrentMultiplayerRoom(null);
+  };
+  
+  // Render multiplayer lobby
+  if (gameMode === "multiplayer-lobby") {
+    return (
+      <MultiplayerLobby
+        onJoinGame={handleMultiplayerJoinGame}
+        onBackToMenu={handleBackToMenu}
+      />
+    );
+  }
+
+  // Render multiplayer game
+  if (gameMode === "multiplayer-game" && currentMultiplayerRoom) {
+    return (
+      <MultiplayerGame
+        roomId={currentMultiplayerRoom}
+        onGameEnd={handleMultiplayerGameEnd}
+        onLeaveRoom={handleMultiplayerLeaveRoom}
+      />
+    );
+  }
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E5DEFF] to-[#FEF7CD] flex flex-col items-center justify-center p-2 md:p-4 max-w-full overflow-hidden">
@@ -296,65 +343,86 @@ const MentalMathsGame = () => {
       
       {/* Main content */}
       <Card className="w-full max-w-2xl shadow-lg border-none glass-morphism bg-white/90 overflow-hidden">
-        {gameState === "idle" && (
+        {(gameMode === "menu" || gameState === "idle") && (
           <>
             <CardHeader className="text-center p-3 md:p-6">
               <CardTitle className="text-xl md:text-3xl font-bold">Speed Math Challenge</CardTitle>
               <CardDescription className="text-sm md:text-lg mt-1 md:mt-2">
-                Test your mental math skills with {totalQuestions} quick-fire questions!
+                Test your mental math skills solo or compete with friends!
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-6 px-2 md:px-6">
-              <div className="bg-[#E5DEFF] rounded-lg p-3 md:p-6 text-center">
-                <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-4">How to Play</h3>
-                <ul className="text-left space-y-2 md:space-y-3">
-                  <li className="flex items-center gap-2 text-xs md:text-base">
-                    <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold text-sm md:text-base shrink-0">1</div>
-                    <span>You'll see a math problem</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-xs md:text-base">
-                    <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold text-sm md:text-base shrink-0">2</div>
-                    <span>You have only 12 seconds to select the correct answer</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-xs md:text-base">
-                    <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold text-sm md:text-base shrink-0">3</div>
-                    <span>Answer all {totalQuestions} questions to see your final score</span>
-                  </li>
-                </ul>
+              {/* Game mode selection */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleStartSinglePlayer}>
+                  <CardContent className="p-4 text-center">
+                    <Timer className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+                    <h3 className="font-bold text-lg mb-2">Solo Challenge</h3>
+                    <p className="text-sm text-gray-600">Race against time with {totalQuestions} questions</p>
+                    <Button className="w-full mt-3 bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6]">
+                      Start Solo Game
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setGameMode("multiplayer-lobby")}>
+                  <CardContent className="p-4 text-center">
+                    <Users className="h-8 w-8 mx-auto mb-2 text-green-600" />
+                    <h3 className="font-bold text-lg mb-2">Multiplayer</h3>
+                    <p className="text-sm text-gray-600">Compete with other players in real-time</p>
+                    <Button className="w-full mt-3 bg-gradient-to-r from-green-500 to-green-600">
+                      Find Opponents
+                    </Button>
+                  </CardContent>
+                </Card>
               </div>
-              
-              <div className="flex flex-wrap gap-2 md:gap-4 justify-center">
-                <div className="text-center p-2 md:p-4 rounded-lg bg-[#FEF7CD]">
-                  <Plus className="h-4 w-4 md:h-8 md:w-8 mx-auto text-emerald-500 mb-1 md:mb-2" />
-                  <p className="text-xs md:text-base">Addition</p>
-                </div>
-                <div className="text-center p-2 md:p-4 rounded-lg bg-[#FEF7CD]">
-                  <Minus className="h-4 w-4 md:h-8 md:w-8 mx-auto text-sky-500 mb-1 md:mb-2" />
-                  <p className="text-xs md:text-base">Subtraction</p>
-                </div>
-                <div className="text-center p-2 md:p-4 rounded-lg bg-[#FEF7CD]">
-                  <X className="h-4 w-4 md:h-8 md:w-8 mx-auto text-purple-500 mb-1 md:mb-2" />
-                  <p className="text-xs md:text-base">Multiplication</p>
-                </div>
-                <div className="text-center p-2 md:p-4 rounded-lg bg-[#FEF7CD]">
-                  <Divide className="h-4 w-4 md:h-8 md:w-8 mx-auto text-orange-500 mb-1 md:mb-2" />
-                  <p className="text-xs md:text-base">Division</p>
-                </div>
-              </div>
+
+              {/* How to play section - only show if not in singleplayer mode */}
+              {gameMode === "menu" && (
+                <>
+                  <div className="bg-[#E5DEFF] rounded-lg p-3 md:p-6 text-center">
+                    <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-4">How to Play</h3>
+                    <ul className="text-left space-y-2 md:space-y-3">
+                      <li className="flex items-center gap-2 text-xs md:text-base">
+                        <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold text-sm md:text-base shrink-0">1</div>
+                        <span>Choose between solo or multiplayer mode</span>
+                      </li>
+                      <li className="flex items-center gap-2 text-xs md:text-base">
+                        <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold text-sm md:text-base shrink-0">2</div>
+                        <span>Solve math problems as quickly as possible</span>
+                      </li>
+                      <li className="flex items-center gap-2 text-xs md:text-base">
+                        <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white font-bold text-sm md:text-base shrink-0">3</div>
+                        <span>Compete for the highest score!</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2 md:gap-4 justify-center">
+                    <div className="text-center p-2 md:p-4 rounded-lg bg-[#FEF7CD]">
+                      <Plus className="h-4 w-4 md:h-8 md:w-8 mx-auto text-emerald-500 mb-1 md:mb-2" />
+                      <p className="text-xs md:text-base">Addition</p>
+                    </div>
+                    <div className="text-center p-2 md:p-4 rounded-lg bg-[#FEF7CD]">
+                      <Minus className="h-4 w-4 md:h-8 md:w-8 mx-auto text-sky-500 mb-1 md:mb-2" />
+                      <p className="text-xs md:text-base">Subtraction</p>
+                    </div>
+                    <div className="text-center p-2 md:p-4 rounded-lg bg-[#FEF7CD]">
+                      <X className="h-4 w-4 md:h-8 md:w-8 mx-auto text-purple-500 mb-1 md:mb-2" />
+                      <p className="text-xs md:text-base">Multiplication</p>
+                    </div>
+                    <div className="text-center p-2 md:p-4 rounded-lg bg-[#FEF7CD]">
+                      <Divide className="h-4 w-4 md:h-8 md:w-8 mx-auto text-orange-500 mb-1 md:mb-2" />
+                      <p className="text-xs md:text-base">Division</p>
+                    </div>
+                  </div>
+                </>
+              )}
             </CardContent>
-            <CardFooter className="flex justify-center px-3 pb-3 md:pb-6">
-              <Button 
-                size={isMobile ? "default" : "lg"}
-                className="bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6] hover:opacity-90 text-white px-5 py-2 md:px-8 md:py-6 text-sm md:text-xl w-full md:w-auto"
-                onClick={handleStartGame}
-              >
-                Start Challenge!
-              </Button>
-            </CardFooter>
           </>
         )}
         
-        {gameState === "playing" && currentProblem && (
+        {gameMode === "singleplayer" && gameState === "playing" && currentProblem && (
           <>
             <CardHeader className="text-center p-2 md:p-6">
               <div className="flex justify-between items-center">
@@ -449,7 +517,7 @@ const MentalMathsGame = () => {
           </>
         )}
         
-        {gameState === "completed" && (
+        {gameMode === "singleplayer" && gameState === "completed" && (
           <>
             <CardHeader className="text-center p-3 md:p-6">
               <CardTitle className="text-xl md:text-3xl font-bold">Challenge Complete!</CardTitle>
@@ -518,7 +586,7 @@ const MentalMathsGame = () => {
             <CardFooter className="flex justify-center gap-2 md:gap-4 p-3">
               <Button
                 variant="outline"
-                onClick={handleStartGame}
+                onClick={handleStartSinglePlayer}
                 className="text-xs md:text-sm px-3 py-1 md:px-6"
                 size={isMobile ? "sm" : "default"}
               >
