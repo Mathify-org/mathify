@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { GameMode } from '@/pages/TargetTakedown';
 import NumberTile from './NumberTile';
 import TargetDisplay from './TargetDisplay';
-import GameTimer from './GameTimer';
 
 interface GameBoardProps {
   mode: GameMode;
@@ -42,43 +41,65 @@ const GameBoard = ({
   const [lives, setLives] = useState(mode === 'survival' ? 3 : Infinity);
   const [streak, setStreak] = useState(0);
   const [level, setLevel] = useState(1);
-  const [timeLeft, setTimeLeft] = useState(mode === 'classic' ? 60 : Infinity);
+  const [timeLeft, setTimeLeft] = useState(5); // 5 seconds per target
   const [isGameActive, setIsGameActive] = useState(true);
   const [correctEffect, setCorrectEffect] = useState(false);
   const [wrongEffect, setWrongEffect] = useState(false);
 
-  // Generate target and tiles based on level
+  // Generate target and tiles based on streak (progressive difficulty)
   const generatePuzzle = useCallback(() => {
-    const minTarget = Math.max(5, level * 2);
-    const maxTarget = Math.min(50, level * 8 + 15);
+    // Difficulty increases with streak
+    const difficulty = Math.floor(streak / 3) + 1; // Every 3 streaks = harder
+    const minTiles = 8 + difficulty; // Start with 8, increase to 14+
+    const maxTiles = 12 + difficulty * 2; // More tiles as difficulty increases
+    const tileCount = Math.floor(Math.random() * (maxTiles - minTiles + 1)) + minTiles;
+    
+    // Target range based on difficulty
+    const minTarget = 15 + (difficulty * 5);
+    const maxTarget = 35 + (difficulty * 10);
     const newTarget = Math.floor(Math.random() * (maxTarget - minTarget + 1)) + minTarget;
     
-    // Generate solution first
-    const maxTiles = Math.min(3, Math.floor(level / 3) + 2);
-    const solutionCount = Math.floor(Math.random() * maxTiles) + 1;
+    // Generate solution first (always require 2-4 tiles)
+    const minSolutionTiles = 2;
+    const maxSolutionTiles = Math.min(4, 2 + Math.floor(difficulty / 2));
+    const solutionTileCount = Math.floor(Math.random() * (maxSolutionTiles - minSolutionTiles + 1)) + minSolutionTiles;
+    
     const solution: number[] = [];
     let remaining = newTarget;
     
-    for (let i = 0; i < solutionCount - 1; i++) {
-      const maxValue = Math.min(remaining - (solutionCount - i - 1), Math.floor(newTarget * 0.7));
-      const value = Math.floor(Math.random() * maxValue) + 1;
+    // Generate solution tiles ensuring no single tile equals target
+    for (let i = 0; i < solutionTileCount - 1; i++) {
+      const minValue = Math.max(1, Math.floor(remaining * 0.2));
+      const maxValue = Math.min(remaining - (solutionTileCount - i - 1), Math.floor(remaining * 0.7));
+      const value = Math.floor(Math.random() * (maxValue - minValue + 1)) + minValue;
       solution.push(value);
       remaining -= value;
     }
-    solution.push(remaining);
     
-    // Add distractor tiles
-    const distractors: number[] = [];
-    const distractorCount = Math.floor(Math.random() * 4) + 3;
-    
-    for (let i = 0; i < distractorCount; i++) {
-      const distractor = Math.floor(Math.random() * (newTarget * 0.8)) + 1;
-      if (!solution.includes(distractor)) {
-        distractors.push(distractor);
-      }
+    // Add final tile to complete the sum
+    if (remaining > 0) {
+      solution.push(remaining);
     }
     
-    // Combine and shuffle
+    // Generate distractor tiles (ensuring none equal the target)
+    const distractors: number[] = [];
+    const distractorCount = tileCount - solution.length;
+    
+    for (let i = 0; i < distractorCount; i++) {
+      let distractor;
+      do {
+        // Make distractors challenging but not impossible
+        const range = Math.floor(newTarget * 0.8);
+        distractor = Math.floor(Math.random() * range) + 1;
+      } while (
+        distractor === newTarget || // Never equal to target
+        solution.includes(distractor) || // Don't duplicate solution tiles
+        distractors.includes(distractor) // Don't duplicate distractors
+      );
+      distractors.push(distractor);
+    }
+    
+    // Combine and shuffle all tiles
     const allNumbers = [...solution, ...distractors];
     const shuffled = allNumbers.sort(() => Math.random() - 0.5);
     
@@ -93,29 +114,55 @@ const GameBoard = ({
     setTiles(newTiles);
     setSelectedSum(0);
     setSelectedTiles([]);
-  }, [level]);
+    setTimeLeft(5); // Reset to 5 seconds per target
+  }, [streak]);
 
   // Initialize game
   useEffect(() => {
     generatePuzzle();
   }, [generatePuzzle]);
 
-  // Timer logic
+  // 5-second per-target timer
   useEffect(() => {
-    if (mode === 'classic' && isGameActive && timeLeft > 0) {
+    if (isGameActive && timeLeft > 0) {
       const timer = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
-            setIsGameActive(false);
-            onGameOver();
-            return 0;
+            handleTimeOut();
+            return 5; // Will be reset by generatePuzzle
           }
           return prev - 1;
         });
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [mode, isGameActive, timeLeft, onGameOver]);
+  }, [isGameActive, timeLeft]);
+
+  const handleTimeOut = () => {
+    if (mode !== 'chill') {
+      const newLives = lives - 1;
+      setLives(newLives);
+      onLivesUpdate(newLives);
+      
+      if (newLives <= 0) {
+        setIsGameActive(false);
+        onGameOver();
+        return;
+      }
+    }
+    
+    setStreak(0);
+    onStreakUpdate(0);
+    
+    // Visual feedback for timeout
+    setWrongEffect(true);
+    setTimeout(() => setWrongEffect(false), 1000);
+    
+    // Generate new puzzle
+    setTimeout(() => {
+      generatePuzzle();
+    }, 500);
+  };
 
   // Handle tile selection
   const handleTileClick = (tileId: number) => {
@@ -156,8 +203,9 @@ const GameBoard = ({
   const handleCorrectAnswer = () => {
     const basePoints = target;
     const streakBonus = streak >= 5 ? Math.floor(basePoints * 0.5) : 0;
-    const levelBonus = Math.floor(level * 10);
-    const totalPoints = basePoints + streakBonus + levelBonus;
+    const timeBonus = timeLeft * 5; // Bonus for speed
+    const difficultyBonus = Math.floor(streak / 3) * 10; // Bonus for higher difficulty
+    const totalPoints = basePoints + streakBonus + timeBonus + difficultyBonus;
     
     const newScore = score + totalPoints;
     const newStreak = streak + 1;
@@ -208,6 +256,11 @@ const GameBoard = ({
     setSelectedTiles([]);
     setSelectedSum(0);
     setTiles(prev => prev.map(t => ({ ...t, selected: false })));
+    
+    // Generate new puzzle after wrong answer
+    setTimeout(() => {
+      generatePuzzle();
+    }, 1000);
   };
 
   const getTargetColor = () => {
@@ -218,11 +271,22 @@ const GameBoard = ({
     return 'text-white';
   };
 
+  const getTimerColor = () => {
+    if (timeLeft <= 2) return 'bg-red-500 animate-pulse';
+    if (timeLeft <= 3) return 'bg-orange-500';
+    return 'bg-green-500';
+  };
+
   return (
     <div className="space-y-6">
-      {mode === 'classic' && (
-        <GameTimer timeLeft={timeLeft} />
-      )}
+      {/* Per-target timer */}
+      <Card className="glass-morphism border-2 border-white/30">
+        <CardContent className="p-4 text-center">
+          <Badge className={`text-2xl px-6 py-3 ${getTimerColor()}`}>
+            ⏰ {timeLeft}s
+          </Badge>
+        </CardContent>
+      </Card>
       
       <TargetDisplay 
         target={target}
@@ -233,7 +297,7 @@ const GameBoard = ({
       
       <Card className="glass-morphism border-2 border-white/30">
         <CardContent className="p-6">
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-2">
             {tiles.map((tile) => (
               <NumberTile
                 key={tile.id}
@@ -267,6 +331,17 @@ const GameBoard = ({
           </CardContent>
         </Card>
       )}
+      
+      {/* Difficulty indicator */}
+      <Card className="glass-morphism border-2 border-white/30">
+        <CardContent className="p-3 text-center">
+          <p className="text-sm text-white/80">
+            Difficulty Level: {Math.floor(streak / 3) + 1} | 
+            Streak: {streak} | 
+            Tiles: {tiles.length}
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 };
