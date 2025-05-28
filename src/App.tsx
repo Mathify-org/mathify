@@ -13,6 +13,7 @@ import NumberSenseBuilder from "./pages/NumberSenseBuilder";
 import ShapeExplorer from "./pages/ShapeExplorer";
 import FractionFrenzy from "./pages/FractionFrenzy";
 import ArithmeticHero from "./pages/ArithmeticHero";
+import TargetTakedown from "./pages/TargetTakedown";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -51,6 +52,7 @@ const App = () => (
               <Route path="/shape-explorer" element={<ShapeExplorer />} />
               <Route path="/fraction-frenzy" element={<FractionFrenzy />} />
               <Route path="/arithmetic-hero" element={<ArithmeticHero />} />
+              <Route path="/target-takedown" element={<TargetTakedown />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
