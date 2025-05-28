@@ -24,7 +24,7 @@ const GameStats = ({ score, lives, streak, level, mode }: GameStatsProps) => {
               <p className="text-3xl font-bold text-white">{score}</p>
             </div>
             
-            {mode !== 'chill' && (
+            {mode === 'survival' && (
               <div className="text-center">
                 <p className="text-sm text-white/80 uppercase tracking-wide">Lives</p>
                 <div className="flex gap-1 justify-center mt-1">
