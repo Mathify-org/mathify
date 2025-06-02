@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { Mail } from "lucide-react";
 
 const Contact = () => {
   const { toast } = useToast();
@@ -37,8 +38,26 @@ const Contact = () => {
             Have questions or feedback? We'd love to hear from you!
           </p>
         </div>
+
+        {/* Contact Email Section */}
+        <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 md:p-8 mb-6">
+          <div className="text-center">
+            <Mail className="h-8 w-8 text-purple-600 mx-auto mb-4" />
+            <h3 className="text-lg md:text-xl font-bold text-purple-700 mb-2">Email Us Directly</h3>
+            <p className="text-slate-600 mb-4">
+              For quick questions or support, you can reach us at:
+            </p>
+            <a 
+              href="mailto:support@mathify.org" 
+              className="text-lg font-semibold text-purple-600 hover:text-purple-800 transition-colors"
+            >
+              support@mathify.org
+            </a>
+          </div>
+        </div>
         
         <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 md:p-8 mb-8 md:mb-16">
+          <h3 className="text-lg md:text-xl font-bold text-purple-700 mb-6 text-center">Or Send Us a Message</h3>
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">

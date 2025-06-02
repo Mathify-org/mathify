@@ -1,5 +1,6 @@
 
 import React from "react";
+import { Mail } from "lucide-react";
 
 const FAQ = () => {
   return (
@@ -52,8 +53,20 @@ const FAQ = () => {
 
           <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 hover:shadow-md transition-shadow">
             <h3 className="text-lg md:text-xl font-bold text-purple-700 mb-2">How can I report a bug or suggest a feature?</h3>
-            <p className="text-slate-600">
-              We welcome your feedback! You can report bugs or suggest features through our Contact form. We're constantly working to improve Mathify based on user input.
+            <p className="text-slate-600 mb-3">
+              We welcome your feedback! You can report bugs or suggest features through our Contact form or email us directly at:
+            </p>
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-purple-600" />
+              <a 
+                href="mailto:support@mathify.org" 
+                className="text-purple-600 hover:text-purple-800 transition-colors font-semibold"
+              >
+                support@mathify.org
+              </a>
+            </div>
+            <p className="text-slate-600 mt-2">
+              We're constantly working to improve Mathify based on user input.
             </p>
           </div>
         </div>
