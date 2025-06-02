@@ -110,13 +110,6 @@ const gradeLevels = [
 
 const generalSkills = [
   {
-    id: "addition-hero",
-    title: "Addition Hero",
-    description: "Become a math superhero by solving addition problems",
-    path: "/addition-hero",
-    color: "bg-gradient-to-r from-blue-600 to-purple-600"
-  },
-  {
     id: "mental-maths",
     title: "Mental Maths Challenge",
     description: "Test your mental math skills with quick calculations",
@@ -157,6 +150,13 @@ const generalSkills = [
     description: "Match fractions with visuals in this fast-paced game",
     path: "/fraction-frenzy",
     color: "bg-gradient-to-r from-pink-500 to-orange-400"
+  },
+  {
+    id: "target-takedown",
+    title: "Target Takedown",
+    description: "Hit number targets by combining tiles strategically",
+    path: "/target-takedown",
+    color: "bg-gradient-to-r from-red-500 to-pink-500"
   }
 ];
 
