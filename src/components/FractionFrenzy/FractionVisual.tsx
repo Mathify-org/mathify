@@ -37,7 +37,7 @@ const FractionVisual = ({ fraction, theme, size = "medium" }: FractionVisualProp
     }
   };
   
-  // Pizza visualization
+  // Pizza visualization - removed pepperoni dots
   const renderPizzaSlices = () => {
     const slices = [];
     const sliceAngle = 360 / denominator;
@@ -68,21 +68,10 @@ const FractionVisual = ({ fraction, theme, size = "medium" }: FractionVisualProp
       );
     }
     
-    // Add pizza details
     return (
       <svg viewBox="0 0 100 100" className={cn("rounded-full", sizeClasses[size])}>
         <circle cx="50" cy="50" r="45" fill="#fef3c7" stroke="#783f04" strokeWidth="1" />
         {slices}
-        {/* Add pepperoni dots */}
-        {[...Array(5)].map((_, i) => {
-          const angle = Math.random() * 360;
-          const distance = Math.random() * 30;
-          const x = 50 + distance * Math.cos(angle * Math.PI / 180);
-          const y = 50 + distance * Math.sin(angle * Math.PI / 180);
-          return (
-            <circle key={`p${i}`} cx={x} cy={y} r="3" fill="#dc2626" />
-          );
-        })}
       </svg>
     );
   };
