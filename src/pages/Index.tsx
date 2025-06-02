@@ -149,7 +149,7 @@ const generalSkills = [
     title: "Target Takedown",
     description: "Hit number targets by combining tiles strategically",
     path: "/target-takedown",
-    color: "bg-gradient-to-r from-red-500 to-pink-500"
+    color: "bg-gradient-to-r from-pink-500 to-pink-600"
   }
 ];
 

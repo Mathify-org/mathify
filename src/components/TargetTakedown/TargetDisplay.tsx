@@ -24,9 +24,9 @@ const TargetDisplay = ({ target, selectedSum, className, effect }: TargetDisplay
   return (
     <Card className={`glass-morphism border-2 border-white/30 ${getEffectClass()}`}>
       <CardContent className="p-8 text-center">
-        <p className="text-xl text-white/80 mb-2 uppercase tracking-wide">Target Number</p>
+        <p className="text-xl text-black/80 mb-2 uppercase tracking-wide">Target Number</p>
         <div className="relative">
-          <p className={`text-8xl font-bold ${className} relative z-10`}>
+          <p className={`text-8xl font-bold text-black relative z-10`}>
             {target}
           </p>
           {effect === 'correct' && (
@@ -40,7 +40,7 @@ const TargetDisplay = ({ target, selectedSum, className, effect }: TargetDisplay
             </div>
           )}
         </div>
-        <p className="text-lg text-white/70 mt-4">
+        <p className="text-lg text-black/70 mt-4">
           Tap numbers that add up to this target!
         </p>
       </CardContent>

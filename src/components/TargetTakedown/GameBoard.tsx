@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -268,7 +267,7 @@ const GameBoard = ({
     if (wrongEffect) return 'text-red-400 animate-pulse';
     if (selectedSum === target) return 'text-green-400';
     if (selectedSum > target) return 'text-red-400';
-    return 'text-white';
+    return 'text-black';
   };
 
   const getTimerColor = () => {
@@ -314,7 +313,7 @@ const GameBoard = ({
       {selectedSum > 0 && (
         <Card className="glass-morphism border-2 border-white/30">
           <CardContent className="p-4 text-center">
-            <p className="text-lg text-white/80">Current Sum:</p>
+            <p className="text-lg text-black/80">Current Sum:</p>
             <p className={`text-4xl font-bold ${getTargetColor()}`}>
               {selectedSum}
             </p>
@@ -335,7 +334,7 @@ const GameBoard = ({
       {/* Difficulty indicator */}
       <Card className="glass-morphism border-2 border-white/30">
         <CardContent className="p-3 text-center">
-          <p className="text-sm text-white/80">
+          <p className="text-sm text-black/80">
             Difficulty Level: {Math.floor(streak / 3) + 1} | 
             Streak: {streak} | 
             Tiles: {tiles.length}
