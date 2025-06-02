@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { GameMode } from '@/pages/TargetTakedown';
 import NumberTile from './NumberTile';
 import TargetDisplay from './TargetDisplay';
+import GameTimer from './GameTimer';
 
 interface GameBoardProps {
   mode: GameMode;
@@ -40,7 +42,8 @@ const GameBoard = ({
   const [lives, setLives] = useState(mode === 'survival' ? 3 : Infinity);
   const [streak, setStreak] = useState(0);
   const [level, setLevel] = useState(1);
-  const [timeLeft, setTimeLeft] = useState(5); // 5 seconds per target
+  const [timeLeft, setTimeLeft] = useState(10); // 10 seconds per target in classic
+  const [totalTimeLeft, setTotalTimeLeft] = useState(mode === 'classic' ? 60 : Infinity); // 60 seconds total for classic
   const [isGameActive, setIsGameActive] = useState(true);
   const [correctEffect, setCorrectEffect] = useState(false);
   const [wrongEffect, setWrongEffect] = useState(false);
@@ -113,29 +116,46 @@ const GameBoard = ({
     setTiles(newTiles);
     setSelectedSum(0);
     setSelectedTiles([]);
-    setTimeLeft(5); // Reset to 5 seconds per target
-  }, [streak]);
+    setTimeLeft(mode === 'classic' ? 10 : 5); // 10 seconds for classic, 5 for others
+  }, [streak, mode]);
 
   // Initialize game
   useEffect(() => {
     generatePuzzle();
   }, [generatePuzzle]);
 
-  // 5-second per-target timer
+  // Per-question timer
   useEffect(() => {
     if (isGameActive && timeLeft > 0) {
       const timer = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
             handleTimeOut();
-            return 5; // Will be reset by generatePuzzle
+            return mode === 'classic' ? 10 : 5; // Will be reset by generatePuzzle
           }
           return prev - 1;
         });
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [isGameActive, timeLeft]);
+  }, [isGameActive, timeLeft, mode]);
+
+  // Total game timer for classic mode
+  useEffect(() => {
+    if (mode === 'classic' && isGameActive && totalTimeLeft > 0) {
+      const timer = setInterval(() => {
+        setTotalTimeLeft(prev => {
+          if (prev <= 1) {
+            setIsGameActive(false);
+            onGameOver();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [mode, isGameActive, totalTimeLeft, onGameOver]);
 
   const handleTimeOut = () => {
     if (mode !== 'chill') {
@@ -278,6 +298,11 @@ const GameBoard = ({
 
   return (
     <div className="space-y-6">
+      {/* Total game timer for classic mode */}
+      {mode === 'classic' && (
+        <GameTimer timeLeft={totalTimeLeft} />
+      )}
+      
       {/* Per-target timer */}
       <Card className="glass-morphism border-2 border-white/30">
         <CardContent className="p-4 text-center">

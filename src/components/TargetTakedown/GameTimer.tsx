@@ -23,8 +23,9 @@ const GameTimer = ({ timeLeft }: GameTimerProps) => {
   return (
     <Card className="glass-morphism border-2 border-white/30">
       <CardContent className="p-4 text-center">
+        <p className="text-sm text-black/80 uppercase tracking-wide mb-2">Total Time Remaining</p>
         <Badge className={`text-2xl px-6 py-3 ${getTimerColor()}`}>
-          ⏰ {formatTime(timeLeft)}
+          🕐 {formatTime(timeLeft)}
         </Badge>
       </CardContent>
     </Card>
