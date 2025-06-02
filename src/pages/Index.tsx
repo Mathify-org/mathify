@@ -131,13 +131,6 @@ const generalSkills = [
     color: "bg-gradient-to-r from-purple-500 to-indigo-500"
   },
   {
-    id: "number-sense",
-    title: "Number Sense Builder",
-    description: "Develop intuition for numbers and their relationships",
-    path: "/number-sense",
-    color: "bg-gradient-to-r from-cyan-500 to-blue-500"
-  },
-  {
     id: "shape-explorer",
     title: "Shape Explorer",
     description: "Discover the fascinating world of 2D and 3D geometric shapes",

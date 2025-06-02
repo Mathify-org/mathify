@@ -9,7 +9,6 @@ import Index from "./pages/Index";
 import MentalMathsGame from "./pages/MentalMathsGame";
 import TimesTablesMaster from "./pages/TimesTablesMaster";
 import MathFactsRace from "./pages/MathFactsRace";
-import NumberSenseBuilder from "./pages/NumberSenseBuilder";
 import ShapeExplorer from "./pages/ShapeExplorer";
 import FractionFrenzy from "./pages/FractionFrenzy";
 import ArithmeticHero from "./pages/ArithmeticHero";
@@ -48,7 +47,6 @@ const App = () => (
               <Route path="/maths" element={<MentalMathsGame />} />
               <Route path="/times-tables" element={<TimesTablesMaster />} />
               <Route path="/math-facts" element={<MathFactsRace />} />
-              <Route path="/number-sense" element={<NumberSenseBuilder />} />
               <Route path="/shape-explorer" element={<ShapeExplorer />} />
               <Route path="/fraction-frenzy" element={<FractionFrenzy />} />
               <Route path="/arithmetic-hero" element={<ArithmeticHero />} />
