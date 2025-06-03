@@ -9,11 +9,28 @@ export interface FractionData {
   value: number;
 }
 
-export type GameMode = "menu" | "frenzy" | "practice" | "survival";
+export type GameMode = "visual-match" | "equivalent" | "arithmetic" | "word-problems";
 
 export type Theme = "pizza" | "pie" | "chocolate" | "liquid" | "grid";
 
-export type Difficulty = "halves" | "thirds" | "quarters" | "mixed";
+export type Difficulty = "easy" | "medium" | "hard" | "halves" | "thirds" | "quarters" | "mixed";
+
+export type GameState = "menu" | "playing" | "gameOver";
+
+export interface FractionQuestion {
+  id: string;
+  type: GameMode;
+  difficulty: Difficulty;
+  question: string;
+  options: string[];
+  correctAnswer: string;
+  explanation: string;
+  fractionData?: {
+    numerator: number;
+    denominator: number;
+    value: number;
+  };
+}
 
 export interface GameStats {
   bestFrenzyScore: number;
@@ -21,5 +38,12 @@ export interface GameStats {
   longestStreak: number;
   currentStreak: number;
   survivalModeUnlocked: boolean;
-  selectedTheme: string; // Theme
+  selectedTheme: string;
+  // Game session stats
+  score: number;
+  questionsAnswered: number;
+  correctAnswers: number;
+  streak: number;
+  timeRemaining: number;
+  totalTime: number;
 }
