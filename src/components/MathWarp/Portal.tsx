@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Equation } from '@/pages/MathWarp';
-import { Zap, Star } from 'lucide-react';
+import { Zap, Star, Clock } from 'lucide-react';
 
 interface PortalProps {
   equation: Equation;
@@ -13,6 +13,7 @@ interface PortalProps {
   isWarpActive: boolean;
   portalState: 'closed' | 'opening' | 'open' | 'closing';
   progressLevel: number;
+  questionTimeLeft: number;
 }
 
 const Portal: React.FC<PortalProps> = ({
@@ -21,7 +22,8 @@ const Portal: React.FC<PortalProps> = ({
   isCorrect,
   isWarpActive,
   portalState,
-  progressLevel
+  progressLevel,
+  questionTimeLeft
 }) => {
   const getPortalStateClasses = () => {
     switch (portalState) {
@@ -52,24 +54,101 @@ const Portal: React.FC<PortalProps> = ({
     return `${baseClasses} border-blue-400 animate-spin duration-3000`;
   };
 
+  const timeProgress = (questionTimeLeft / 3.5) * 100;
+  const isUrgent = questionTimeLeft <= 1;
+
   return (
     <div className="flex flex-col items-center space-y-8">
-      {/* Portal with equation */}
-      <div className={cn("relative", getPortalStateClasses())}>
-        {/* Outer spinning ring */}
-        <div className={getPortalRingClasses()}></div>
-        
-        {/* Inner portal core */}
-        <Card className={cn(
-          "relative p-6 md:p-8 border-2 transition-all duration-500 transform rounded-full w-72 h-72 md:w-80 md:h-80 flex flex-col items-center justify-center",
-          "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900",
-          isCorrect === true && "border-green-400 bg-gradient-to-br from-green-900 via-green-800 to-green-900 animate-pulse scale-110 shadow-green-400/50 shadow-2xl",
-          isCorrect === false && "border-red-400 bg-gradient-to-br from-red-900 via-red-800 to-red-900 animate-bounce scale-95 shadow-red-400/50 shadow-xl",
-          isWarpActive && "border-yellow-400 bg-gradient-to-br from-yellow-900 via-yellow-800 to-yellow-900 shadow-2xl shadow-yellow-400/50 animate-pulse",
-          isCorrect === null && portalState === 'open' && "border-cyan-400 hover:border-purple-400 hover:scale-105 hover:shadow-cyan-400/30 hover:shadow-xl",
-          portalState === 'opening' && "border-cyan-400 shadow-cyan-400/50 shadow-2xl",
-          portalState === 'closing' && "border-purple-400 shadow-purple-400/50 shadow-xl"
+      {/* Timer Display */}
+      {portalState === 'open' && (
+        <div className={cn(
+          "flex items-center space-x-2 px-4 py-2 rounded-full border-2 transition-all duration-300",
+          isUrgent ? "bg-red-900/50 border-red-400 animate-pulse" : "bg-blue-900/30 border-blue-400",
+          isWarpActive && "border-yellow-400 bg-yellow-900/30"
         )}>
+          <Clock size={20} className={cn(
+            "transition-colors",
+            isUrgent ? "text-red-300" : "text-blue-300",
+            isWarpActive && "text-yellow-300"
+          )} />
+          <div className={cn(
+            "text-lg font-bold",
+            isUrgent ? "text-red-200" : "text-blue-200",
+            isWarpActive && "text-yellow-200"
+          )}>
+            {questionTimeLeft.toFixed(1)}s
+          </div>
+          <div className="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
+            <div 
+              className={cn(
+                "h-full transition-all duration-100 ease-linear",
+                isUrgent ? "bg-red-400" : "bg-blue-400",
+                isWarpActive && "bg-yellow-400"
+              )}
+              style={{ width: `${timeProgress}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* 3D Portal Container */}
+      <div 
+        className={cn("relative", getPortalStateClasses())}
+        style={{ 
+          transformStyle: 'preserve-3d',
+          perspective: '1000px'
+        }}
+      >
+        {/* Multiple depth rings for 3D effect */}
+        <div className="absolute inset-0" style={{ transformStyle: 'preserve-3d' }}>
+          {/* Outer ring - furthest back */}
+          <div 
+            className={cn(getPortalRingClasses(), "opacity-30")}
+            style={{ transform: 'translateZ(-50px) scale(1.2)' }}
+          />
+          
+          {/* Middle ring */}
+          <div 
+            className={cn(getPortalRingClasses(), "opacity-60")}
+            style={{ transform: 'translateZ(-25px) scale(1.1)' }}
+          />
+          
+          {/* Front ring */}
+          <div 
+            className={getPortalRingClasses()}
+            style={{ transform: 'translateZ(0px)' }}
+          />
+        </div>
+        
+        {/* 3D Portal Core with depth */}
+        <div 
+          className="relative"
+          style={{ 
+            transformStyle: 'preserve-3d',
+            transform: 'translateZ(10px)'
+          }}
+        >
+          <Card className={cn(
+            "relative p-6 md:p-8 border-2 transition-all duration-500 transform rounded-full w-72 h-72 md:w-80 md:h-80 flex flex-col items-center justify-center",
+            "shadow-2xl",
+            isCorrect === true && "border-green-400 bg-gradient-to-br from-green-900 via-green-800 to-green-900 animate-pulse scale-110 shadow-green-400/50",
+            isCorrect === false && "border-red-400 bg-gradient-to-br from-red-900 via-red-800 to-red-900 animate-bounce scale-95 shadow-red-400/50",
+            isWarpActive && "border-yellow-400 bg-gradient-to-br from-yellow-900 via-yellow-800 to-yellow-900 shadow-2xl shadow-yellow-400/50 animate-pulse",
+            isCorrect === null && portalState === 'open' && "border-cyan-400 hover:border-purple-400 hover:scale-105 hover:shadow-cyan-400/30",
+            portalState === 'opening' && "border-cyan-400 shadow-cyan-400/50",
+            portalState === 'closing' && "border-purple-400 shadow-purple-400/50"
+          )}
+          style={{
+            background: isCorrect === true 
+              ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.8) 50%, rgba(4, 120, 87, 0.9) 100%)'
+              : isCorrect === false
+              ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.8) 50%, rgba(185, 28, 28, 0.9) 100%)'
+              : isWarpActive
+              ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.9) 0%, rgba(217, 119, 6, 0.8) 50%, rgba(180, 83, 9, 0.9) 100%)'
+              : 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.9) 50%, rgba(2, 6, 23, 0.95) 100%)',
+            boxShadow: '0 0 50px rgba(0,0,0,0.5), inset 0 0 30px rgba(255,255,255,0.1)'
+          }}
+        >
           {/* Progress level indicator */}
           {progressLevel > 0 && (
             <div className="absolute -top-4 -left-4 flex items-center space-x-1 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg animate-pulse">
@@ -88,7 +167,7 @@ const Portal: React.FC<PortalProps> = ({
             </div>
           )}
           
-          <div className="text-center">
+          <div className="text-center relative z-10">
             <div className={cn(
               "text-sm md:text-lg mb-3 transition-colors duration-300 font-semibold",
               isCorrect === true && "text-green-200",
@@ -99,15 +178,22 @@ const Portal: React.FC<PortalProps> = ({
               Portal Signal Detected
             </div>
             
-            {/* Question container with improved styling */}
-            <div className={cn(
-              "px-4 py-3 rounded-lg mb-4 border-2 transition-all duration-300",
-              "bg-gradient-to-br from-gray-900 to-black",
-              isCorrect === true && "border-green-400 bg-gradient-to-br from-green-950 to-black",
-              isCorrect === false && "border-red-400 bg-gradient-to-br from-red-950 to-black",
-              isWarpActive && "border-yellow-400 bg-gradient-to-br from-yellow-950 to-black animate-pulse",
-              isCorrect === null && "border-cyan-400"
-            )}>
+            {/* 3D Question container */}
+            <div 
+              className={cn(
+                "px-4 py-3 rounded-lg mb-4 border-2 transition-all duration-300 relative",
+                "shadow-lg",
+                isCorrect === true && "border-green-400",
+                isCorrect === false && "border-red-400",
+                isWarpActive && "border-yellow-400 animate-pulse",
+                isCorrect === null && "border-cyan-400"
+              )}
+              style={{
+                background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(15, 23, 42, 0.9) 50%, rgba(0, 0, 0, 0.8) 100%)',
+                boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.3)',
+                transform: 'translateZ(5px)'
+              }}
+            >
               <div className={cn(
                 "text-2xl md:text-4xl font-bold transition-all duration-300",
                 isCorrect === true && "text-green-100 animate-pulse",
@@ -130,24 +216,32 @@ const Portal: React.FC<PortalProps> = ({
             </div>
           </div>
 
-          {/* Portal energy effect */}
+          {/* Portal energy effect with depth */}
           <div className={cn(
             "absolute inset-4 rounded-full transition-all duration-500",
             portalState === 'open' && "bg-gradient-radial from-cyan-500/20 via-blue-500/10 to-transparent animate-pulse",
             portalState === 'opening' && "bg-gradient-radial from-cyan-400/30 via-blue-400/20 to-transparent",
             portalState === 'closing' && "bg-gradient-radial from-purple-400/30 via-indigo-400/20 to-transparent",
             isWarpActive && "bg-gradient-radial from-yellow-400/30 via-orange-400/20 to-transparent"
-          )}></div>
-        </Card>
+          )}
+          style={{ transform: 'translateZ(-5px)' }}
+          />
+        </div>
       </div>
 
-      {/* Frequency dials (answer options) */}
-      <div className={cn(
-        "grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-500",
-        portalState === 'opening' && "opacity-0 scale-50",
-        portalState === 'open' && "opacity-100 scale-100",
-        portalState === 'closing' && "opacity-50 scale-75"
-      )}>
+      {/* 3D Frequency dials (answer options) */}
+      <div 
+        className={cn(
+          "grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-500",
+          portalState === 'opening' && "opacity-0 scale-50",
+          portalState === 'open' && "opacity-100 scale-100",
+          portalState === 'closing' && "opacity-50 scale-75"
+        )}
+        style={{ 
+          transformStyle: 'preserve-3d',
+          transform: 'translateZ(20px)'
+        }}
+      >
         {equation.options.map((option, index) => (
           <Button
             key={index}
@@ -163,6 +257,10 @@ const Portal: React.FC<PortalProps> = ({
               isCorrect === true && "animate-bounce scale-110 bg-gradient-to-br from-green-400 to-green-600 border-green-300",
               isCorrect === false && "animate-pulse scale-90 bg-gradient-to-br from-red-400 to-red-600 border-red-300"
             )}
+            style={{
+              boxShadow: '0 4px 15px rgba(0,0,0,0.3), inset 0 2px 5px rgba(255,255,255,0.2)',
+              transform: `translateZ(${5 + index * 2}px)`
+            }}
           >
             {option}
           </Button>
