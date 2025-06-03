@@ -23,7 +23,7 @@ const Portal: React.FC<PortalProps> = ({
   isWarpActive,
   portalState,
   progressLevel,
-  questionTimeLeft
+  questionTimeLeft = 3.5
 }) => {
   const getPortalStateClasses = () => {
     switch (portalState) {
@@ -54,8 +54,9 @@ const Portal: React.FC<PortalProps> = ({
     return `${baseClasses} border-blue-400 animate-spin duration-3000`;
   };
 
-  const timeProgress = (questionTimeLeft / 3.5) * 100;
-  const isUrgent = questionTimeLeft <= 1;
+  const safeQuestionTimeLeft = questionTimeLeft ?? 3.5;
+  const timeProgress = (safeQuestionTimeLeft / 3.5) * 100;
+  const isUrgent = safeQuestionTimeLeft <= 1;
 
   return (
     <div className="flex flex-col items-center space-y-8">
@@ -76,7 +77,7 @@ const Portal: React.FC<PortalProps> = ({
             isUrgent ? "text-red-200" : "text-blue-200",
             isWarpActive && "text-yellow-200"
           )}>
-            {questionTimeLeft.toFixed(1)}s
+            {safeQuestionTimeLeft.toFixed(1)}s
           </div>
           <div className="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
             <div 
