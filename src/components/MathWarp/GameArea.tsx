@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -51,11 +52,13 @@ const GameArea: React.FC<GameAreaProps> = ({
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
   const [portalState, setPortalState] = useState<'closed' | 'opening' | 'open' | 'closing'>('closed');
   const [currentQuote, setCurrentQuote] = useState('');
+  const [questionTimeLeft, setQuestionTimeLeft] = useState(3.5);
+  const [questionTimer, setQuestionTimer] = useState<NodeJS.Timeout | null>(null);
 
   // Calculate progressive difficulty based on questions answered
   const getProgressiveDifficulty = useCallback(() => {
     const baseMultiplier = difficulty === 'easy' ? 1 : difficulty === 'medium' ? 1.5 : 2;
-    const progressMultiplier = Math.floor(questionsAnswered / 5) * 0.5; // Increase every 5 questions
+    const progressMultiplier = Math.floor(questionsAnswered / 5) * 0.5;
     return baseMultiplier + progressMultiplier;
   }, [difficulty, questionsAnswered]);
 
@@ -89,7 +92,6 @@ const GameArea: React.FC<GameAreaProps> = ({
         answer = num1;
       }
     } else {
-      // Division
       if (difficulty === 'easy') {
         num2 = Math.floor(Math.random() * (6 + Math.floor(difficultyMultiplier * 2))) + 1;
         answer = Math.floor(Math.random() * (6 + Math.floor(difficultyMultiplier * 2))) + 1;
@@ -111,7 +113,6 @@ const GameArea: React.FC<GameAreaProps> = ({
       }
     }
 
-    // Generate options with progressive difficulty range
     const options = [answer];
     const optionRange = Math.max(10, Math.floor(difficultyMultiplier * 8));
     
@@ -122,7 +123,6 @@ const GameArea: React.FC<GameAreaProps> = ({
       }
     }
     
-    // Shuffle options
     for (let i = options.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [options[i], options[j]] = [options[j], options[i]];
@@ -143,13 +143,69 @@ const GameArea: React.FC<GameAreaProps> = ({
     setCurrentQuote(motivationalQuotes[randomIndex]);
   }, []);
 
+  // Start question timer
+  const startQuestionTimer = useCallback(() => {
+    if (questionTimer) {
+      clearInterval(questionTimer);
+    }
+    
+    setQuestionTimeLeft(3.5);
+    const timer = setInterval(() => {
+      setQuestionTimeLeft(prev => {
+        if (prev <= 0.1) {
+          clearInterval(timer);
+          // Auto-fail if time runs out
+          handleTimeOut();
+          return 0;
+        }
+        return prev - 0.1;
+      });
+    }, 100);
+    
+    setQuestionTimer(timer);
+  }, [questionTimer]);
+
+  // Handle timeout
+  const handleTimeOut = () => {
+    if (portalState !== 'open') return;
+    
+    const newLives = lives - 1;
+    const newQuestionsAnswered = questionsAnswered + 1;
+    
+    setLives(newLives);
+    setStreak(0);
+    setIsWarpStreakActive(false);
+    setQuestionsAnswered(newQuestionsAnswered);
+    setIsCorrect(false);
+    onLivesUpdate(newLives);
+    onStreakUpdate(0);
+
+    if (newLives === 0) {
+      onGameEnd();
+    } else {
+      setTimeout(() => {
+        setIsCorrect(null);
+        setCurrentEquation(generateEquation());
+        generateRandomQuote();
+        setPortalState('opening');
+        setTimeout(() => {
+          setPortalState('open');
+          startQuestionTimer();
+        }, 800);
+      }, 1500);
+    }
+  };
+
   // Initialize first equation and open portal
   useEffect(() => {
     setCurrentEquation(generateEquation());
     generateRandomQuote();
     setPortalState('opening');
-    setTimeout(() => setPortalState('open'), 800);
-  }, [generateEquation, generateRandomQuote]);
+    setTimeout(() => {
+      setPortalState('open');
+      startQuestionTimer();
+    }, 800);
+  }, [generateEquation, generateRandomQuote, startQuestionTimer]);
 
   // Game timer
   useEffect(() => {
@@ -168,15 +224,30 @@ const GameArea: React.FC<GameAreaProps> = ({
     }
   }, [timeLeft, onTimeUpdate, onGameEnd]);
 
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (questionTimer) {
+        clearInterval(questionTimer);
+      }
+    };
+  }, [questionTimer]);
+
   // Handle answer selection
   const handleAnswer = (selectedAnswer: number) => {
     if (!currentEquation || portalState !== 'open') return;
+
+    // Clear the question timer
+    if (questionTimer) {
+      clearInterval(questionTimer);
+      setQuestionTimer(null);
+    }
 
     const correct = selectedAnswer === currentEquation.answer;
     setIsCorrect(correct);
 
     if (correct) {
-      const progressBonus = Math.floor(questionsAnswered / 10) * 5; // Bonus points for progress
+      const progressBonus = Math.floor(questionsAnswered / 10) * 5;
       const newScore = score + (10 * (streak + 1)) + progressBonus;
       const newStreak = streak + 1;
       const newQuestionsAnswered = questionsAnswered + 1;
@@ -187,19 +258,20 @@ const GameArea: React.FC<GameAreaProps> = ({
       onScoreUpdate(newScore);
       onStreakUpdate(newStreak);
 
-      // Activate warp streak at 5+ correct answers
       if (newStreak >= 5) {
         setIsWarpStreakActive(true);
       }
 
-      // Portal closing and opening animation
       setPortalState('closing');
       setTimeout(() => {
         setCurrentEquation(generateEquation());
-        generateRandomQuote(); // Generate new quote for each question
+        generateRandomQuote();
         setIsCorrect(null);
         setPortalState('opening');
-        setTimeout(() => setPortalState('open'), 800);
+        setTimeout(() => {
+          setPortalState('open');
+          startQuestionTimer();
+        }, 800);
       }, 1000);
     } else {
       const newLives = lives - 1;
@@ -215,18 +287,53 @@ const GameArea: React.FC<GameAreaProps> = ({
       if (newLives === 0) {
         onGameEnd();
       } else {
-        // Portal error state, then reset
         setTimeout(() => {
           setIsCorrect(null);
           setPortalState('opening');
-          setTimeout(() => setPortalState('open'), 500);
+          setTimeout(() => {
+            setPortalState('open');
+            startQuestionTimer();
+          }, 500);
         }, 1500);
       }
     }
   };
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="relative w-full h-full overflow-hidden" style={{
+      background: 'linear-gradient(45deg, #0f0f23 0%, #1a1a3e 25%, #2d1b69 50%, #1a1a3e 75%, #0f0f23 100%)',
+      perspective: '1000px'
+    }}>
+      {/* 3D Space Background with depth layers */}
+      <div className="absolute inset-0" style={{ transformStyle: 'preserve-3d' }}>
+        {/* Far background layer */}
+        <div 
+          className="absolute inset-0 opacity-30" 
+          style={{ 
+            transform: 'translateZ(-500px) scale(1.5)',
+            background: 'radial-gradient(circle at 30% 70%, rgba(147, 51, 234, 0.3) 0%, transparent 50%), radial-gradient(circle at 70% 30%, rgba(59, 130, 246, 0.3) 0%, transparent 50%)'
+          }}
+        />
+        
+        {/* Middle layer */}
+        <div 
+          className="absolute inset-0 opacity-50" 
+          style={{ 
+            transform: 'translateZ(-200px) scale(1.2)',
+            background: 'radial-gradient(circle at 20% 40%, rgba(168, 85, 247, 0.2) 0%, transparent 40%), radial-gradient(circle at 80% 60%, rgba(34, 197, 94, 0.2) 0%, transparent 40%)'
+          }}
+        />
+        
+        {/* Near layer */}
+        <div 
+          className="absolute inset-0 opacity-70" 
+          style={{ 
+            transform: 'translateZ(-50px) scale(1.1)',
+            background: 'radial-gradient(circle at 60% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 30%)'
+          }}
+        />
+      </div>
+      
       <SpaceBackground isWarpActive={isWarpStreakActive} />
       
       <div className="relative z-10 flex flex-col items-center justify-center h-full p-4">
@@ -249,6 +356,7 @@ const GameArea: React.FC<GameAreaProps> = ({
             isWarpActive={isWarpStreakActive}
             portalState={portalState}
             progressLevel={Math.floor(questionsAnswered / 5)}
+            questionTimeLeft={questionTimeLeft}
           />
         )}
       </div>
