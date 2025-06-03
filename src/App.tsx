@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,6 +19,7 @@ import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
+import MathWarp from "./pages/MathWarp";
 
 // ScrollToTop component that will trigger on route changes
 const ScrollToTop = () => {
@@ -51,6 +51,7 @@ const App = () => (
               <Route path="/fraction-frenzy" element={<FractionFrenzy />} />
               <Route path="/arithmetic-hero" element={<ArithmeticHero />} />
               <Route path="/target-takedown" element={<TargetTakedown />} />
+              <Route path="/math-warp" element={<MathWarp />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
