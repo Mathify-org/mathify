@@ -61,17 +61,18 @@ const Portal: React.FC<PortalProps> = ({
         
         {/* Inner portal core */}
         <Card className={cn(
-          "relative p-6 md:p-8 bg-slate-900 border-2 transition-all duration-500 transform rounded-full w-72 h-72 md:w-80 md:h-80 flex flex-col items-center justify-center",
-          isCorrect === true && "border-green-400 bg-green-900 animate-pulse scale-110 shadow-green-400/50 shadow-2xl",
-          isCorrect === false && "border-red-400 bg-red-900 animate-bounce scale-95 shadow-red-400/50 shadow-xl",
-          isWarpActive && "border-yellow-400 bg-yellow-900 shadow-2xl shadow-yellow-400/50 animate-pulse",
+          "relative p-6 md:p-8 border-2 transition-all duration-500 transform rounded-full w-72 h-72 md:w-80 md:h-80 flex flex-col items-center justify-center",
+          "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900",
+          isCorrect === true && "border-green-400 bg-gradient-to-br from-green-900 via-green-800 to-green-900 animate-pulse scale-110 shadow-green-400/50 shadow-2xl",
+          isCorrect === false && "border-red-400 bg-gradient-to-br from-red-900 via-red-800 to-red-900 animate-bounce scale-95 shadow-red-400/50 shadow-xl",
+          isWarpActive && "border-yellow-400 bg-gradient-to-br from-yellow-900 via-yellow-800 to-yellow-900 shadow-2xl shadow-yellow-400/50 animate-pulse",
           isCorrect === null && portalState === 'open' && "border-cyan-400 hover:border-purple-400 hover:scale-105 hover:shadow-cyan-400/30 hover:shadow-xl",
           portalState === 'opening' && "border-cyan-400 shadow-cyan-400/50 shadow-2xl",
           portalState === 'closing' && "border-purple-400 shadow-purple-400/50 shadow-xl"
         )}>
           {/* Progress level indicator */}
           {progressLevel > 0 && (
-            <div className="absolute -top-4 -left-4 flex items-center space-x-1 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+            <div className="absolute -top-4 -left-4 flex items-center space-x-1 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg animate-pulse">
               <Star size={16} className="animate-pulse" />
               <span>Level {progressLevel}</span>
             </div>
@@ -98,13 +99,24 @@ const Portal: React.FC<PortalProps> = ({
               Portal Signal Detected
             </div>
             
+            {/* Question container with improved styling */}
             <div className={cn(
-              "text-2xl md:text-4xl font-bold mb-4 transition-all duration-300 text-white",
-              isCorrect === true && "text-green-100 animate-pulse",
-              isCorrect === false && "text-red-100", 
-              isWarpActive && "text-yellow-100 animate-pulse"
+              "px-4 py-3 rounded-lg mb-4 border-2 transition-all duration-300",
+              "bg-gradient-to-br from-gray-900 to-black",
+              isCorrect === true && "border-green-400 bg-gradient-to-br from-green-950 to-black",
+              isCorrect === false && "border-red-400 bg-gradient-to-br from-red-950 to-black",
+              isWarpActive && "border-yellow-400 bg-gradient-to-br from-yellow-950 to-black animate-pulse",
+              isCorrect === null && "border-cyan-400"
             )}>
-              {equation.question}
+              <div className={cn(
+                "text-2xl md:text-4xl font-bold transition-all duration-300",
+                isCorrect === true && "text-green-100 animate-pulse",
+                isCorrect === false && "text-red-100", 
+                isWarpActive && "text-yellow-100 animate-pulse",
+                isCorrect === null && "text-white"
+              )}>
+                {equation.question}
+              </div>
             </div>
             
             <div className={cn(
@@ -144,8 +156,8 @@ const Portal: React.FC<PortalProps> = ({
             className={cn(
               "w-16 h-16 md:w-20 md:h-20 text-xl md:text-2xl font-bold rounded-full transition-all duration-300 transform",
               "bg-gradient-to-br from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400",
-              "border-2 border-cyan-300 hover:border-white hover:scale-110 text-white",
-              "shadow-lg hover:shadow-cyan-400/50 active:scale-95",
+              "border-2 border-cyan-300 hover:border-white hover:scale-110 text-white shadow-lg",
+              "hover:shadow-cyan-400/50 active:scale-95",
               portalState !== 'open' && "opacity-50 cursor-not-allowed",
               isWarpActive && "animate-pulse border-yellow-400 shadow-yellow-400/50 hover:shadow-yellow-400/70 bg-gradient-to-br from-yellow-400 to-orange-500",
               isCorrect === true && "animate-bounce scale-110 bg-gradient-to-br from-green-400 to-green-600 border-green-300",

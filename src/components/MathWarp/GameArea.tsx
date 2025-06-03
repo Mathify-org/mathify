@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -15,6 +14,25 @@ interface GameAreaProps {
   onGameEnd: () => void;
   difficulty: Difficulty;
 }
+
+// Motivational quotes for the game
+const motivationalQuotes = [
+  "Math is the language of the universe!",
+  "Every expert was once a beginner!",
+  "Practice makes perfect!",
+  "You're getting stronger with each problem!",
+  "Numbers are your friends!",
+  "Keep going, you're doing great!",
+  "Mathematical thinking builds character!",
+  "Believe in your abilities!",
+  "One equation at a time!",
+  "Success is the sum of small efforts!",
+  "Math is all around us!",
+  "Your brain is getting more powerful!",
+  "Stay focused and keep calculating!",
+  "Every mistake is a learning opportunity!",
+  "You're on the path to mathematical mastery!"
+];
 
 const GameArea: React.FC<GameAreaProps> = ({
   onScoreUpdate,
@@ -33,6 +51,7 @@ const GameArea: React.FC<GameAreaProps> = ({
   const [isWarpStreakActive, setIsWarpStreakActive] = useState(false);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
   const [portalState, setPortalState] = useState<'closed' | 'opening' | 'open' | 'closing'>('closed');
+  const [currentQuote, setCurrentQuote] = useState('');
 
   // Calculate progressive difficulty based on questions answered
   const getProgressiveDifficulty = useCallback(() => {
@@ -119,12 +138,19 @@ const GameArea: React.FC<GameAreaProps> = ({
     };
   }, [difficulty, getProgressiveDifficulty]);
 
+  // Generate random quote
+  const generateRandomQuote = useCallback(() => {
+    const randomIndex = Math.floor(Math.random() * motivationalQuotes.length);
+    setCurrentQuote(motivationalQuotes[randomIndex]);
+  }, []);
+
   // Initialize first equation and open portal
   useEffect(() => {
     setCurrentEquation(generateEquation());
+    generateRandomQuote();
     setPortalState('opening');
     setTimeout(() => setPortalState('open'), 800);
-  }, [generateEquation]);
+  }, [generateEquation, generateRandomQuote]);
 
   // Game timer
   useEffect(() => {
@@ -171,6 +197,7 @@ const GameArea: React.FC<GameAreaProps> = ({
       setPortalState('closing');
       setTimeout(() => {
         setCurrentEquation(generateEquation());
+        generateRandomQuote(); // Generate new quote for each question
         setIsCorrect(null);
         setPortalState('opening');
         setTimeout(() => setPortalState('open'), 800);
@@ -204,6 +231,17 @@ const GameArea: React.FC<GameAreaProps> = ({
       <SpaceBackground isWarpActive={isWarpStreakActive} />
       
       <div className="relative z-10 flex flex-col items-center justify-center h-full p-4">
+        {/* Motivational Quote */}
+        <div className="mb-8 text-center">
+          <div className={cn(
+            "text-lg md:text-xl font-medium px-6 py-3 rounded-full border-2 transition-all duration-500 max-w-md mx-auto",
+            isWarpStreakActive && "text-yellow-200 border-yellow-400 bg-yellow-900/30 animate-pulse",
+            !isWarpStreakActive && "text-cyan-200 border-cyan-400 bg-cyan-900/30"
+          )}>
+            {currentQuote}
+          </div>
+        </div>
+
         {currentEquation && (
           <Portal
             equation={currentEquation}
