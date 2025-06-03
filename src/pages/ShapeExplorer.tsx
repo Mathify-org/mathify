@@ -10,7 +10,7 @@ import ExplorerMap from "@/components/ShapeExplorer/ExplorerMap";
 import ShapeChallenge from "@/components/ShapeExplorer/ShapeChallenge";
 import HelpModal from "@/components/ShapeExplorer/HelpModal";
 
-// Define island types and challenge data
+// Define island types and challenge data (removed angles island, all unlocked)
 const islands = [
   {
     id: "polygons",
@@ -58,49 +58,12 @@ const islands = [
     ]
   },
   {
-    id: "angles",
-    name: "Angles Archipelago",
-    description: "Discover the world of angles and how to measure them",
-    color: "bg-gradient-to-r from-purple-500 to-pink-400",
-    position: { x: 65, y: 15 },
-    unlocked: true,
-    completed: false,
-    stars: 0,
-    icon: "triangle",
-    challenges: [
-      {
-        id: "ang-1",
-        name: "Angle Types",
-        type: "match",
-        description: "Learn to identify different types of angles",
-        completed: false,
-        stars: 0
-      },
-      {
-        id: "ang-2",
-        name: "Angle Hunter",
-        type: "measure",
-        description: "Estimate angles in various shapes",
-        completed: false,
-        stars: 0
-      },
-      {
-        id: "ang-3",
-        name: "Angle Sums",
-        type: "calculate",
-        description: "Calculate the sum of angles in different shapes",
-        completed: false,
-        stars: 0
-      }
-    ]
-  },
-  {
     id: "circles",
     name: "Circle Cove",
     description: "Dive into the perfect world of circles and their parts",
     color: "bg-gradient-to-r from-green-400 to-teal-500",
     position: { x: 75, y: 60 },
-    unlocked: false,
+    unlocked: true,
     completed: false,
     stars: 0,
     icon: "circle",
@@ -129,7 +92,7 @@ const islands = [
     description: "Climb to new heights with 3D shapes and their properties",
     color: "bg-gradient-to-r from-amber-500 to-orange-600",
     position: { x: 30, y: 70 },
-    unlocked: false,
+    unlocked: true,
     completed: false,
     stars: 0,
     icon: "square",
@@ -158,7 +121,7 @@ const islands = [
     description: "Explore the beauty and balance of symmetrical shapes",
     color: "bg-gradient-to-r from-pink-500 to-rose-500",
     position: { x: 50, y: 40 },
-    unlocked: false,
+    unlocked: true,
     completed: false,
     stars: 0,
     icon: "square-dashed",
@@ -227,32 +190,10 @@ const useProgressManager = () => {
       );
       newData[islandIndex].completed = islandCompleted;
       
-      // Check if we should unlock new islands
+      // Show toast notification for island completion
       if (islandCompleted) {
-        // Unlock next islands based on completion
-        if (islandId === "polygons") {
-          const anglesIndex = newData.findIndex(island => island.id === "angles");
-          if (anglesIndex !== -1) newData[anglesIndex].unlocked = true;
-        }
-        else if (islandId === "angles") {
-          const circlesIndex = newData.findIndex(island => island.id === "circles");
-          if (circlesIndex !== -1) newData[circlesIndex].unlocked = true;
-        } 
-        else if ((islandId === "circles" || islandId === "angles")) {
-          const shapesIndex = newData.findIndex(island => island.id === "3d");
-          if (shapesIndex !== -1) newData[shapesIndex].unlocked = true;
-        }
-        
-        // Unlock symmetry island if player has completed 2 islands
-        const completedIslands = newData.filter(island => island.completed).length;
-        if (completedIslands >= 2) {
-          const symmetryIndex = newData.findIndex(island => island.id === "symmetry");
-          if (symmetryIndex !== -1) newData[symmetryIndex].unlocked = true;
-        }
-        
-        // Show toast notification for island completion
         toast.success(`Congratulations! You've completed ${newData[islandIndex].name}!`, {
-          description: "You've unlocked new adventures!",
+          description: "Great job exploring geometry!",
           duration: 4000,
         });
       }
@@ -316,6 +257,15 @@ const ShapeExplorer = () => {
       <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white p-4 shadow-lg">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center">
+            <Link to="/">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-white mr-2 hover:bg-white/10"
+              >
+                <ArrowLeft />
+              </Button>
+            </Link>
             {activeView === 'challenge' && (
               <Button 
                 variant="ghost" 

@@ -1,550 +1,453 @@
 
-import React, { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { 
-  Card, 
-  CardContent, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Trophy, Timer, Share2, Flag, List } from "lucide-react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription,
-  DialogTrigger
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
-import { useIsMobile } from "@/hooks/use-mobile";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { ArrowLeft, Trophy, Target, Clock, Zap } from 'lucide-react';
+import { toast } from 'sonner';
 
-// Type for a math question
-type MathQuestion = {
-  text: string;
+interface Question {
+  id: number;
+  question: string;
   answer: number;
-};
+  userAnswer?: number;
+  isCorrect?: boolean;
+  timeSpent?: number;
+}
 
-// Generate a random integer between min and max (inclusive)
-const getRandomInt = (min: number, max: number) => {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-};
-
-// Generate a math question based on the operation
-const generateQuestion = (operation: string): MathQuestion => {
-  let num1: number, num2: number, answer: number, text: string;
-  
-  switch (operation) {
-    case "add":
-      num1 = getRandomInt(1, 50);
-      num2 = getRandomInt(1, 50);
-      answer = num1 + num2;
-      text = `${num1} + ${num2} = ?`;
-      break;
-    case "subtract":
-      num1 = getRandomInt(10, 99);
-      num2 = getRandomInt(1, num1);
-      answer = num1 - num2;
-      text = `${num1} - ${num2} = ?`;
-      break;
-    case "multiply":
-      num1 = getRandomInt(2, 12);
-      num2 = getRandomInt(2, 12);
-      answer = num1 * num2;
-      text = `${num1} × ${num2} = ?`;
-      break;
-    case "divide":
-      num2 = getRandomInt(2, 12);
-      answer = getRandomInt(1, 10);
-      num1 = num2 * answer;
-      text = `${num1} ÷ ${num2} = ?`;
-      break;
-    default:
-      num1 = getRandomInt(1, 20);
-      num2 = getRandomInt(1, 20);
-      answer = num1 + num2;
-      text = `${num1} + ${num2} = ?`;
-  }
-  
-  return { text, answer };
-};
-
-// Generate a set of questions for the day based on a seed
-const generateDailyQuestions = (seed: number): MathQuestion[] => {
-  // Use the seed to create a deterministic pseudo-random number generator
-  const seededRandom = () => {
-    let x = Math.sin(seed++) * 10000;
-    return x - Math.floor(x);
-  };
-
-  const operations = ["add", "subtract", "multiply", "divide"];
-  const questions: MathQuestion[] = [];
-  
-  // Generate 10 questions with a balanced mix of operations
-  for (let i = 0; i < 10; i++) {
-    const operationIndex = Math.floor(seededRandom() * operations.length);
-    const operation = operations[operationIndex];
-    
-    // Set the seed based on the operation and question number for consistent daily questions
-    const questionSeed = seed + i + operationIndex * 100;
-    const seededRandomForQuestion = () => {
-      let x = Math.sin(questionSeed) * 10000;
-      return x - Math.floor(x);
-    };
-    
-    let question: MathQuestion;
-    
-    switch (operation) {
-      case "add": {
-        const num1 = Math.floor(seededRandomForQuestion() * 50) + 1;
-        const num2 = Math.floor(seededRandomForQuestion() * 50) + 1;
-        question = {
-          text: `${num1} + ${num2} = ?`,
-          answer: num1 + num2
-        };
-        break;
-      }
-      case "subtract": {
-        const num1 = Math.floor(seededRandomForQuestion() * 90) + 10;
-        const num2 = Math.floor(seededRandomForQuestion() * num1) + 1;
-        question = {
-          text: `${num1} - ${num2} = ?`,
-          answer: num1 - num2
-        };
-        break;
-      }
-      case "multiply": {
-        const num1 = Math.floor(seededRandomForQuestion() * 11) + 2;
-        const num2 = Math.floor(seededRandomForQuestion() * 11) + 2;
-        question = {
-          text: `${num1} × ${num2} = ?`,
-          answer: num1 * num2
-        };
-        break;
-      }
-      case "divide": {
-        const divisor = Math.floor(seededRandomForQuestion() * 11) + 2;
-        const quotient = Math.floor(seededRandomForQuestion() * 10) + 1;
-        const dividend = divisor * quotient;
-        question = {
-          text: `${dividend} ÷ ${divisor} = ?`,
-          answer: quotient
-        };
-        break;
-      }
-      default:
-        question = generateQuestion("add");
-    }
-    
-    questions.push(question);
-  }
-  
-  return questions;
-};
-
-// Format time in MM:SS format
-const formatTime = (milliseconds: number): string => {
-  const totalSeconds = Math.floor(milliseconds / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-};
-
-// Get today's date as YYYY-MM-DD string
-const getTodayString = (): string => {
-  const today = new Date();
-  return `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`;
-};
-
-// Generate a seed from the date string
-const generateSeedFromDate = (dateString: string): number => {
-  let hash = 0;
-  for (let i = 0; i < dateString.length; i++) {
-    hash = ((hash << 5) - hash) + dateString.charCodeAt(i);
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  return Math.abs(hash);
-};
+interface GameStats {
+  score: number;
+  streak: number;
+  questionsAnswered: number;
+  timeRemaining: number;
+  accuracy: number;
+}
 
 const MathFactsRace = () => {
-  const [questions, setQuestions] = useState<MathQuestion[]>([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [userAnswer, setUserAnswer] = useState<string>("");
-  const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
-  const [isGameComplete, setIsGameComplete] = useState<boolean>(false);
-  const [startTime, setStartTime] = useState<number | null>(null);
-  const [endTime, setEndTime] = useState<number | null>(null);
-  const [elapsedTime, setElapsedTime] = useState<number>(0);
-  const [personalBest, setPersonalBest] = useState<number | null>(null);
-  const [streak, setStreak] = useState<number>(0);
-  const [totalRaces, setTotalRaces] = useState<number>(0);
-  const [feedback, setFeedback] = useState<string>("");
-  const inputRef = useRef<HTMLInputElement>(null);
-  const timerRef = useRef<number | null>(null);
-  const isMobile = useIsMobile();
+  const [gameStarted, setGameStarted] = useState(false);
+  const [gameMode, setGameMode] = useState<'addition' | 'subtraction' | 'multiplication' | 'division' | 'mixed'>('addition');
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+  const [userInput, setUserInput] = useState('');
+  const [gameStats, setGameStats] = useState<GameStats>({
+    score: 0,
+    streak: 0,
+    questionsAnswered: 0,
+    timeRemaining: 60,
+    accuracy: 0
+  });
+  const [gameOver, setGameOver] = useState(false);
+  const [questions, setQuestions] = useState<Question[]>([]);
 
-  // Initialize game
-  useEffect(() => {
-    const today = getTodayString();
-    const seed = generateSeedFromDate(today);
-    const dailyQuestions = generateDailyQuestions(seed);
-    setQuestions(dailyQuestions);
-    
-    // Load user stats from localStorage
-    const storedStats = localStorage.getItem("mathFactsStats");
-    if (storedStats) {
-      const stats = JSON.parse(storedStats);
-      setPersonalBest(stats.personalBest || null);
-      setStreak(stats.streak || 0);
-      setTotalRaces(stats.totalRaces || 0);
-      
-      // Check if we need to update streak
-      const lastPlayedDate = stats.lastPlayedDate;
-      if (lastPlayedDate) {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayString = `${yesterday.getFullYear()}-${(yesterday.getMonth() + 1).toString().padStart(2, "0")}-${yesterday.getDate().toString().padStart(2, "0")}`;
-        
-        // If last played was not yesterday, reset streak
-        if (lastPlayedDate !== yesterdayString && lastPlayedDate !== today) {
-          setStreak(0);
-        }
-      }
-    }
-    
-    // Focus the input when the component mounts
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
-
-  // Start timer if game has started but timer hasn't
-  useEffect(() => {
-    if (isGameStarted && !timerRef.current) {
-      const currentTime = Date.now();
-      setStartTime(currentTime);
-      
-      timerRef.current = window.setInterval(() => {
-        setElapsedTime(Date.now() - currentTime);
-      }, 100);
-    }
-    
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
+  // Generate a random question based on mode and difficulty
+  const generateQuestion = (): Question => {
+    const getDifficultyRange = () => {
+      switch (difficulty) {
+        case 'easy': return { min: 1, max: 10 };
+        case 'medium': return { min: 5, max: 20 };
+        case 'hard': return { min: 10, max: 50 };
       }
     };
-  }, [isGameStarted]);
 
-  // Handle user input
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setUserAnswer(value);
-    
-    // Start the game on first input
-    if (!isGameStarted && value) {
-      setIsGameStarted(true);
-    }
-    
-    // Check if the answer is correct
-    if (parseInt(value) === questions[currentQuestionIndex].answer) {
-      // Move to next question or finish game
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
-        setUserAnswer("");
-      } else {
-        // Game complete
-        finishGame();
-      }
-    }
-  };
+    const { min, max } = getDifficultyRange();
+    const a = Math.floor(Math.random() * (max - min + 1)) + min;
+    const b = Math.floor(Math.random() * (max - min + 1)) + min;
 
-  // Finish the game and update stats
-  const finishGame = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
+    const modes = gameMode === 'mixed' ? ['addition', 'subtraction', 'multiplication', 'division'] : [gameMode];
+    const selectedMode = modes[Math.floor(Math.random() * modes.length)];
+
+    let question: string;
+    let answer: number;
+
+    switch (selectedMode) {
+      case 'addition':
+        question = `${a} + ${b}`;
+        answer = a + b;
+        break;
+      case 'subtraction':
+        question = `${Math.max(a, b)} - ${Math.min(a, b)}`;
+        answer = Math.max(a, b) - Math.min(a, b);
+        break;
+      case 'multiplication':
+        const smallA = Math.floor(Math.random() * 12) + 1;
+        const smallB = Math.floor(Math.random() * 12) + 1;
+        question = `${smallA} × ${smallB}`;
+        answer = smallA * smallB;
+        break;
+      case 'division':
+        const divisor = Math.floor(Math.random() * 10) + 2;
+        const quotient = Math.floor(Math.random() * 10) + 1;
+        const dividend = divisor * quotient;
+        question = `${dividend} ÷ ${divisor}`;
+        answer = quotient;
+        break;
+      default:
+        question = `${a} + ${b}`;
+        answer = a + b;
     }
-    
-    const finalTime = Date.now();
-    setEndTime(finalTime);
-    const totalTime = finalTime - (startTime || 0);
-    
-    setIsGameComplete(true);
-    
-    // Update personal best if achieved
-    let isNewRecord = false;
-    if (!personalBest || totalTime < personalBest) {
-      setPersonalBest(totalTime);
-      isNewRecord = true;
-      setFeedback("New Record! 🎉");
-    } else if (totalTime < personalBest * 1.2) {
-      setFeedback("Speedy Solver! ⚡");
-    } else {
-      setFeedback("Well done! 👍");
-    }
-    
-    // Update streak and total races
-    const newStreak = streak + 1;
-    const newTotalRaces = totalRaces + 1;
-    setStreak(newStreak);
-    setTotalRaces(newTotalRaces);
-    
-    // Save stats to localStorage
-    const today = getTodayString();
-    const stats = {
-      personalBest: isNewRecord ? totalTime : personalBest,
-      streak: newStreak,
-      totalRaces: newTotalRaces,
-      lastPlayedDate: today
+
+    return {
+      id: Date.now(),
+      question,
+      answer
     };
-    localStorage.setItem("mathFactsStats", JSON.stringify(stats));
   };
 
-  // Start a new game
-  const startNewGame = () => {
-    // Generate new questions
-    const today = getTodayString();
-    const seed = generateSeedFromDate(today);
-    const dailyQuestions = generateDailyQuestions(seed);
-    
-    setQuestions(dailyQuestions);
-    setCurrentQuestionIndex(0);
-    setUserAnswer("");
-    setIsGameStarted(false);
-    setIsGameComplete(false);
-    setStartTime(null);
-    setEndTime(null);
-    setElapsedTime(0);
-    setFeedback("");
-    
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    
-    // Focus the input
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    }, 0);
+  // Start the game
+  const startGame = () => {
+    setGameStarted(true);
+    setGameOver(false);
+    setGameStats({
+      score: 0,
+      streak: 0,
+      questionsAnswered: 0,
+      timeRemaining: 60,
+      accuracy: 0
+    });
+    setQuestions([]);
+    setCurrentQuestion(generateQuestion());
+    setUserInput('');
   };
 
-  // Share results
-  const shareResults = () => {
-    const timeString = formatTime(endTime! - startTime!);
-    const shareText = `I finished today's Math Facts Race in ${timeString} ⚡ Try it at https://mathify.org/math-facts`;
+  // Handle answer submission
+  const submitAnswer = () => {
+    if (!currentQuestion || userInput === '') return;
+
+    const userAnswer = parseInt(userInput);
+    const isCorrect = userAnswer === currentQuestion.answer;
     
-    if (navigator.share) {
-      navigator.share({
-        text: shareText,
-      }).catch((error) => console.log("Error sharing:", error));
+    const updatedQuestion: Question = {
+      ...currentQuestion,
+      userAnswer,
+      isCorrect
+    };
+
+    setQuestions(prev => [...prev, updatedQuestion]);
+
+    if (isCorrect) {
+      const points = 10 + (gameStats.streak * 2);
+      setGameStats(prev => ({
+        ...prev,
+        score: prev.score + points,
+        streak: prev.streak + 1,
+        questionsAnswered: prev.questionsAnswered + 1,
+        accuracy: Math.round(((prev.questionsAnswered * prev.accuracy + 100) / (prev.questionsAnswered + 1)))
+      }));
+      
+      toast.success(`Correct! +${points} points`, {
+        duration: 1000,
+      });
     } else {
-      navigator.clipboard.writeText(shareText).then(() => {
-        toast.success("Results copied to clipboard!");
-      }).catch((err) => {
-        toast.error("Could not copy results.");
-        console.error("Could not copy text: ", err);
+      setGameStats(prev => ({
+        ...prev,
+        streak: 0,
+        questionsAnswered: prev.questionsAnswered + 1,
+        accuracy: Math.round(((prev.questionsAnswered * prev.accuracy) / (prev.questionsAnswered + 1)))
+      }));
+      
+      toast.error(`Wrong! The answer was ${currentQuestion.answer}`, {
+        duration: 2000,
       });
     }
+
+    // Generate next question
+    setCurrentQuestion(generateQuestion());
+    setUserInput('');
   };
 
-  // Instructions component
-  const Instructions = () => (
-    <DialogContent className="max-w-md">
-      <DialogHeader>
-        <DialogTitle className="text-2xl mb-2">How to Play Math Facts Race</DialogTitle>
-        <DialogDescription className="text-base space-y-4">
-          <div>
-            <p className="mb-2">Race against the clock to solve 10 arithmetic problems as quickly as possible!</p>
-            <ol className="list-decimal list-inside space-y-2">
-              <li>The timer starts when you begin typing your first answer</li>
-              <li>Each correct answer immediately advances to the next question</li>
-              <li>Complete all 10 questions to finish the race</li>
-              <li>Try to beat your personal best time</li>
-            </ol>
-          </div>
-          <div>
-            <p className="font-semibold mt-2">Example:</p>
-            <div className="bg-muted p-3 rounded-md text-center">
-              <p className="text-xl font-bold">7 × 8 = ?</p>
-              <p>Type: 56</p>
-              <p>Next question appears automatically!</p>
-            </div>
-          </div>
-        </DialogDescription>
-      </DialogHeader>
-    </DialogContent>
-  );
+  // Handle key press
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      submitAnswer();
+    }
+  };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 py-8 px-4">
-      <div className="max-w-md mx-auto">
-        <header className="text-center mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
-            Math Facts Race
-          </h1>
-          
-          <div className="flex justify-center items-center gap-2 mt-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="text-xs md:text-sm">
-                  How to Play
+  // Game timer
+  useEffect(() => {
+    if (gameStarted && !gameOver && gameStats.timeRemaining > 0) {
+      const timer = setTimeout(() => {
+        setGameStats(prev => ({
+          ...prev,
+          timeRemaining: prev.timeRemaining - 1
+        }));
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (gameStats.timeRemaining === 0 && gameStarted) {
+      setGameOver(true);
+      setGameStarted(false);
+    }
+  }, [gameStarted, gameOver, gameStats.timeRemaining]);
+
+  if (gameOver) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-4 flex items-center justify-center">
+        <Card className="w-full max-w-2xl">
+          <CardHeader className="text-center">
+            <div className="flex items-center justify-between mb-4">
+              <Link to="/">
+                <Button variant="ghost" size="icon">
+                  <ArrowLeft />
                 </Button>
-              </DialogTrigger>
-              <Instructions />
-            </Dialog>
-          </div>
-        </header>
-        
-        <Card className="mb-6 shadow-lg border-0 bg-white/90 backdrop-blur">
-          <CardHeader className="pb-2">
-            <div className="flex justify-between items-center">
-              <div>
-                <CardTitle className="font-semibold text-lg">
-                  {!isGameComplete ? "Today's Challenge" : "Challenge Complete!"}
-                </CardTitle>
-              </div>
-              <div className="text-right">
-                <span className="font-mono text-xl bg-indigo-100 px-3 py-1 rounded-md">
-                  {isGameStarted && !isGameComplete ? formatTime(elapsedTime) : "00:00"}
-                </span>
-              </div>
+              </Link>
+              <CardTitle className="text-3xl font-bold">🏁 Race Complete!</CardTitle>
+              <div></div>
             </div>
           </CardHeader>
-          
-          <CardContent>
-            {!isGameComplete ? (
-              <>
-                <div className="mb-6 relative">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center">
-                      <List className="w-4 h-4 mr-2 text-indigo-600" />
-                      <span className="text-sm font-medium">
-                        Question {currentQuestionIndex + 1} of {questions.length}
-                      </span>
-                    </div>
-                    <span className="text-xs font-medium">
-                      {Math.floor((currentQuestionIndex / questions.length) * 100)}%
-                    </span>
-                  </div>
-                  
-                  <Progress
-                    value={(currentQuestionIndex / questions.length) * 100}
-                    className="h-2"
-                    indicatorClassName="bg-gradient-to-r from-indigo-500 to-violet-500"
-                  />
-                </div>
-                
-                <div className="bg-indigo-50 p-5 rounded-xl text-center mb-6">
-                  <p className="text-3xl font-bold mb-1">
-                    {questions[currentQuestionIndex]?.text || "Loading..."}
-                  </p>
-                  <p className="text-sm text-slate-600">Type your answer below</p>
-                </div>
-                
-                <Input
-                  ref={inputRef}
-                  type="number"
-                  placeholder="Enter your answer..."
-                  value={userAnswer}
-                  onChange={handleInputChange}
-                  className="text-center text-xl font-bold py-6"
-                  inputMode="numeric"
-                  autoFocus
-                />
-              </>
-            ) : (
-              <div className="text-center py-4">
-                <div className="mb-6">
-                  <div className="inline-flex items-center justify-center bg-indigo-100 rounded-full w-20 h-20 mb-4">
-                    <Trophy className="w-10 h-10 text-indigo-600" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{feedback}</h3>
-                  <p className="text-3xl font-bold text-indigo-700 mb-1">
-                    {formatTime(endTime! - startTime!)}
-                  </p>
-                  <p className="text-slate-600 text-sm">
-                    You completed all 10 questions
-                  </p>
-                </div>
-                
-                <div className="grid grid-cols-3 gap-3 mb-6">
-                  <div className="bg-indigo-50 rounded-lg p-3">
-                    <div className="text-xl font-bold">{streak}</div>
-                    <div className="text-xs text-slate-600">Day Streak</div>
-                  </div>
-                  <div className="bg-indigo-50 rounded-lg p-3">
-                    <div className="text-xl font-bold">
-                      {personalBest ? formatTime(personalBest) : "--:--"}
-                    </div>
-                    <div className="text-xs text-slate-600">Best Time</div>
-                  </div>
-                  <div className="bg-indigo-50 rounded-lg p-3">
-                    <div className="text-xl font-bold">{totalRaces}</div>
-                    <div className="text-xs text-slate-600">Total Races</div>
-                  </div>
-                </div>
-                
-                <div className="flex space-x-3">
-                  <Button 
-                    onClick={startNewGame} 
-                    className="flex-1"
-                    variant="outline"
-                  >
-                    New Race
-                  </Button>
-                  <Button 
-                    onClick={shareResults}
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700"
-                  >
-                    <Share2 className="w-4 h-4 mr-2" /> Share
-                  </Button>
-                </div>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <Trophy className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold">{gameStats.score}</p>
+                <p className="text-sm text-gray-600">Final Score</p>
               </div>
-            )}
+              <div className="text-center">
+                <Target className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold">{gameStats.questionsAnswered}</p>
+                <p className="text-sm text-gray-600">Questions</p>
+              </div>
+              <div className="text-center">
+                <Zap className="h-8 w-8 text-purple-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold">{gameStats.accuracy}%</p>
+                <p className="text-sm text-gray-600">Accuracy</p>
+              </div>
+              <div className="text-center">
+                <Clock className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold">{Math.max(0, gameStats.streak)}</p>
+                <p className="text-sm text-gray-600">Best Streak</p>
+              </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button onClick={startGame} className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600">
+                🚀 Race Again
+              </Button>
+              <Link to="/">
+                <Button variant="outline" className="w-full sm:w-auto">
+                  🏠 Back to Games
+                </Button>
+              </Link>
+            </div>
           </CardContent>
-          
-          <CardFooter className={`${isGameComplete ? "hidden" : "block"} pt-0`}>
-            {isGameStarted ? (
-              <div className="w-full text-center">
-                <p className="text-sm text-slate-600 mt-2">
-                  Type the answer and press Enter to continue
-                </p>
-              </div>
-            ) : (
-              <div className="w-full text-center">
-                <p className="text-sm text-slate-600 mt-2">
-                  Start typing to begin the race!
-                </p>
-              </div>
-            )}
-          </CardFooter>
         </Card>
-        
-        <div className="bg-white/80 backdrop-blur rounded-lg p-4 shadow">
-          <h2 className="text-lg font-bold mb-3">Your Stats</h2>
-          <div className="grid grid-cols-3 gap-2">
-            <div className="bg-blue-50 p-3 rounded-md text-center">
-              <div className="text-sm font-medium text-slate-600">Streak</div>
-              <div className="text-2xl font-bold text-blue-700">{streak}</div>
-            </div>
-            <div className="bg-violet-50 p-3 rounded-md text-center">
-              <div className="text-sm font-medium text-slate-600">Best Time</div>
-              <div className="text-xl font-bold text-violet-700">
-                {personalBest ? formatTime(personalBest) : "--:--"}
-              </div>
-            </div>
-            <div className="bg-indigo-50 p-3 rounded-md text-center">
-              <div className="text-sm font-medium text-slate-600">Total</div>
-              <div className="text-2xl font-bold text-indigo-700">{totalRaces}</div>
-            </div>
+      </div>
+    );
+  }
+
+  if (!gameStarted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="flex items-center mb-8">
+            <Link to="/">
+              <Button variant="ghost" size="icon" className="text-white mr-4 hover:bg-white/10">
+                <ArrowLeft />
+              </Button>
+            </Link>
+            <h1 className="text-4xl md:text-6xl font-bold text-white">🏎️ Math Facts Race</h1>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="text-blue-500" />
+                  Choose Game Mode
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {[
+                  { id: 'addition', name: 'Addition', icon: '➕', desc: 'Practice adding numbers' },
+                  { id: 'subtraction', name: 'Subtraction', icon: '➖', desc: 'Practice subtracting numbers' },
+                  { id: 'multiplication', name: 'Multiplication', icon: '✖️', desc: 'Practice times tables' },
+                  { id: 'division', name: 'Division', icon: '➗', desc: 'Practice dividing numbers' },
+                  { id: 'mixed', name: 'Mixed Mode', icon: '🎲', desc: 'Random mix of all operations' }
+                ].map((mode) => (
+                  <Button
+                    key={mode.id}
+                    variant={gameMode === mode.id ? "default" : "outline"}
+                    className="w-full justify-start h-auto p-4"
+                    onClick={() => setGameMode(mode.id as any)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{mode.icon}</span>
+                      <div className="text-left">
+                        <div className="font-bold">{mode.name}</div>
+                        <div className="text-sm opacity-70">{mode.desc}</div>
+                      </div>
+                    </div>
+                  </Button>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="text-purple-500" />
+                  Choose Difficulty
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {[
+                  { id: 'easy', name: 'Easy', range: '1-10', color: 'bg-green-500' },
+                  { id: 'medium', name: 'Medium', range: '5-20', color: 'bg-yellow-500' },
+                  { id: 'hard', name: 'Hard', range: '10-50', color: 'bg-red-500' }
+                ].map((diff) => (
+                  <Button
+                    key={diff.id}
+                    variant={difficulty === diff.id ? "default" : "outline"}
+                    className="w-full justify-start h-auto p-4"
+                    onClick={() => setDifficulty(diff.id as any)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-4 h-4 rounded-full ${diff.color}`}></div>
+                      <div className="text-left">
+                        <div className="font-bold">{diff.name}</div>
+                        <div className="text-sm opacity-70">Numbers {diff.range}</div>
+                      </div>
+                    </div>
+                  </Button>
+                ))}
+                
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                  <h3 className="font-bold mb-2">🏁 Race Rules:</h3>
+                  <ul className="text-sm space-y-1">
+                    <li>• Answer as many questions as you can in 60 seconds</li>
+                    <li>• Build streaks for bonus points</li>
+                    <li>• Press Enter or click Submit to answer</li>
+                    <li>• Aim for speed and accuracy!</li>
+                  </ul>
+                </div>
+                
+                <Button
+                  onClick={startGame}
+                  className="w-full text-xl py-6 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                >
+                  🚀 Start Race!
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-400 via-blue-500 to-purple-600 p-4">
+      <div className="container mx-auto max-w-4xl">
+        {/* Game Header */}
+        <div className="flex items-center justify-between mb-6">
+          <Link to="/">
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+              <ArrowLeft />
+            </Button>
+          </Link>
+          <h1 className="text-2xl md:text-4xl font-bold text-white">🏎️ Math Facts Race</h1>
+          <div></div>
+        </div>
+
+        {/* Stats Bar */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Trophy className="h-6 w-6 text-yellow-500 mx-auto mb-1" />
+              <p className="text-2xl font-bold">{gameStats.score}</p>
+              <p className="text-sm text-gray-600">Score</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Zap className="h-6 w-6 text-purple-500 mx-auto mb-1" />
+              <p className="text-2xl font-bold">{gameStats.streak}</p>
+              <p className="text-sm text-gray-600">Streak</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Target className="h-6 w-6 text-green-500 mx-auto mb-1" />
+              <p className="text-2xl font-bold">{gameStats.accuracy}%</p>
+              <p className="text-sm text-gray-600">Accuracy</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Clock className="h-6 w-6 text-red-500 mx-auto mb-1" />
+              <p className="text-2xl font-bold">{gameStats.timeRemaining}</p>
+              <p className="text-sm text-gray-600">Time Left</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Progress Bar */}
+        <Card className="mb-6">
+          <CardContent className="p-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium">Time Remaining</span>
+              <span className="text-sm text-gray-600">{gameStats.timeRemaining}s</span>
+            </div>
+            <Progress value={(gameStats.timeRemaining / 60) * 100} className="h-3" />
+          </CardContent>
+        </Card>
+
+        {/* Main Question Area */}
+        <Card className="mb-6">
+          <CardContent className="p-8 text-center">
+            {currentQuestion && (
+              <>
+                <div className="mb-6">
+                  <p className="text-sm text-gray-600 mb-2">Question #{gameStats.questionsAnswered + 1}</p>
+                  <p className="text-4xl md:text-6xl font-bold text-purple-700 mb-6">
+                    {currentQuestion.question} = ?
+                  </p>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                  <input
+                    type="number"
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    className="text-2xl md:text-3xl text-center p-4 border-2 border-purple-300 rounded-lg w-40 focus:outline-none focus:border-purple-500"
+                    placeholder="?"
+                    autoFocus
+                  />
+                  <Button
+                    onClick={submitAnswer}
+                    disabled={userInput === ''}
+                    className="px-8 py-4 text-xl bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                  >
+                    Submit ⚡
+                  </Button>
+                </div>
+                
+                {gameStats.streak > 0 && (
+                  <div className="mt-4">
+                    <Badge className="bg-orange-500 text-white text-lg px-4 py-2">
+                      🔥 {gameStats.streak} Streak! 
+                    </Badge>
+                  </div>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Game Mode Info */}
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="flex justify-center items-center gap-4 text-sm text-gray-600">
+              <Badge variant="outline">{gameMode.charAt(0).toUpperCase() + gameMode.slice(1)}</Badge>
+              <Badge variant="outline">{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</Badge>
+              <span>Questions Answered: {gameStats.questionsAnswered}</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

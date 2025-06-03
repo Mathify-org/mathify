@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowUp, Star, Flame } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Star, Flame } from 'lucide-react';
 import GameBoard from '@/components/TargetTakedown/GameBoard';
 import GameStats from '@/components/TargetTakedown/GameStats';
 import ModeSelector from '@/components/TargetTakedown/ModeSelector';
@@ -40,11 +41,19 @@ const TargetTakedown = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500 p-4">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-6xl font-bold text-white mb-4 animate-bounce">
+          <div className="flex items-center mb-8">
+            <Link to="/">
+              <Button variant="ghost" size="icon" className="text-white mr-4 hover:bg-white/10">
+                <ArrowLeft />
+              </Button>
+            </Link>
+            <h1 className="text-4xl md:text-6xl font-bold text-white animate-bounce">
               🎯 Target Takedown
             </h1>
-            <p className="text-xl text-white/90 mb-8">
+          </div>
+          
+          <div className="text-center mb-8">
+            <p className="text-xl text-white/90">
               Tap numbers to hit the target! Ultra-fun math for ages 8-14
             </p>
           </div>
@@ -108,9 +117,17 @@ const TargetTakedown = () => {
       <div className="min-h-screen bg-gradient-to-br from-red-600 via-purple-600 to-blue-600 p-4 flex items-center justify-center">
         <Card className="glass-morphism border-2 border-white/30 max-w-md w-full">
           <CardHeader className="text-center">
-            <CardTitle className="text-4xl mb-4">
-              {selectedMode === 'survival' ? '💀 Game Over!' : '⏰ Time\'s Up!'}
-            </CardTitle>
+            <div className="flex items-center justify-between mb-4">
+              <Link to="/">
+                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+                  <ArrowLeft />
+                </Button>
+              </Link>
+              <CardTitle className="text-4xl mb-4">
+                {selectedMode === 'survival' ? '💀 Game Over!' : '⏰ Time\'s Up!'}
+              </CardTitle>
+              <div></div>
+            </div>
           </CardHeader>
           <CardContent className="text-center space-y-6">
             <div className="space-y-2">
@@ -142,6 +159,16 @@ const TargetTakedown = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-4">
       <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <Link to="/">
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+              <ArrowLeft />
+            </Button>
+          </Link>
+          <h1 className="text-2xl md:text-4xl font-bold text-white">🎯 Target Takedown</h1>
+          <div></div>
+        </div>
+        
         <GameStats
           score={score}
           lives={lives}

@@ -1,545 +1,406 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader,
-  CardTitle,
-  CardDescription
-} from "@/components/ui/card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { motion, AnimatePresence } from "framer-motion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "@/components/ui/sonner";
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Cake, Star, Medal, Trophy, Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Trophy, Target, Timer, Star } from "lucide-react";
+import { toast } from "sonner";
+
+import DifficultySelector from "@/components/FractionFrenzy/DifficultySelector";
+import GameModeCard from "@/components/FractionFrenzy/GameModeCard";
 import FractionVisual from "@/components/FractionFrenzy/FractionVisual";
 import GameTimer from "@/components/FractionFrenzy/GameTimer";
-import GameModeCard from "@/components/FractionFrenzy/GameModeCard";
-import DifficultySelector from "@/components/FractionFrenzy/DifficultySelector";
 import StatsDisplay from "@/components/FractionFrenzy/StatsDisplay";
-import { FractionData, FractionType, GameMode, GameStats, Theme, Difficulty } from "@/types/fractionFrenzy";
 
-// Game settings
-const FRENZY_TIME = 60; // seconds
-const FRACTION_TIME = 10; // seconds for each fraction in frenzy mode
-const SPEED_INCREASE_INTERVAL = 10; // seconds
-const INITIAL_CAROUSEL_SPEED = 5000; // ms
-const MIN_CAROUSEL_SPEED = 2000; // ms
-const MAX_LIVES = 3;
-
-// Helper functions for localStorage
-const getStoredStats = (): GameStats => {
-  const stored = localStorage.getItem('fractionFrenzyStats');
-  if (stored) return JSON.parse(stored);
-  return {
-    bestFrenzyScore: 0,
-    totalCorrect: 0,
-    longestStreak: 0,
-    currentStreak: 0,
-    survivalModeUnlocked: false,
-    selectedTheme: 'pizza'
-  };
-};
-
-const saveStats = (stats: GameStats) => {
-  localStorage.setItem('fractionFrenzyStats', JSON.stringify(stats));
-};
+import { GameMode, Difficulty, GameState, FractionQuestion, GameStats } from "@/types/fractionFrenzy";
 
 const FractionFrenzy = () => {
-  const [gameMode, setGameMode] = useState<GameMode>("menu");
-  const [stats, setStats] = useState<GameStats>(getStoredStats);
-  const [score, setScore] = useState(0);
-  const [lives, setLives] = useState(MAX_LIVES);
-  const [timeRemaining, setTimeRemaining] = useState(FRENZY_TIME);
-  const [fractionTimer, setFractionTimer] = useState(FRACTION_TIME);
-  const [currentFraction, setCurrentFraction] = useState<FractionData | null>(null);
-  const [options, setOptions] = useState<FractionData[]>([]);
-  const [carouselSpeed, setCarouselSpeed] = useState(INITIAL_CAROUSEL_SPEED);
-  const [difficulty, setDifficulty] = useState<Difficulty>("mixed");
-  const [showAnswer, setShowAnswer] = useState(false);
-  const [showMatchType, setShowMatchType] = useState<'fraction-to-visual' | 'visual-to-fraction'>('fraction-to-visual');
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const speedIncreaseRef = useRef<NodeJS.Timeout | null>(null);
-  const isMobile = useIsMobile();
+  const [gameState, setGameState] = useState<GameState>("menu");
+  const [selectedMode, setSelectedMode] = useState<GameMode>("visual-match");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>("easy");
+  const [currentQuestion, setCurrentQuestion] = useState<FractionQuestion | null>(null);
+  const [userAnswer, setUserAnswer] = useState<string>("");
+  const [gameStats, setGameStats] = useState<GameStats>({
+    score: 0,
+    questionsAnswered: 0,
+    correctAnswers: 0,
+    streak: 0,
+    timeRemaining: 0,
+    totalTime: 0
+  });
 
-  // Generate fraction data
-  const generateFractionData = (difficulty: Difficulty): FractionData[] => {
-    const fractions: FractionData[] = [];
+  const gameModes = useMemo(() => [
+    {
+      id: "visual-match" as GameMode,
+      title: "Visual Match",
+      description: "Match fractions to their visual representations",
+      icon: "🎯",
+      color: "from-blue-500 to-cyan-400"
+    },
+    {
+      id: "equivalent" as GameMode,
+      title: "Equivalent Fractions",
+      description: "Find equivalent fractions and simplify",
+      icon: "⚖️",
+      color: "from-green-500 to-emerald-400"
+    },
+    {
+      id: "arithmetic" as GameMode,
+      title: "Fraction Arithmetic",
+      description: "Add, subtract, multiply and divide fractions",
+      icon: "🧮",
+      color: "from-purple-500 to-violet-400"
+    },
+    {
+      id: "word-problems" as GameMode,
+      title: "Word Problems",
+      description: "Solve real-world fraction problems",
+      icon: "📚",
+      color: "from-orange-500 to-amber-400"
+    }
+  ], []);
+
+  const generateQuestion = useCallback((): FractionQuestion => {
+    // Simple question generation logic
+    const numerator = Math.floor(Math.random() * 10) + 1;
+    const denominator = Math.floor(Math.random() * 10) + numerator + 1;
     
-    // Add fractions based on difficulty
-    const addFraction = (numerator: number, denominator: number, type: FractionType) => {
-      fractions.push({
+    return {
+      id: Date.now(),
+      type: selectedMode,
+      difficulty: selectedDifficulty,
+      question: `What is ${numerator}/${denominator} in simplest form?`,
+      options: [`${numerator}/${denominator}`, `${numerator/2}/${denominator/2}`, `${numerator*2}/${denominator*2}`, `${numerator+1}/${denominator+1}`],
+      correctAnswer: `${numerator}/${denominator}`,
+      explanation: `${numerator}/${denominator} is already in simplest form.`,
+      fractionData: {
         numerator,
         denominator,
-        type,
-        id: `${type}-${numerator}-${denominator}`,
         value: numerator / denominator
-      });
+      }
     };
-    
-    if (difficulty === "halves" || difficulty === "mixed") {
-      addFraction(1, 2, "half");
-    }
-    
-    if (difficulty === "thirds" || difficulty === "mixed") {
-      addFraction(1, 3, "third");
-      addFraction(2, 3, "third");
-    }
-    
-    if (difficulty === "quarters" || difficulty === "mixed") {
-      addFraction(1, 4, "quarter");
-      addFraction(2, 4, "quarter");
-      addFraction(3, 4, "quarter");
-    }
-    
-    if (difficulty === "mixed") {
-      addFraction(1, 5, "fifth");
-      addFraction(2, 5, "fifth");
-      addFraction(3, 5, "fifth");
-      addFraction(4, 5, "fifth");
-      
-      addFraction(1, 6, "sixth");
-      addFraction(5, 6, "sixth");
-    }
-    
-    return fractions;
-  };
+  }, [selectedMode, selectedDifficulty]);
 
-  // Get visual options for current game - Fixed to ensure the correct answer is always included
-  const getOptions = (current: FractionData | null, count: number = 4): FractionData[] => {
-    if (!current) return [];
+  const startGame = useCallback(() => {
+    const timeLimit = selectedDifficulty === "easy" ? 120 : selectedDifficulty === "medium" ? 90 : 60;
     
-    const allOptions = generateFractionData(difficulty);
-    
-    // Filter out the current fraction from options
-    const otherOptions = allOptions.filter(
-      f => !(f.numerator === current.numerator && f.denominator === current.denominator)
-    );
-    
-    // Shuffle and take required number of options
-    const shuffled = otherOptions.sort(() => 0.5 - Math.random());
-    const selectedOptions = shuffled.slice(0, count - 1);
-    
-    // Add the correct answer and shuffle again
-    const result = [...selectedOptions, current].sort(() => 0.5 - Math.random());
-    
-    // Double-check that the correct answer is included
-    const hasCorrectAnswer = result.some(
-      option => option.numerator === current.numerator && option.denominator === current.denominator
-    );
-    
-    // If somehow the correct answer isn't in the array (which shouldn't happen), add it
-    if (!hasCorrectAnswer) {
-      result.pop(); // Remove the last item
-      result.push(current); // Add the correct answer
-    }
-    
-    return result;
-  };
-
-  // Start a new round
-  const startNewRound = () => {
-    const fractions = generateFractionData(difficulty);
-    const randomIndex = Math.floor(Math.random() * fractions.length);
-    const newFraction = fractions[randomIndex];
-    
-    // Randomly switch between fraction-to-visual and visual-to-fraction
-    const newMatchType = Math.random() > 0.5 ? 'fraction-to-visual' : 'visual-to-fraction';
-    setShowMatchType(newMatchType);
-    
-    setCurrentFraction(newFraction);
-    setOptions(getOptions(newFraction));
-    setShowAnswer(false);
-    
-    if (gameMode === "frenzy") {
-      setFractionTimer(FRACTION_TIME);
-    }
-  };
-
-  // Answer handler
-  const handleAnswer = (selected: FractionData) => {
-    if (!currentFraction || showAnswer) return;
-    
-    const isCorrect = selected.numerator === currentFraction.numerator && 
-                      selected.denominator === currentFraction.denominator;
-    
-    // Update score based on game mode
-    if (gameMode === "frenzy") {
-      setScore(prev => isCorrect ? prev + 1 : Math.max(0, prev - 1));
-    } else if (gameMode === "survival" && !isCorrect) {
-      setLives(prev => prev - 1);
-    } else if (gameMode === "practice") {
-      // In practice mode, just track correct answers for stats
-      if (isCorrect) {
-        setStats(prev => ({
-          ...prev,
-          totalCorrect: prev.totalCorrect + 1
-        }));
-      }
-    }
-    
-    // Update streak
-    setStats(prev => {
-      const newStats = {
-        ...prev,
-        totalCorrect: isCorrect ? prev.totalCorrect + 1 : prev.totalCorrect,
-        currentStreak: isCorrect ? prev.currentStreak + 1 : 0,
-      };
-      
-      // Update longest streak if current streak exceeds it
-      if (newStats.currentStreak > prev.longestStreak) {
-        newStats.longestStreak = newStats.currentStreak;
-      }
-      
-      return newStats;
+    setGameStats({
+      score: 0,
+      questionsAnswered: 0,
+      correctAnswers: 0,
+      streak: 0,
+      timeRemaining: timeLimit,
+      totalTime: timeLimit
     });
     
-    // Show feedback
-    setShowAnswer(true);
+    setCurrentQuestion(generateQuestion());
+    setUserAnswer("");
+    setGameState("playing");
+  }, [selectedDifficulty, generateQuestion]);
+
+  const handleAnswer = useCallback((answer: string) => {
+    if (!currentQuestion) return;
+
+    const isCorrect = answer === currentQuestion.correctAnswer;
+    const points = isCorrect ? (10 + gameStats.streak * 2) : 0;
+    
+    setGameStats(prev => ({
+      ...prev,
+      score: prev.score + points,
+      questionsAnswered: prev.questionsAnswered + 1,
+      correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
+      streak: isCorrect ? prev.streak + 1 : 0
+    }));
+
     if (isCorrect) {
-      toast.success("Correct!", { position: "top-center" });
+      toast.success(`Correct! +${points} points`, {
+        description: currentQuestion.explanation
+      });
     } else {
-      toast.error("Not quite!", { position: "top-center" });
+      toast.error("Incorrect!", {
+        description: `The correct answer was: ${currentQuestion.correctAnswer}`
+      });
     }
-    
-    // Move to next round after a delay
+
+    // Generate next question after a short delay
     setTimeout(() => {
-      if (gameMode === "survival" && !isCorrect && lives <= 1) {
-        // Game over in survival mode
-        endGame();
-      } else {
-        startNewRound();
-      }
-    }, 1200);
-  };
+      setCurrentQuestion(generateQuestion());
+      setUserAnswer("");
+    }, 1500);
+  }, [currentQuestion, gameStats.streak, generateQuestion]);
 
-  // Start game
-  const startGame = (mode: GameMode) => {
-    setGameMode(mode);
-    setScore(0);
-    setLives(MAX_LIVES);
-    setCarouselSpeed(INITIAL_CAROUSEL_SPEED);
-    
-    if (mode === "frenzy") {
-      setTimeRemaining(FRENZY_TIME);
-      setFractionTimer(FRACTION_TIME);
-      
-      // Set up timer for Frenzy Mode
-      timerRef.current = setInterval(() => {
-        setTimeRemaining(prev => {
-          if (prev <= 1) {
-            endGame();
-            return 0;
-          }
-          return prev - 1;
-        });
-        
-        setFractionTimer(prev => {
-          if (prev <= 1) {
-            // Time's up for this fraction, move to the next one
-            startNewRound();
-            return FRACTION_TIME;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      
-      // Set up speed increase interval
-      speedIncreaseRef.current = setInterval(() => {
-        setCarouselSpeed(prev => Math.max(MIN_CAROUSEL_SPEED, prev - 500));
-      }, SPEED_INCREASE_INTERVAL * 1000);
-    }
-    
-    startNewRound();
-  };
-
-  // End game
-  const endGame = () => {
-    // Clear timers
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    
-    if (speedIncreaseRef.current) {
-      clearInterval(speedIncreaseRef.current);
-      speedIncreaseRef.current = null;
-    }
-    
-    // Update stats
-    setStats(prev => {
-      const newStats = { ...prev };
-      
-      if (gameMode === "frenzy" && score > prev.bestFrenzyScore) {
-        newStats.bestFrenzyScore = score;
-        
-        // Unlock survival mode after reaching 15 points
-        if (score >= 15) {
-          newStats.survivalModeUnlocked = true;
-        }
-        
-        // Show celebration for new high score
-        setTimeout(() => {
-          toast.success("New High Score! 🎉", { 
-            position: "top-center",
-            duration: 5000
-          });
-        }, 500);
-      }
-      
-      return newStats;
+  const resetGame = useCallback(() => {
+    setGameState("menu");
+    setCurrentQuestion(null);
+    setUserAnswer("");
+    setGameStats({
+      score: 0,
+      questionsAnswered: 0,
+      correctAnswers: 0,
+      streak: 0,
+      timeRemaining: 0,
+      totalTime: 0
     });
-    
-    // Return to menu
-    setGameMode("menu");
-  };
-
-  // Save stats when updated
-  useEffect(() => {
-    saveStats(stats);
-  }, [stats]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (speedIncreaseRef.current) clearInterval(speedIncreaseRef.current);
-    };
   }, []);
 
-  // Game UI based on mode
-  if (gameMode === "menu") {
+  // Timer effect
+  useEffect(() => {
+    if (gameState === "playing" && gameStats.timeRemaining > 0) {
+      const timer = setTimeout(() => {
+        setGameStats(prev => ({
+          ...prev,
+          timeRemaining: prev.timeRemaining - 1
+        }));
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (gameState === "playing" && gameStats.timeRemaining === 0) {
+      setGameState("gameOver");
+    }
+  }, [gameState, gameStats.timeRemaining]);
+
+  if (gameState === "menu") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 py-8 px-4">
-        <div className="container mx-auto">
-          <div className="text-center mb-6">
-            <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 bg-clip-text text-transparent mb-4">
-              Fraction Frenzy
-            </h1>
-            <p className="text-slate-600 max-w-xl mx-auto text-lg">
-              Match fractions with their visual representations in this fast-paced math game!
+      <div className="min-h-screen bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-600 p-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="flex items-center mb-8">
+            <Link to="/">
+              <Button variant="ghost" size="icon" className="text-white mr-4 hover:bg-white/10">
+                <ArrowLeft />
+              </Button>
+            </Link>
+            <h1 className="text-4xl md:text-6xl font-bold text-white">🔢 Fraction Frenzy</h1>
+          </div>
+          
+          <div className="text-center mb-8">
+            <p className="text-xl text-white/90">
+              Master fractions through fun, interactive challenges!
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <GameModeCard 
-              title="Frenzy Mode" 
-              icon={<Cake className="h-8 w-8 text-pink-500" />}
-              description="60 seconds to match as many as possible. Speed increases every 10 seconds!"
-              onClick={() => startGame("frenzy")}
-            />
-            
-            <GameModeCard 
-              title="Practice Mode" 
-              icon={<Star className="h-8 w-8 text-amber-500" />}
-              description="Unlimited time, no pressure. Perfect for learning fractions at your own pace."
-              onClick={() => startGame("practice")}
-            />
-            
-            <GameModeCard 
-              title="Survival Mode" 
-              icon={<Trophy className="h-8 w-8 text-emerald-500" />}
-              description="3 lives. One mistake = lose a life. How far can you go?"
-              onClick={() => startGame("survival")}
-              disabled={!stats.survivalModeUnlocked}
-              lockedMessage="Score at least 15 points in Frenzy Mode to unlock!"
-            />
-          </div>
-          
-          <div className="bg-white rounded-xl p-6 shadow-lg max-w-2xl mx-auto">
-            <Tabs defaultValue="stats">
-              <TabsList className="grid grid-cols-2 mb-4">
-                <TabsTrigger value="stats">My Stats</TabsTrigger>
-                <TabsTrigger value="settings">Settings</TabsTrigger>
-              </TabsList>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Game Modes */}
+            <div className="lg:col-span-2">
+              <Card className="glass-morphism border-white/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-2xl">
+                    <Target className="text-blue-400" />
+                    Choose Your Challenge
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {gameModes.map((mode) => (
+                      <GameModeCard
+                        key={mode.id}
+                        mode={mode}
+                        isSelected={selectedMode === mode.id}
+                        onSelect={() => setSelectedMode(mode.id)}
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Settings */}
+            <div className="space-y-6">
+              <DifficultySelector
+                selectedDifficulty={selectedDifficulty}
+                onDifficultySelect={setSelectedDifficulty}
+              />
               
-              <TabsContent value="stats">
-                <StatsDisplay stats={stats} />
-              </TabsContent>
-              
-              <TabsContent value="settings">
-                <h2 className="text-xl font-semibold mb-4">Game Settings</h2>
-                <DifficultySelector 
-                  difficulty={difficulty} 
-                  onChange={setDifficulty} 
-                />
-              </TabsContent>
-            </Tabs>
+              <Card className="glass-morphism border-white/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="text-yellow-400" />
+                    Game Rules
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  <div className="flex items-start gap-2">
+                    <Badge className="bg-blue-500 text-white">1</Badge>
+                    <p>Answer fraction questions as quickly and accurately as possible</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Badge className="bg-green-500 text-white">2</Badge>
+                    <p>Build streaks for bonus points</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Badge className="bg-purple-500 text-white">3</Badge>
+                    <p>Beat the timer to maximize your score</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Button
+                onClick={startGame}
+                className="w-full text-xl py-6 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold"
+              >
+                🚀 Start Frenzy!
+              </Button>
+            </div>
           </div>
         </div>
       </div>
     );
   }
-  
-  // Active gameplay UI
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 py-6 px-4">
-      <div className="container mx-auto max-w-4xl">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-xl md:text-3xl font-bold text-purple-700">
-              {gameMode === "frenzy" ? "Frenzy Mode" : 
-               gameMode === "survival" ? "Survival Mode" : "Practice Mode"}
-            </h1>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            {gameMode === "frenzy" && (
-              <>
-                <GameTimer 
-                  timeRemaining={timeRemaining} 
-                  totalTime={FRENZY_TIME}
-                />
-                <div className="bg-amber-100 px-3 py-1 rounded-md text-amber-800 font-medium">
-                  {fractionTimer}s
-                </div>
-              </>
-            )}
-            
-            {gameMode === "survival" && (
-              <div className="flex items-center gap-1">
-                {[...Array(MAX_LIVES)].map((_, i) => (
-                  <div 
-                    key={i}
-                    className={cn(
-                      "w-5 h-5 rounded-full",
-                      i < lives ? "bg-red-500" : "bg-gray-300"
-                    )}
-                  />
-                ))}
-              </div>
-            )}
-            
-            {gameMode !== "practice" && (
-              <div className="bg-white px-4 py-2 rounded-lg shadow-md">
-                <span className="font-bold text-lg text-purple-700">{score}</span>
-              </div>
-            )}
-            
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={endGame}
-            >
-              Exit
-            </Button>
-          </div>
-        </div>
-        
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <div className="text-center mb-6">
-              {showMatchType === 'fraction-to-visual' ? (
-                <>
-                  <p className="text-lg text-slate-600 mb-2">Find the visual that matches:</p>
-                  <div className="text-4xl md:text-6xl font-bold">
-                    {currentFraction?.numerator}/{currentFraction?.denominator}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p className="text-lg text-slate-600 mb-2">Find the fraction that matches:</p>
-                  <div className="flex justify-center">
-                    <FractionVisual 
-                      fraction={currentFraction} 
-                      theme={stats.selectedTheme as Theme}
-                      size="large" 
-                    />
-                  </div>
-                </>
-              )}
+
+  if (gameState === "gameOver") {
+    const accuracy = gameStats.questionsAnswered > 0 ? 
+      Math.round((gameStats.correctAnswers / gameStats.questionsAnswered) * 100) : 0;
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-500 via-purple-500 to-pink-600 p-4 flex items-center justify-center">
+        <Card className="w-full max-w-2xl">
+          <CardHeader className="text-center">
+            <div className="flex items-center justify-between mb-4">
+              <Link to="/">
+                <Button variant="ghost" size="icon">
+                  <ArrowLeft />
+                </Button>
+              </Link>
+              <CardTitle className="text-3xl font-bold">🎉 Frenzy Complete!</CardTitle>
+              <div></div>
             </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <StatsDisplay
+              score={gameStats.score}
+              questionsAnswered={gameStats.questionsAnswered}
+              accuracy={accuracy}
+              streak={gameStats.streak}
+            />
             
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentFraction?.id || 'options'}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                {showMatchType === 'fraction-to-visual' ? (
-                  <Carousel
-                    opts={{
-                      align: "center",
-                      loop: true,
-                    }}
-                    className="w-full"
-                  >
-                    <CarouselContent>
-                      {options.map((option) => (
-                        <CarouselItem key={option.id} className="md:basis-1/2 lg:basis-1/3">
-                          <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <Card 
-                              className={cn(
-                                "cursor-pointer transition-all border-2",
-                                showAnswer && currentFraction?.id === option.id ? "border-green-500 shadow-lg" : "border-transparent"
-                              )}
-                              onClick={() => handleAnswer(option)}
-                            >
-                              <CardContent className="flex justify-center items-center p-4">
-                                <FractionVisual 
-                                  fraction={option}
-                                  theme={stats.selectedTheme as Theme} 
-                                  size="medium"
-                                />
-                              </CardContent>
-                            </Card>
-                          </motion.div>
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    <div className="flex justify-center gap-2 mt-4">
-                      <CarouselPrevious className="static" />
-                      <CarouselNext className="static" />
-                    </div>
-                  </Carousel>
-                ) : (
-                  <div className="grid grid-cols-2 gap-4">
-                    {options.map((option) => (
-                      <motion.div
-                        key={option.id}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Button
-                          className={cn(
-                            "w-full h-16 text-2xl",
-                            showAnswer && currentFraction?.id === option.id ? "bg-green-500 hover:bg-green-600" : ""
-                          )}
-                          onClick={() => handleAnswer(option)}
-                        >
-                          {option.numerator}/{option.denominator}
-                        </Button>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
+            <div className="text-center space-y-4">
+              <p className="text-lg">
+                You mastered <span className="font-bold text-purple-600">{selectedMode}</span> mode
+                on <span className="font-bold text-purple-600">{selectedDifficulty}</span> difficulty!
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  onClick={startGame}
+                  className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                >
+                  🔄 Play Again
+                </Button>
+                <Button 
+                  onClick={resetGame}
+                  variant="outline"
+                >
+                  🏠 Back to Menu
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
-        
-        {gameMode === "practice" && (
-          <div className="flex justify-center">
-            <Button onClick={() => startNewRound()}>Next Question</Button>
-          </div>
+      </div>
+    );
+  }
+
+  // Game playing state
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-4">
+      <div className="container mx-auto max-w-4xl">
+        {/* Game Header */}
+        <div className="flex items-center justify-between mb-6">
+          <Link to="/">
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+              <ArrowLeft />
+            </Button>
+          </Link>
+          <h1 className="text-2xl md:text-4xl font-bold text-white">🔢 Fraction Frenzy</h1>
+          <Button 
+            onClick={resetGame}
+            variant="ghost" 
+            className="text-white hover:bg-white/10"
+          >
+            Exit Game
+          </Button>
+        </div>
+
+        {/* Stats and Timer */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Trophy className="h-6 w-6 text-yellow-500 mx-auto mb-1" />
+              <p className="text-2xl font-bold">{gameStats.score}</p>
+              <p className="text-sm text-gray-600">Score</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Target className="h-6 w-6 text-green-500 mx-auto mb-1" />
+              <p className="text-2xl font-bold">{gameStats.correctAnswers}/{gameStats.questionsAnswered}</p>
+              <p className="text-sm text-gray-600">Correct</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Star className="h-6 w-6 text-purple-500 mx-auto mb-1" />
+              <p className="text-2xl font-bold">{gameStats.streak}</p>
+              <p className="text-sm text-gray-600">Streak</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4 text-center">
+              <Timer className="h-6 w-6 text-red-500 mx-auto mb-1" />
+              <p className="text-2xl font-bold">{gameStats.timeRemaining}</p>
+              <p className="text-sm text-gray-600">Time Left</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <GameTimer timeRemaining={gameStats.timeRemaining} totalTime={gameStats.totalTime} />
+
+        {/* Main Question Area */}
+        {currentQuestion && (
+          <Card className="mb-6">
+            <CardContent className="p-8">
+              <div className="text-center mb-6">
+                <Badge className="mb-4">{selectedMode} - {selectedDifficulty}</Badge>
+                <h2 className="text-2xl md:text-3xl font-bold mb-4">
+                  {currentQuestion.question}
+                </h2>
+              </div>
+
+              {/* Fraction Visual */}
+              {currentQuestion.fractionData && (
+                <div className="mb-6">
+                  <FractionVisual
+                    numerator={currentQuestion.fractionData.numerator}
+                    denominator={currentQuestion.fractionData.denominator}
+                    showAnimation={true}
+                  />
+                </div>
+              )}
+
+              {/* Answer Options */}
+              <div className="grid grid-cols-2 gap-4">
+                {currentQuestion.options.map((option, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    className="h-16 text-xl font-bold hover:bg-purple-100"
+                    onClick={() => handleAnswer(option)}
+                  >
+                    {option}
+                  </Button>
+                ))}
+              </div>
+
+              {gameStats.streak > 0 && (
+                <div className="text-center mt-6">
+                  <Badge className="bg-orange-500 text-white text-lg px-4 py-2">
+                    🔥 {gameStats.streak} Streak!
+                  </Badge>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>
