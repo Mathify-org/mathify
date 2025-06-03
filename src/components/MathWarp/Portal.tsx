@@ -148,84 +148,85 @@ const Portal: React.FC<PortalProps> = ({
               : 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.9) 50%, rgba(2, 6, 23, 0.95) 100%)',
             boxShadow: '0 0 50px rgba(0,0,0,0.5), inset 0 0 30px rgba(255,255,255,0.1)'
           }}
-        >
-          {/* Progress level indicator */}
-          {progressLevel > 0 && (
-            <div className="absolute -top-4 -left-4 flex items-center space-x-1 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg animate-pulse">
-              <Star size={16} className="animate-pulse" />
-              <span>Level {progressLevel}</span>
-            </div>
-          )}
-
-          {/* Warp streak indicator */}
-          {isWarpActive && (
-            <div className="absolute -top-4 -right-4 animate-bounce">
-              <div className="flex items-center space-x-1 bg-yellow-400 text-black px-2 py-1 rounded-full text-sm font-bold animate-pulse">
-                <Zap size={16} className="animate-spin" />
-                <span>WARP!</span>
+          >
+            {/* Progress level indicator */}
+            {progressLevel > 0 && (
+              <div className="absolute -top-4 -left-4 flex items-center space-x-1 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg animate-pulse">
+                <Star size={16} className="animate-pulse" />
+                <span>Level {progressLevel}</span>
               </div>
-            </div>
-          )}
-          
-          <div className="text-center relative z-10">
-            <div className={cn(
-              "text-sm md:text-lg mb-3 transition-colors duration-300 font-semibold",
-              isCorrect === true && "text-green-200",
-              isCorrect === false && "text-red-200", 
-              isWarpActive && "text-yellow-200",
-              isCorrect === null && "text-cyan-200"
-            )}>
-              Portal Signal Detected
-            </div>
+            )}
+
+            {/* Warp streak indicator */}
+            {isWarpActive && (
+              <div className="absolute -top-4 -right-4 animate-bounce">
+                <div className="flex items-center space-x-1 bg-yellow-400 text-black px-2 py-1 rounded-full text-sm font-bold animate-pulse">
+                  <Zap size={16} className="animate-spin" />
+                  <span>WARP!</span>
+                </div>
+              </div>
+            )}
             
-            {/* 3D Question container */}
-            <div 
-              className={cn(
-                "px-4 py-3 rounded-lg mb-4 border-2 transition-all duration-300 relative",
-                "shadow-lg",
-                isCorrect === true && "border-green-400",
-                isCorrect === false && "border-red-400",
-                isWarpActive && "border-yellow-400 animate-pulse",
-                isCorrect === null && "border-cyan-400"
-              )}
-              style={{
-                background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(15, 23, 42, 0.9) 50%, rgba(0, 0, 0, 0.8) 100%)',
-                boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.3)',
-                transform: 'translateZ(5px)'
-              }}
-            >
+            <div className="text-center relative z-10">
               <div className={cn(
-                "text-2xl md:text-4xl font-bold transition-all duration-300",
-                isCorrect === true && "text-green-100 animate-pulse",
-                isCorrect === false && "text-red-100", 
-                isWarpActive && "text-yellow-100 animate-pulse",
-                isCorrect === null && "text-white"
+                "text-sm md:text-lg mb-3 transition-colors duration-300 font-semibold",
+                isCorrect === true && "text-green-200",
+                isCorrect === false && "text-red-200", 
+                isWarpActive && "text-yellow-200",
+                isCorrect === null && "text-cyan-200"
               )}>
-                {equation.question}
+                Portal Signal Detected
+              </div>
+              
+              {/* 3D Question container */}
+              <div 
+                className={cn(
+                  "px-4 py-3 rounded-lg mb-4 border-2 transition-all duration-300 relative",
+                  "shadow-lg",
+                  isCorrect === true && "border-green-400",
+                  isCorrect === false && "border-red-400",
+                  isWarpActive && "border-yellow-400 animate-pulse",
+                  isCorrect === null && "border-cyan-400"
+                )}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(15, 23, 42, 0.9) 50%, rgba(0, 0, 0, 0.8) 100%)',
+                  boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.3)',
+                  transform: 'translateZ(5px)'
+                }}
+              >
+                <div className={cn(
+                  "text-2xl md:text-4xl font-bold transition-all duration-300",
+                  isCorrect === true && "text-green-100 animate-pulse",
+                  isCorrect === false && "text-red-100", 
+                  isWarpActive && "text-yellow-100 animate-pulse",
+                  isCorrect === null && "text-white"
+                )}>
+                  {equation.question}
+                </div>
+              </div>
+              
+              <div className={cn(
+                "text-xs md:text-sm transition-colors duration-300",
+                isCorrect === true && "text-green-300",
+                isCorrect === false && "text-red-300", 
+                isWarpActive && "text-yellow-300",
+                isCorrect === null && "text-cyan-300"
+              )}>
+                Select the correct frequency
               </div>
             </div>
-            
-            <div className={cn(
-              "text-xs md:text-sm transition-colors duration-300",
-              isCorrect === true && "text-green-300",
-              isCorrect === false && "text-red-300", 
-              isWarpActive && "text-yellow-300",
-              isCorrect === null && "text-cyan-300"
-            )}>
-              Select the correct frequency
-            </div>
-          </div>
 
-          {/* Portal energy effect with depth */}
-          <div className={cn(
-            "absolute inset-4 rounded-full transition-all duration-500",
-            portalState === 'open' && "bg-gradient-radial from-cyan-500/20 via-blue-500/10 to-transparent animate-pulse",
-            portalState === 'opening' && "bg-gradient-radial from-cyan-400/30 via-blue-400/20 to-transparent",
-            portalState === 'closing' && "bg-gradient-radial from-purple-400/30 via-indigo-400/20 to-transparent",
-            isWarpActive && "bg-gradient-radial from-yellow-400/30 via-orange-400/20 to-transparent"
-          )}
-          style={{ transform: 'translateZ(-5px)' }}
-          />
+            {/* Portal energy effect with depth */}
+            <div className={cn(
+              "absolute inset-4 rounded-full transition-all duration-500",
+              portalState === 'open' && "bg-gradient-radial from-cyan-500/20 via-blue-500/10 to-transparent animate-pulse",
+              portalState === 'opening' && "bg-gradient-radial from-cyan-400/30 via-blue-400/20 to-transparent",
+              portalState === 'closing' && "bg-gradient-radial from-purple-400/30 via-indigo-400/20 to-transparent",
+              isWarpActive && "bg-gradient-radial from-yellow-400/30 via-orange-400/20 to-transparent"
+            )}
+            style={{ transform: 'translateZ(-5px)' }}
+            />
+          </Card>
         </div>
       </div>
 
