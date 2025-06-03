@@ -1,408 +1,338 @@
-import React, { useState, useCallback, useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Trophy, Target, Timer, Star } from "lucide-react";
-import { toast } from "sonner";
-
-import DifficultySelector from "@/components/FractionFrenzy/DifficultySelector";
-import GameModeCard from "@/components/FractionFrenzy/GameModeCard";
-import FractionVisual from "@/components/FractionFrenzy/FractionVisual";
-import GameTimer from "@/components/FractionFrenzy/GameTimer";
-import StatsDisplay from "@/components/FractionFrenzy/StatsDisplay";
-
-import { GameMode, Difficulty, GameState, FractionQuestion, GameStats } from "@/types/fractionFrenzy";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, Play, Trophy, Clock } from 'lucide-react';
+import { GameMode, Difficulty, GameStats, FractionQuestion, GameState } from '@/types/fractionFrenzy';
+import GameModeCard from '@/components/FractionFrenzy/GameModeCard';
+import DifficultySelector from '@/components/FractionFrenzy/DifficultySelector';
+import StatsDisplay from '@/components/FractionFrenzy/StatsDisplay';
+import FractionVisual from '@/components/FractionFrenzy/FractionVisual';
+import GameTimer from '@/components/FractionFrenzy/GameTimer';
 
 const FractionFrenzy = () => {
-  const [gameState, setGameState] = useState<GameState>("menu");
-  const [selectedMode, setSelectedMode] = useState<GameMode>("visual-match");
-  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>("easy");
+  const [gameState, setGameState] = useState<GameState>('menu');
+  const [selectedMode, setSelectedMode] = useState<GameMode>('visual-match');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('easy');
   const [currentQuestion, setCurrentQuestion] = useState<FractionQuestion | null>(null);
-  const [userAnswer, setUserAnswer] = useState<string>("");
   const [gameStats, setGameStats] = useState<GameStats>({
     score: 0,
     questionsAnswered: 0,
     correctAnswers: 0,
     streak: 0,
-    timeRemaining: 0,
-    totalTime: 0
+    timeRemaining: 60,
+    totalTime: 60,
+    bestFrenzyScore: 0,
+    totalCorrect: 0,
+    longestStreak: 0,
+    currentStreak: 0,
+    averageResponseTime: 0,
+    gamesPlayed: 0
   });
 
-  const gameModes = useMemo(() => [
-    {
-      id: "visual-match" as GameMode,
-      title: "Visual Match",
-      description: "Match fractions to their visual representations",
-      icon: "🎯",
-      color: "from-blue-500 to-cyan-400"
-    },
-    {
-      id: "equivalent" as GameMode,
-      title: "Equivalent Fractions",
-      description: "Find equivalent fractions and simplify",
-      icon: "⚖️",
-      color: "from-green-500 to-emerald-400"
-    },
-    {
-      id: "arithmetic" as GameMode,
-      title: "Fraction Arithmetic",
-      description: "Add, subtract, multiply and divide fractions",
-      icon: "🧮",
-      color: "from-purple-500 to-violet-400"
-    },
-    {
-      id: "word-problems" as GameMode,
-      title: "Word Problems",
-      description: "Solve real-world fraction problems",
-      icon: "📚",
-      color: "from-orange-500 to-amber-400"
-    }
-  ], []);
+  const gameModes = {
+    'visual-match': { id: 'visual-match' as GameMode, title: 'Visual Match', description: 'Match fractions to visual representations', icon: '👁️', color: 'from-blue-400 to-blue-600' },
+    'equivalent': { id: 'equivalent' as GameMode, title: 'Equivalent Fractions', description: 'Find equivalent fractions', icon: '⚖️', color: 'from-green-400 to-green-600' },
+    'comparison': { id: 'comparison' as GameMode, title: 'Compare Fractions', description: 'Determine which fraction is larger', icon: '📊', color: 'from-purple-400 to-purple-600' },
+    'arithmetic': { id: 'arithmetic' as GameMode, title: 'Fraction Math', description: 'Add, subtract, multiply, and divide', icon: '🧮', color: 'from-red-400 to-red-600' }
+  };
 
-  const generateQuestion = useCallback((): FractionQuestion => {
-    // Simple question generation logic
-    const numerator = Math.floor(Math.random() * 10) + 1;
-    const denominator = Math.floor(Math.random() * 10) + numerator + 1;
+  const generateQuestion = (): FractionQuestion => {
+    const id = Math.random().toString(36).substr(2, 9);
     
-    return {
-      id: Date.now(),
-      type: selectedMode,
-      difficulty: selectedDifficulty,
-      question: `What is ${numerator}/${denominator} in simplest form?`,
-      options: [`${numerator}/${denominator}`, `${numerator/2}/${denominator/2}`, `${numerator*2}/${denominator*2}`, `${numerator+1}/${denominator+1}`],
-      correctAnswer: `${numerator}/${denominator}`,
-      explanation: `${numerator}/${denominator} is already in simplest form.`,
-      fractionData: {
+    if (selectedMode === 'visual-match') {
+      const numerator = Math.floor(Math.random() * 8) + 1;
+      const denominator = Math.floor(Math.random() * 8) + numerator;
+      return {
+        id,
+        type: 'visual-match',
         numerator,
         denominator,
-        value: numerator / denominator
-      }
+        question: `Which visual represents ${numerator}/${denominator}?`,
+        options: [`${numerator}/${denominator}`, `${numerator + 1}/${denominator}`, `${numerator}/${denominator + 1}`, `${numerator - 1}/${denominator}`],
+        correctAnswer: `${numerator}/${denominator}`
+      };
+    }
+    
+    return {
+      id,
+      type: 'visual-match',
+      numerator: 1,
+      denominator: 2,
+      question: 'Sample question',
+      options: ['1/2', '1/3', '1/4', '1/5'],
+      correctAnswer: '1/2'
     };
-  }, [selectedMode, selectedDifficulty]);
+  };
 
-  const startGame = useCallback(() => {
-    const timeLimit = selectedDifficulty === "easy" ? 120 : selectedDifficulty === "medium" ? 90 : 60;
+  const startGame = () => {
+    const initialTime = selectedDifficulty === 'easy' ? 90 : selectedDifficulty === 'medium' ? 60 : 45;
     
     setGameStats({
       score: 0,
       questionsAnswered: 0,
       correctAnswers: 0,
       streak: 0,
-      timeRemaining: timeLimit,
-      totalTime: timeLimit
+      timeRemaining: initialTime,
+      totalTime: initialTime,
+      bestFrenzyScore: gameStats.bestFrenzyScore,
+      totalCorrect: gameStats.totalCorrect,
+      longestStreak: gameStats.longestStreak,
+      currentStreak: 0,
+      averageResponseTime: gameStats.averageResponseTime,
+      gamesPlayed: gameStats.gamesPlayed + 1
     });
     
     setCurrentQuestion(generateQuestion());
-    setUserAnswer("");
-    setGameState("playing");
-  }, [selectedDifficulty, generateQuestion]);
+    setGameState('playing');
+  };
 
-  const handleAnswer = useCallback((answer: string) => {
+  const handleAnswer = (answer: string) => {
     if (!currentQuestion) return;
 
     const isCorrect = answer === currentQuestion.correctAnswer;
-    const points = isCorrect ? (10 + gameStats.streak * 2) : 0;
-    
+    const points = isCorrect ? (10 * (gameStats.streak + 1)) : 0;
+
+    if (isCorrect && gameStats.streak > gameStats.longestStreak) {
+      // Update longest streak if current streak will be longer
+    }
+
     setGameStats(prev => ({
-      ...prev,
       score: prev.score + points,
       questionsAnswered: prev.questionsAnswered + 1,
       correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
-      streak: isCorrect ? prev.streak + 1 : 0
+      streak: isCorrect ? prev.streak + 1 : 0,
+      timeRemaining: prev.timeRemaining,
+      totalTime: prev.totalTime,
+      bestFrenzyScore: prev.bestFrenzyScore,
+      totalCorrect: prev.totalCorrect + (isCorrect ? 1 : 0),
+      longestStreak: isCorrect && prev.streak + 1 > prev.longestStreak ? prev.streak + 1 : prev.longestStreak,
+      currentStreak: isCorrect ? prev.streak + 1 : 0,
+      averageResponseTime: prev.averageResponseTime,
+      gamesPlayed: prev.gamesPlayed
     }));
-
-    if (isCorrect) {
-      toast.success(`Correct! +${points} points`, {
-        description: currentQuestion.explanation
-      });
-    } else {
-      toast.error("Incorrect!", {
-        description: `The correct answer was: ${currentQuestion.correctAnswer}`
-      });
-    }
 
     // Generate next question after a short delay
     setTimeout(() => {
       setCurrentQuestion(generateQuestion());
-      setUserAnswer("");
-    }, 1500);
-  }, [currentQuestion, gameStats.streak, generateQuestion]);
+    }, 1000);
+  };
 
-  const resetGame = useCallback(() => {
-    setGameState("menu");
-    setCurrentQuestion(null);
-    setUserAnswer("");
-    setGameStats({
-      score: 0,
-      questionsAnswered: 0,
-      correctAnswers: 0,
-      streak: 0,
-      timeRemaining: 0,
-      totalTime: 0
-    });
-  }, []);
+  const handleTimeUp = () => {
+    setGameState('gameOver');
+  };
 
-  // Timer effect
   useEffect(() => {
-    if (gameState === "playing" && gameStats.timeRemaining > 0) {
+    if (gameState === 'playing' && gameStats.timeRemaining > 0) {
       const timer = setTimeout(() => {
         setGameStats(prev => ({
           ...prev,
           timeRemaining: prev.timeRemaining - 1
         }));
       }, 1000);
+
+      if (gameStats.timeRemaining === 1) {
+        handleTimeUp();
+      }
+
       return () => clearTimeout(timer);
-    } else if (gameState === "playing" && gameStats.timeRemaining === 0) {
-      setGameState("gameOver");
     }
   }, [gameState, gameStats.timeRemaining]);
 
-  if (gameState === "menu") {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-600 p-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="flex items-center mb-8">
-            <Link to="/">
-              <Button variant="ghost" size="icon" className="text-white mr-4 hover:bg-white/10">
-                <ArrowLeft />
-              </Button>
-            </Link>
-            <h1 className="text-4xl md:text-6xl font-bold text-white">🔢 Fraction Frenzy</h1>
-          </div>
-          
-          <div className="text-center mb-8">
-            <p className="text-xl text-white/90">
-              Master fractions through fun, interactive challenges!
-            </p>
-          </div>
+  const backToMenu = () => {
+    setGameState('menu');
+    setCurrentQuestion(null);
+  };
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Game Modes */}
-            <div className="lg:col-span-2">
-              <Card className="glass-morphism border-white/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-2xl">
-                    <Target className="text-blue-400" />
-                    Choose Your Challenge
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {gameModes.map((mode) => (
-                      <GameModeCard
-                        key={mode.id}
-                        mode={mode}
-                        isSelected={selectedMode === mode.id}
-                        onSelect={() => setSelectedMode(mode.id)}
-                      />
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Settings */}
-            <div className="space-y-6">
-              <DifficultySelector
-                selectedDifficulty={selectedDifficulty}
-                onDifficultySelect={setSelectedDifficulty}
-              />
-              
-              <Card className="glass-morphism border-white/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Star className="text-yellow-400" />
-                    Game Rules
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm">
-                  <div className="flex items-start gap-2">
-                    <Badge className="bg-blue-500 text-white">1</Badge>
-                    <p>Answer fraction questions as quickly and accurately as possible</p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Badge className="bg-green-500 text-white">2</Badge>
-                    <p>Build streaks for bonus points</p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Badge className="bg-purple-500 text-white">3</Badge>
-                    <p>Beat the timer to maximize your score</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Button
-                onClick={startGame}
-                className="w-full text-xl py-6 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold"
-              >
-                🚀 Start Frenzy!
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (gameState === "gameOver") {
-    const accuracy = gameStats.questionsAnswered > 0 ? 
-      Math.round((gameStats.correctAnswers / gameStats.questionsAnswered) * 100) : 0;
-
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-500 via-purple-500 to-pink-600 p-4 flex items-center justify-center">
-        <Card className="w-full max-w-2xl">
-          <CardHeader className="text-center">
-            <div className="flex items-center justify-between mb-4">
-              <Link to="/">
-                <Button variant="ghost" size="icon">
-                  <ArrowLeft />
-                </Button>
-              </Link>
-              <CardTitle className="text-3xl font-bold">🎉 Frenzy Complete!</CardTitle>
-              <div></div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <StatsDisplay
-              score={gameStats.score}
-              questionsAnswered={gameStats.questionsAnswered}
-              accuracy={accuracy}
-              streak={gameStats.streak}
-            />
-            
-            <div className="text-center space-y-4">
-              <p className="text-lg">
-                You mastered <span className="font-bold text-purple-600">{selectedMode}</span> mode
-                on <span className="font-bold text-purple-600">{selectedDifficulty}</span> difficulty!
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  onClick={startGame}
-                  className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
-                >
-                  🔄 Play Again
-                </Button>
-                <Button 
-                  onClick={resetGame}
-                  variant="outline"
-                >
-                  🏠 Back to Menu
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Game playing state
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-4">
-      <div className="container mx-auto max-w-4xl">
-        {/* Game Header */}
-        <div className="flex items-center justify-between mb-6">
-          <Link to="/">
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-              <ArrowLeft />
-            </Button>
-          </Link>
-          <h1 className="text-2xl md:text-4xl font-bold text-white">🔢 Fraction Frenzy</h1>
-          <Button 
-            onClick={resetGame}
-            variant="ghost" 
-            className="text-white hover:bg-white/10"
-          >
-            Exit Game
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 p-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <Link to="/">
+          <Button variant="ghost" size="icon" className="hover:bg-purple-100">
+            <ArrowLeft className="h-6 w-6" />
           </Button>
-        </div>
+        </Link>
+        <h1 className="text-4xl font-bold text-center text-purple-800">
+          Fraction Frenzy
+        </h1>
+        <div className="w-10" /> {/* Spacer for center alignment */}
+      </div>
 
-        {/* Stats and Timer */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      {/* Menu Screen */}
+      {gameState === 'menu' && (
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* Game Mode Selection */}
           <Card>
-            <CardContent className="p-4 text-center">
-              <Trophy className="h-6 w-6 text-yellow-500 mx-auto mb-1" />
-              <p className="text-2xl font-bold">{gameStats.score}</p>
-              <p className="text-sm text-gray-600">Score</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4 text-center">
-              <Target className="h-6 w-6 text-green-500 mx-auto mb-1" />
-              <p className="text-2xl font-bold">{gameStats.correctAnswers}/{gameStats.questionsAnswered}</p>
-              <p className="text-sm text-gray-600">Correct</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4 text-center">
-              <Star className="h-6 w-6 text-purple-500 mx-auto mb-1" />
-              <p className="text-2xl font-bold">{gameStats.streak}</p>
-              <p className="text-sm text-gray-600">Streak</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4 text-center">
-              <Timer className="h-6 w-6 text-red-500 mx-auto mb-1" />
-              <p className="text-2xl font-bold">{gameStats.timeRemaining}</p>
-              <p className="text-sm text-gray-600">Time Left</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <GameTimer timeRemaining={gameStats.timeRemaining} totalTime={gameStats.totalTime} />
-
-        {/* Main Question Area */}
-        {currentQuestion && (
-          <Card className="mb-6">
-            <CardContent className="p-8">
-              <div className="text-center mb-6">
-                <Badge className="mb-4">{selectedMode} - {selectedDifficulty}</Badge>
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                  {currentQuestion.question}
-                </h2>
-              </div>
-
-              {/* Fraction Visual */}
-              {currentQuestion.fractionData && (
-                <div className="mb-6">
-                  <FractionVisual
-                    numerator={currentQuestion.fractionData.numerator}
-                    denominator={currentQuestion.fractionData.denominator}
-                    showAnimation={true}
+            <CardHeader>
+              <CardTitle className="text-2xl text-center text-purple-700">
+                Choose Your Challenge
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.values(gameModes).map((mode) => (
+                  <GameModeCard
+                    key={mode.id}
+                    id={mode.id}
+                    title={mode.title}
+                    description={mode.description}
+                    icon={mode.icon}
+                    color={mode.color}
+                    isSelected={selectedMode === mode.id}
+                    onSelect={() => setSelectedMode(mode.id)}
                   />
-                </div>
-              )}
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
+          {/* Difficulty Selection */}
+          <DifficultySelector
+            difficulty={selectedDifficulty}
+            onDifficultySelect={setSelectedDifficulty}
+          />
+
+          {/* Start Game Button */}
+          <div className="text-center">
+            <Button
+              onClick={startGame}
+              size="lg"
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-4 text-xl"
+            >
+              <Play className="mr-2 h-6 w-6" />
+              Start Frenzy!
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Game Screen */}
+      {gameState === 'playing' && currentQuestion && (
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* Game HUD */}
+          <div className="flex justify-between items-center bg-white/80 backdrop-blur rounded-lg p-4">
+            <StatsDisplay
+              stats={{
+                score: gameStats.score,
+                questionsAnswered: gameStats.questionsAnswered,
+                accuracy: gameStats.questionsAnswered > 0 ? (gameStats.correctAnswers / gameStats.questionsAnswered) * 100 : 0,
+                streak: gameStats.streak
+              }}
+            />
+            <GameTimer timeRemaining={gameStats.timeRemaining} />
+          </div>
+
+          {/* Question Display */}
+          <Card className="bg-white/90 backdrop-blur">
+            <CardHeader>
+              <CardTitle className="text-2xl text-center text-purple-700">
+                {currentQuestion.question}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
               {/* Answer Options */}
               <div className="grid grid-cols-2 gap-4">
                 {currentQuestion.options.map((option, index) => (
                   <Button
                     key={index}
-                    variant="outline"
-                    className="h-16 text-xl font-bold hover:bg-purple-100"
                     onClick={() => handleAnswer(option)}
+                    variant="outline"
+                    className="h-16 text-lg hover:bg-purple-50 hover:border-purple-300"
                   >
                     {option}
                   </Button>
                 ))}
               </div>
-
-              {gameStats.streak > 0 && (
-                <div className="text-center mt-6">
-                  <Badge className="bg-orange-500 text-white text-lg px-4 py-2">
-                    🔥 {gameStats.streak} Streak!
-                  </Badge>
-                </div>
-              )}
             </CardContent>
           </Card>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Game Over Screen */}
+      {gameState === 'gameOver' && (
+        <div className="max-w-2xl mx-auto space-y-6">
+          <Card className="bg-white/90 backdrop-blur">
+            <CardHeader className="text-center">
+              <div className="mx-auto w-20 h-20 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center mb-4">
+                <Trophy className="h-10 w-10 text-white" />
+              </div>
+              <CardTitle className="text-3xl text-purple-800">
+                Frenzy Complete!
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Final Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-purple-600">{gameStats.score}</div>
+                  <div className="text-sm text-purple-500">Final Score</div>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-green-600">
+                    {gameStats.questionsAnswered > 0 ? Math.round((gameStats.correctAnswers / gameStats.questionsAnswered) * 100) : 0}%
+                  </div>
+                  <div className="text-sm text-green-500">Accuracy</div>
+                </div>
+                <div className="bg-yellow-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-yellow-600">{gameStats.streak}</div>
+                  <div className="text-sm text-yellow-500">Best Streak</div>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-blue-600">{gameStats.timeRemaining}</div>
+                  <div className="text-sm text-blue-500">Time Left</div>
+                </div>
+              </div>
+
+              {/* Time Progress */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Time Used</span>
+                  <span>{Math.floor((gameStats.totalTime - gameStats.timeRemaining) / 60)}:{((gameStats.totalTime - gameStats.timeRemaining) % 60).toString().padStart(2, '0')}</span>
+                </div>
+              </div>
+
+              {/* Visual Representation */}
+              {currentQuestion && (
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold mb-4 text-purple-700">Last Question Preview</h3>
+                  <FractionVisual
+                    fraction={{ numerator: currentQuestion.numerator, denominator: currentQuestion.denominator }}
+                    showAnimation={false}
+                  />
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-4 justify-center">
+                {gameStats.streak >= 5 && (
+                  <Button
+                    onClick={startGame}
+                    className="bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white"
+                  >
+                    <Trophy className="mr-2 h-4 w-4" />
+                    Challenge Mode!
+                  </Button>
+                )}
+                <Button
+                  onClick={startGame}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                >
+                  <Play className="mr-2 h-4 w-4" />
+                  Play Again
+                </Button>
+                <Button
+                  onClick={backToMenu}
+                  variant="outline"
+                  className="border-purple-300 text-purple-600 hover:bg-purple-50"
+                >
+                  Back to Menu
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
