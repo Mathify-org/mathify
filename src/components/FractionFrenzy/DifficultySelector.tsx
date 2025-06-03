@@ -6,11 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Difficulty } from "@/types/fractionFrenzy";
 
 type DifficultySelectorProps = {
-  selectedDifficulty: Difficulty;
+  difficulty: Difficulty;
   onDifficultySelect: (difficulty: Difficulty) => void;
 };
 
-const DifficultySelector = ({ selectedDifficulty, onDifficultySelect }: DifficultySelectorProps) => {
+const DifficultySelector = ({ difficulty, onDifficultySelect }: DifficultySelectorProps) => {
   return (
     <Card className="glass-morphism border-white/20">
       <CardHeader>
@@ -20,7 +20,7 @@ const DifficultySelector = ({ selectedDifficulty, onDifficultySelect }: Difficul
         <p className="text-sm text-slate-600">Choose which fractions to practice with:</p>
         
         <RadioGroup 
-          value={selectedDifficulty} 
+          value={difficulty} 
           onValueChange={(value) => onDifficultySelect(value as Difficulty)}
           className="grid gap-3"
         >

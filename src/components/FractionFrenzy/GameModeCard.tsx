@@ -1,19 +1,16 @@
 
-import React, { ReactNode } from "react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Lock } from "lucide-react";
 import { GameMode } from "@/types/fractionFrenzy";
 
 type GameModeCardProps = {
-  mode: {
-    id: GameMode;
-    title: string;
-    description: string;
-    icon: string;
-    color: string;
-  };
+  id: GameMode;
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
   isSelected: boolean;
   onSelect: () => void;
   disabled?: boolean;
@@ -21,7 +18,11 @@ type GameModeCardProps = {
 };
 
 const GameModeCard = ({
-  mode,
+  id,
+  title,
+  description,
+  icon,
+  color,
   isSelected,
   onSelect,
   disabled = false,
@@ -35,13 +36,13 @@ const GameModeCard = ({
     )} onClick={onSelect}>
       <CardContent className="p-6 space-y-4">
         <div className="flex items-center gap-4">
-          <div className={`p-3 bg-gradient-to-r ${mode.color} rounded-xl shadow-md text-2xl`}>
-            {mode.icon}
+          <div className={`p-3 bg-gradient-to-r ${color} rounded-xl shadow-md text-2xl`}>
+            {icon}
           </div>
-          <h3 className="text-xl font-bold">{mode.title}</h3>
+          <h3 className="text-xl font-bold">{title}</h3>
         </div>
         
-        <p className="text-slate-600">{mode.description}</p>
+        <p className="text-slate-600">{description}</p>
         
         {disabled && lockedMessage && (
           <div className="flex items-center gap-2 text-amber-600">

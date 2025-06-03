@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,9 @@ const FractionFrenzy = () => {
     longestStreak: 0,
     currentStreak: 0,
     averageResponseTime: 0,
-    gamesPlayed: 0
+    gamesPlayed: 0,
+    survivalModeUnlocked: false,
+    selectedTheme: 'pie'
   });
 
   const gameModes = {
@@ -80,7 +83,9 @@ const FractionFrenzy = () => {
       longestStreak: gameStats.longestStreak,
       currentStreak: 0,
       averageResponseTime: gameStats.averageResponseTime,
-      gamesPlayed: gameStats.gamesPlayed + 1
+      gamesPlayed: gameStats.gamesPlayed + 1,
+      survivalModeUnlocked: gameStats.survivalModeUnlocked,
+      selectedTheme: gameStats.selectedTheme
     });
     
     setCurrentQuestion(generateQuestion());
@@ -109,7 +114,9 @@ const FractionFrenzy = () => {
       longestStreak: isCorrect && prev.streak + 1 > prev.longestStreak ? prev.streak + 1 : prev.longestStreak,
       currentStreak: isCorrect ? prev.streak + 1 : 0,
       averageResponseTime: prev.averageResponseTime,
-      gamesPlayed: prev.gamesPlayed
+      gamesPlayed: prev.gamesPlayed,
+      survivalModeUnlocked: prev.survivalModeUnlocked,
+      selectedTheme: prev.selectedTheme
     }));
 
     // Generate next question after a short delay
@@ -220,7 +227,7 @@ const FractionFrenzy = () => {
                 streak: gameStats.streak
               }}
             />
-            <GameTimer timeRemaining={gameStats.timeRemaining} />
+            <GameTimer timeRemaining={gameStats.timeRemaining} totalTime={gameStats.totalTime} />
           </div>
 
           {/* Question Display */}
@@ -297,7 +304,8 @@ const FractionFrenzy = () => {
                 <div className="text-center">
                   <h3 className="text-lg font-semibold mb-4 text-purple-700">Last Question Preview</h3>
                   <FractionVisual
-                    fraction={{ numerator: currentQuestion.numerator, denominator: currentQuestion.denominator }}
+                    numerator={currentQuestion.numerator}
+                    denominator={currentQuestion.denominator}
                     showAnimation={false}
                   />
                 </div>

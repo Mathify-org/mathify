@@ -9,7 +9,7 @@ export interface FractionData {
   value: number;
 }
 
-export type GameMode = "visual-match" | "equivalent" | "arithmetic" | "word-problems";
+export type GameMode = "visual-match" | "equivalent" | "comparison" | "arithmetic";
 
 export type Theme = "pizza" | "pie" | "chocolate" | "liquid" | "grid";
 
@@ -20,11 +20,13 @@ export type GameState = "menu" | "playing" | "gameOver";
 export interface FractionQuestion {
   id: string;
   type: GameMode;
-  difficulty: Difficulty;
+  numerator: number;
+  denominator: number;
+  difficulty?: Difficulty;
   question: string;
   options: string[];
   correctAnswer: string;
-  explanation: string;
+  explanation?: string;
   fractionData?: {
     numerator: number;
     denominator: number;
@@ -39,6 +41,8 @@ export interface GameStats {
   currentStreak: number;
   survivalModeUnlocked: boolean;
   selectedTheme: string;
+  averageResponseTime: number;
+  gamesPlayed: number;
   // Game session stats
   score: number;
   questionsAnswered: number;
