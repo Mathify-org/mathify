@@ -20,6 +20,8 @@ import FAQ from "./pages/FAQ";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import MathWarp from "./pages/MathWarp";
+import SignIn from "./pages/SignIn";
+import Profile from "./pages/Profile";
 
 // ScrollToTop component that will trigger on route changes
 const ScrollToTop = () => {
@@ -56,6 +58,8 @@ const App = () => (
               <Route path="/faq" element={<FAQ />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/profile" element={<Profile />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

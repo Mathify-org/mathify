@@ -1,13 +1,16 @@
 
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useIsMobile();
+  const { user, loading } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -18,6 +21,13 @@ const Navbar = () => {
     { name: "Contact", path: "/contact" },
     { name: "FAQ", path: "/faq" },
   ];
+
+  const getInitials = () => {
+    if (!user) return "U";
+    const firstName = user.user_metadata?.first_name || "";
+    const lastName = user.user_metadata?.last_name || "";
+    return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase() || user.email?.charAt(0).toUpperCase() || "U";
+  };
 
   return (
     <nav className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white shadow-lg sticky top-0 z-50">
@@ -56,7 +66,23 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              <Button className="bg-white text-purple-600 hover:bg-white/90">Sign Up</Button>
+              {!loading && (
+                user ? (
+                  <Link to="/profile">
+                    <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-white/50 transition-all">
+                      <AvatarFallback className="bg-white text-purple-600 font-semibold">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Link>
+                ) : (
+                  <Link to="/signin">
+                    <Button className="bg-white text-purple-600 hover:bg-white/90">
+                      Sign Up
+                    </Button>
+                  </Link>
+                )
+              )}
             </div>
           )}
         </div>
@@ -74,12 +100,30 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            <Button 
-              className="w-full bg-white text-purple-600 hover:bg-white/90"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Sign Up
-            </Button>
+            {!loading && (
+              user ? (
+                <Link 
+                  to="/profile"
+                  className="flex items-center space-x-2 text-white hover:bg-white/10 px-3 py-2 rounded-md"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Avatar className="h-6 w-6">
+                    <AvatarFallback className="bg-white text-purple-600 font-semibold text-xs">
+                      {getInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span>Profile</span>
+                </Link>
+              ) : (
+                <Link to="/signin" onClick={() => setIsMenuOpen(false)}>
+                  <Button 
+                    className="w-full bg-white text-purple-600 hover:bg-white/90"
+                  >
+                    Sign Up
+                  </Button>
+                </Link>
+              )
+            )}
           </div>
         )}
       </div>
