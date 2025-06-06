@@ -3,7 +3,6 @@ import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import SpaceBackground from './SpaceBackground';
 import Portal from './Portal';
-import Spaceship from './Spaceship';
 import { Equation, Difficulty } from '@/pages/MathWarp';
 
 interface GameAreaProps {
@@ -252,8 +251,6 @@ const GameArea: React.FC<GameAreaProps> = ({
             progressLevel={Math.floor(questionsAnswered / 5)}
           />
         )}
-        
-        <Spaceship isCorrect={isCorrect} isWarpActive={isWarpStreakActive} />
       </div>
     </div>
   );
