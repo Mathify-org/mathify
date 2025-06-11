@@ -5,6 +5,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Heart } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const gradeLevels = [
   {
@@ -113,7 +119,7 @@ const generalSkills = [
     id: "mental-maths",
     title: "Mental Maths Challenge",
     description: "Test your mental math skills with quick calculations",
-    path: "/maths",
+    path: "/mental-maths",
     color: "bg-gradient-to-r from-amber-500 to-pink-500"
   },
   {
@@ -155,6 +161,77 @@ const generalSkills = [
 
 const Index = () => {
   const isMobile = useIsMobile();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      loadFavorites();
+    }
+  }, [user]);
+
+  const loadFavorites = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('user_favorites')
+        .select('game_id')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setFavorites(data?.map(fav => fav.game_id) || []);
+    } catch (error: any) {
+      console.error('Error loading favorites:', error);
+    }
+  };
+
+  const toggleFavorite = async (gameId: string) => {
+    if (!user) return;
+
+    try {
+      const isFavorited = favorites.includes(gameId);
+
+      if (isFavorited) {
+        const { error } = await supabase
+          .from('user_favorites')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('game_id', gameId);
+
+        if (error) throw error;
+
+        setFavorites(favorites.filter(id => id !== gameId));
+        toast({
+          title: "Removed from favorites",
+          description: "Game removed from your favorites",
+        });
+      } else {
+        const { error } = await supabase
+          .from('user_favorites')
+          .insert({
+            user_id: user.id,
+            game_id: gameId
+          });
+
+        if (error) throw error;
+
+        setFavorites([...favorites, gameId]);
+        toast({
+          title: "Added to favorites",
+          description: "Game added to your favorites",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
   
   return (
     <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -279,10 +356,25 @@ const Index = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             {generalSkills.map((skill) => (
-              <Card key={skill.id} className="overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1 border-0">
+              <Card key={skill.id} className="overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1 border-0 relative">
                 <div className={`h-2 md:h-4 ${skill.color}`}></div>
                 <CardContent className="p-4 md:p-6 bg-white">
-                  <h3 className="font-bold text-lg md:text-2xl mb-2 md:mb-3 line-clamp-1">{skill.title}</h3>
+                  {user && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleFavorite(skill.id)}
+                      className="absolute top-2 right-2 p-1 h-8 w-8"
+                    >
+                      <Heart 
+                        className={`h-4 w-4 ${favorites.includes(skill.id) 
+                          ? 'fill-red-500 text-red-500' 
+                          : 'text-gray-400 hover:text-red-500'
+                        }`} 
+                      />
+                    </Button>
+                  )}
+                  <h3 className="font-bold text-lg md:text-2xl mb-2 md:mb-3 line-clamp-1 pr-8">{skill.title}</h3>
                   <p className="text-slate-600 mb-3 md:mb-5 text-sm md:text-lg line-clamp-2">{skill.description}</p>
                   <Link 
                     to={skill.path} 
@@ -313,3 +405,5 @@ const Index = () => {
 };
 
 export default Index;
+
+</edits_to_apply>
