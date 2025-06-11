@@ -13,6 +13,7 @@ interface Shape {
   sides: number;
   color: string;
   svg: string;
+  category: "basic" | "advanced";
 }
 
 const shapes: Shape[] = [
@@ -21,67 +22,197 @@ const shapes: Shape[] = [
     name: "Triangle",
     sides: 3,
     color: "fill-red-400",
-    svg: "M50 10 L90 80 L10 80 Z"
+    svg: "M50 10 L90 80 L10 80 Z",
+    category: "basic"
   },
   {
     id: "square",
     name: "Square", 
     sides: 4,
     color: "fill-blue-400",
-    svg: "M20 20 L80 20 L80 80 L20 80 Z"
+    svg: "M20 20 L80 20 L80 80 L20 80 Z",
+    category: "basic"
   },
   {
     id: "pentagon",
     name: "Pentagon",
     sides: 5,
     color: "fill-green-400",
-    svg: "M50 10 L80 30 L70 70 L30 70 L20 30 Z"
+    svg: "M50 10 L80 30 L70 70 L30 70 L20 30 Z",
+    category: "basic"
   },
   {
     id: "hexagon",
     name: "Hexagon",
     sides: 6,
     color: "fill-purple-400",
-    svg: "M50 10 L80 25 L80 55 L50 70 L20 55 L20 25 Z"
+    svg: "M50 10 L80 25 L80 55 L50 70 L20 55 L20 25 Z",
+    category: "basic"
   },
   {
     id: "circle",
     name: "Circle",
     sides: 0,
     color: "fill-yellow-400",
-    svg: "M50 50 m-30 0 a30 30 0 1 0 60 0 a30 30 0 1 0 -60 0"
+    svg: "M50 50 m-30 0 a30 30 0 1 0 60 0 a30 30 0 1 0 -60 0",
+    category: "basic"
+  },
+  {
+    id: "octagon",
+    name: "Octagon",
+    sides: 8,
+    color: "fill-orange-400",
+    svg: "M50 10 L70 10 L85 25 L85 55 L70 70 L50 70 L30 70 L15 55 L15 25 L30 10 Z",
+    category: "advanced"
+  },
+  {
+    id: "heptagon",
+    name: "Heptagon",
+    sides: 7,
+    color: "fill-pink-400",
+    svg: "M50 5 L75 20 L85 45 L75 70 L50 80 L25 70 L15 45 L25 20 Z",
+    category: "advanced"
+  },
+  {
+    id: "diamond",
+    name: "Diamond",
+    sides: 4,
+    color: "fill-cyan-400",
+    svg: "M50 10 L80 50 L50 90 L20 50 Z",
+    category: "advanced"
   }
 ];
 
+type QuestionType = "name" | "sides" | "category" | "comparison";
+
+interface Question {
+  type: QuestionType;
+  shape: Shape;
+  question: string;
+  options: string[];
+  correctAnswer: string;
+}
+
 const ShapeMatch = () => {
-  const [currentShape, setCurrentShape] = useState<Shape | null>(null);
-  const [options, setOptions] = useState<Shape[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [score, setScore] = useState(0);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
-  const [gameMode, setGameMode] = useState<"name" | "sides">("name");
+  const [usedQuestions, setUsedQuestions] = useState<Set<string>>(new Set());
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("easy");
 
-  const generateQuestion = () => {
-    const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
-    setCurrentShape(randomShape);
+  const generateQuestion = (): Question => {
+    const availableShapes = shapes.filter(shape => {
+      if (difficulty === "easy") return shape.category === "basic";
+      if (difficulty === "medium") return true;
+      return shape.category === "advanced" || Math.random() > 0.3;
+    });
 
-    // Create 4 options including the correct one
-    const correctAnswer = randomShape;
-    const wrongAnswers = shapes.filter(s => s.id !== randomShape.id)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3);
-    
-    const allOptions = [correctAnswer, ...wrongAnswers]
-      .sort(() => Math.random() - 0.5);
-    
-    setOptions(allOptions);
-    setIsCorrect(null);
-    setShowResult(false);
+    const questionTypes: QuestionType[] = difficulty === "easy" 
+      ? ["name", "sides"] 
+      : ["name", "sides", "category", "comparison"];
+
+    let attempts = 0;
+    let question: Question;
+    let questionId: string;
+
+    do {
+      const shape = availableShapes[Math.floor(Math.random() * availableShapes.length)];
+      const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+      
+      question = createQuestion(shape, questionType, availableShapes);
+      questionId = `${shape.id}-${questionType}-${question.question}`;
+      attempts++;
+    } while (usedQuestions.has(questionId) && attempts < 50);
+
+    setUsedQuestions(prev => new Set([...prev, questionId]));
+    return question;
   };
 
-  const handleAnswer = (selectedShape: Shape) => {
-    const correct = selectedShape.id === currentShape?.id;
+  const createQuestion = (shape: Shape, type: QuestionType, availableShapes: Shape[]): Question => {
+    switch (type) {
+      case "name":
+        return {
+          type,
+          shape,
+          question: "What is this shape called?",
+          options: generateNameOptions(shape, availableShapes),
+          correctAnswer: shape.name
+        };
+      
+      case "sides":
+        return {
+          type,
+          shape,
+          question: "How many sides does this shape have?",
+          options: generateSideOptions(shape),
+          correctAnswer: shape.sides === 0 ? "0 sides (curved)" : `${shape.sides} sides`
+        };
+      
+      case "category":
+        const isBasic = shape.category === "basic";
+        return {
+          type,
+          shape,
+          question: "Is this a basic or advanced shape?",
+          options: ["Basic shape", "Advanced shape"],
+          correctAnswer: isBasic ? "Basic shape" : "Advanced shape"
+        };
+      
+      case "comparison":
+        const otherShape = availableShapes.filter(s => s.id !== shape.id)[Math.floor(Math.random() * (availableShapes.length - 1))];
+        const hasMoreSides = shape.sides > otherShape.sides;
+        return {
+          type,
+          shape,
+          question: `Does this shape have more or fewer sides than a ${otherShape.name.toLowerCase()}?`,
+          options: ["More sides", "Fewer sides", "Same number of sides"],
+          correctAnswer: hasMoreSides ? "More sides" : shape.sides < otherShape.sides ? "Fewer sides" : "Same number of sides"
+        };
+      
+      default:
+        return createQuestion(shape, "name", availableShapes);
+    }
+  };
+
+  const generateNameOptions = (correctShape: Shape, availableShapes: Shape[]): string[] => {
+    const options = [correctShape.name];
+    const otherShapes = availableShapes.filter(s => s.id !== correctShape.id);
+    
+    while (options.length < 4 && otherShapes.length > 0) {
+      const randomShape = otherShapes.splice(Math.floor(Math.random() * otherShapes.length), 1)[0];
+      if (!options.includes(randomShape.name)) {
+        options.push(randomShape.name);
+      }
+    }
+    
+    return options.sort(() => Math.random() - 0.5);
+  };
+
+  const generateSideOptions = (shape: Shape): string[] => {
+    const correctAnswer = shape.sides === 0 ? "0 sides (curved)" : `${shape.sides} sides`;
+    const options = [correctAnswer];
+    
+    // Generate different side counts
+    const possibleSides = [0, 3, 4, 5, 6, 7, 8, 10, 12];
+    const filteredSides = possibleSides.filter(s => s !== shape.sides);
+    
+    while (options.length < 4) {
+      const randomSides = filteredSides[Math.floor(Math.random() * filteredSides.length)];
+      const option = randomSides === 0 ? "0 sides (curved)" : `${randomSides} sides`;
+      if (!options.includes(option)) {
+        options.push(option);
+      }
+    }
+    
+    return options.sort(() => Math.random() - 0.5);
+  };
+
+  const handleAnswer = (selectedAnswer: string) => {
+    if (!currentQuestion) return;
+    
+    const correct = selectedAnswer === currentQuestion.correctAnswer;
     setIsCorrect(correct);
     setShowResult(true);
     
@@ -89,46 +220,48 @@ const ShapeMatch = () => {
       setScore(prev => prev + 1);
       toast.success("Correct!");
     } else {
-      toast.error(`Incorrect! That was a ${currentShape?.name}`);
+      toast.error(`Incorrect! The answer was: ${currentQuestion.correctAnswer}`);
     }
     
     setQuestionsAnswered(prev => prev + 1);
+    
+    // Increase difficulty every 5 questions
+    if ((questionsAnswered + 1) % 5 === 0) {
+      if (difficulty === "easy") setDifficulty("medium");
+      else if (difficulty === "medium") setDifficulty("hard");
+    }
   };
 
   const nextQuestion = () => {
-    generateQuestion();
+    // Check if we've used most questions, reset if needed
+    if (usedQuestions.size > shapes.length * 3) {
+      setUsedQuestions(new Set());
+    }
+    
+    const question = generateQuestion();
+    setCurrentQuestion(question);
+    setIsCorrect(null);
+    setShowResult(false);
   };
 
   const resetGame = () => {
     setScore(0);
     setQuestionsAnswered(0);
-    generateQuestion();
-  };
-
-  const toggleGameMode = () => {
-    setGameMode(prev => prev === "name" ? "sides" : "name");
-    generateQuestion();
+    setUsedQuestions(new Set());
+    setDifficulty("easy");
+    nextQuestion();
   };
 
   useEffect(() => {
-    generateQuestion();
-  }, [gameMode]);
+    nextQuestion();
+  }, []);
 
-  const getQuestionText = () => {
-    if (!currentShape) return "";
-    
-    if (gameMode === "name") {
-      return `What is this shape called?`;
-    } else {
-      return `How many sides does this shape have?`;
-    }
-  };
-
-  const getOptionText = (shape: Shape) => {
-    if (gameMode === "name") {
-      return shape.name;
-    } else {
-      return shape.sides === 0 ? "0 sides (curved)" : `${shape.sides} sides`;
+  const getDifficultyColor = () => {
+    switch (difficulty) {
+      case "easy": return "bg-green-500";
+      case "medium": return "bg-yellow-500";
+      case "hard": return "bg-red-500";
+      default: return "bg-green-500";
     }
   };
 
@@ -154,13 +287,9 @@ const ShapeMatch = () => {
             <span className="text-lg font-bold">Score: {score}/{questionsAnswered}</span>
           </div>
           
-          <Button
-            onClick={toggleGameMode}
-            variant="outline"
-            className="mx-2"
-          >
-            Mode: {gameMode === "name" ? "Name Shapes" : "Count Sides"}
-          </Button>
+          <div className={`inline-flex items-center rounded-lg px-4 py-2 text-white font-medium ${getDifficultyColor()}`}>
+            Difficulty: {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+          </div>
         </div>
 
         {/* Question Card */}
@@ -172,38 +301,33 @@ const ShapeMatch = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-8">
-              {currentShape && (
+              {currentQuestion && (
                 <>
                   <div className="text-center mb-6">
                     <p className="text-xl font-semibold mb-6">
-                      {getQuestionText()}
+                      {currentQuestion.question}
                     </p>
                     
                     {/* Shape Display */}
                     <div className="flex justify-center mb-6">
                       <div className="w-32 h-32 bg-white rounded-lg shadow-md flex items-center justify-center">
                         <svg width="100" height="100" viewBox="0 0 100 100">
-                          <path d={currentShape.svg} className={currentShape.color} stroke="#374151" strokeWidth="2" />
+                          <path d={currentQuestion.shape.svg} className={currentQuestion.shape.color} stroke="#374151" strokeWidth="2" />
                         </svg>
                       </div>
                     </div>
                   </div>
 
                   {!showResult ? (
-                    <div className="grid grid-cols-2 gap-4">
-                      {options.map((shape, index) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {currentQuestion.options.map((option, index) => (
                         <Button
-                          key={shape.id}
-                          onClick={() => handleAnswer(shape)}
+                          key={index}
+                          onClick={() => handleAnswer(option)}
                           variant="outline"
                           className="p-4 h-auto text-center hover:bg-blue-50 transition-colors"
                         >
-                          <div className="flex flex-col items-center space-y-2">
-                            <svg width="40" height="40" viewBox="0 0 100 100">
-                              <path d={shape.svg} className={shape.color} stroke="#374151" strokeWidth="2" />
-                            </svg>
-                            <span className="font-medium">{getOptionText(shape)}</span>
-                          </div>
+                          <span className="font-medium">{option}</span>
                         </Button>
                       ))}
                     </div>
@@ -222,7 +346,7 @@ const ShapeMatch = () => {
                           "font-semibold",
                           isCorrect ? "text-green-800" : "text-red-800"
                         )}>
-                          {isCorrect ? "Correct!" : `Wrong! That was a ${currentShape.name}`}
+                          {isCorrect ? "Correct!" : `Wrong! The answer was: ${currentQuestion.correctAnswer}`}
                         </span>
                       </div>
                       <Button

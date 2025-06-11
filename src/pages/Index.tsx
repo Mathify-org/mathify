@@ -266,7 +266,7 @@ const Index = () => {
                   </div>
                   
                   <div className="relative z-10">
-                    <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-white to-purple-100 bg-clip-text text-transparent">
+                    <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-white to-purple-100 bg-clip-text text-transparent leading-tight">
                       Games for Primary Maths
                     </h2>
                     <p className="text-lg md:text-2xl mb-4 md:mb-6 text-purple-100 max-w-3xl mx-auto leading-relaxed">
@@ -315,3 +315,5 @@ const Index = () => {
 };
 
 export default Index;
+
+</initial_code>
