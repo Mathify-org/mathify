@@ -30,7 +30,7 @@ export class MultiplayerGameService {
           name: roomName,
           host_id: hostId,
           max_players: maxPlayers,
-          current_players: 1,
+          current_players: 0, // Start with 0, will increment when host joins
           game_mode: 'mental_maths',
           status: 'waiting'
         })
@@ -51,16 +51,39 @@ export class MultiplayerGameService {
 
       if (data) {
         console.log('👥 Adding host as first player...');
-        const joinResult = await this.joinRoom(data.id, hostId, 'Host');
+        // Use a more direct approach for adding the host
+        const { data: playerData, error: playerError } = await supabase
+          .from('game_players')
+          .insert({
+            room_id: data.id,
+            user_id: hostId,
+            display_name: 'Host',
+            score: 0,
+            is_ready: false
+          })
+          .select()
+          .single();
         
-        if (joinResult.error) {
-          console.error('❌ Failed to add host as player:', joinResult.error);
+        if (playerError) {
+          console.error('❌ Failed to add host as player:', playerError);
           // Try to clean up the room if adding the host failed
           await supabase.from('game_rooms').delete().eq('id', data.id);
-          return { data: null, error: new Error(`Room created but failed to add host: ${joinResult.error.message}`) };
+          return { data: null, error: new Error(`Room created but failed to add host: ${playerError.message}`) };
         }
         
-        console.log('✅ Host added as player successfully');
+        console.log('✅ Host added as player successfully:', playerData);
+        
+        // Update room player count
+        const { error: updateError } = await supabase
+          .from('game_rooms')
+          .update({ current_players: 1 })
+          .eq('id', data.id);
+
+        if (updateError) {
+          console.error('⚠️ Failed to update player count:', updateError);
+        } else {
+          console.log('✅ Room player count updated to 1');
+        }
       }
 
       return { data: data as GameRoom, error };
@@ -211,12 +234,18 @@ export class MultiplayerGameService {
   }
 
   static async getAvailableRooms(): Promise<{ data: GameRoom[] | null; error: any }> {
+    // Fixed query - removed the problematic .lt() filter with column comparison
     const { data, error } = await supabase
       .from('game_rooms')
       .select('*')
       .eq('status', 'waiting')
-      .filter('current_players', 'lt', 'max_players')
       .order('created_at', { ascending: false });
+
+    // Filter out full rooms in JavaScript instead of SQL to avoid the column reference issue
+    if (data && !error) {
+      const availableRooms = data.filter(room => room.current_players < room.max_players);
+      return { data: availableRooms as GameRoom[], error };
+    }
 
     return { data: data as GameRoom[], error };
   }
