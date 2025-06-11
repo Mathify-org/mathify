@@ -1,16 +1,13 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, X, ArrowLeft, Plus, Minus, Divide, Timer, Users } from "lucide-react";
+import { Check, X, ArrowLeft, Plus, Minus, Divide, Timer } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useAuth } from "@/contexts/AuthContext";
-import MultiplayerLobby from "@/components/MentalMaths/MultiplayerLobby";
-import MultiplayerRoom from "@/components/MentalMaths/MultiplayerRoom";
-import type { GamePlayer } from "@/types/multiplayer";
 
 // Types for our math problem
 type Operation = "+" | "-" | "*" | "/";
@@ -38,10 +35,7 @@ const encouragingMessages = [
 
 const MentalMathsGame = () => {
   const isMobile = useIsMobile();
-  const { user } = useAuth();
-  const [gameMode, setGameMode] = useState<"menu" | "singleplayer" | "multiplayer-lobby" | "multiplayer-room">("menu");
   const [gameState, setGameState] = useState<"idle" | "playing" | "completed">("idle");
-  const [currentRoomId, setCurrentRoomId] = useState<string | null>(null);
   
   const [currentProblem, setCurrentProblem] = useState<Problem | null>(null);
   const [userAnswer, setUserAnswer] = useState<number | null>(null);
@@ -163,8 +157,7 @@ const MentalMathsGame = () => {
     return { num1, num2, operation, answer, options: shuffledOptions };
   };
   
-  const handleStartSinglePlayer = () => {
-    setGameMode("singleplayer");
+  const handleStartGame = () => {
     setGameState("playing");
     setQuestionNumber(0);
     setScore(0);
@@ -263,45 +256,6 @@ const MentalMathsGame = () => {
     return () => clearInterval(timer);
   }, [timeLeft, gameState]);
   
-  // Multiplayer handlers
-  const handleMultiplayerMode = () => {
-    if (!user) {
-      toast.error("Please sign in to play multiplayer games");
-      return;
-    }
-    setGameMode("multiplayer-lobby");
-  };
-
-  const handleJoinRoom = (roomId: string) => {
-    setCurrentRoomId(roomId);
-    setGameMode("multiplayer-room");
-  };
-
-  const handleCreateRoom = (roomId: string) => {
-    setCurrentRoomId(roomId);
-    setGameMode("multiplayer-room");
-  };
-
-  const handleLeaveRoom = () => {
-    setCurrentRoomId(null);
-    setGameMode("multiplayer-lobby");
-  };
-
-  const handleGameComplete = (finalScores: GamePlayer[]) => {
-    // Handle game completion - could show results, return to lobby, etc.
-    toast.success("Game completed!");
-    setTimeout(() => {
-      setGameMode("multiplayer-lobby");
-      setCurrentRoomId(null);
-    }, 3000);
-  };
-
-  const goBackToMenu = () => {
-    setGameMode("menu");
-    setGameState("idle");
-    setCurrentRoomId(null);
-  };
-  
   // Display the appropriate operation icon
   const OperationIcon = () => {
     if (!currentProblem) return null;
@@ -331,7 +285,7 @@ const MentalMathsGame = () => {
       {/* Header */}
       <div className="w-full max-w-4xl flex justify-between items-center mb-3 md:mb-8 px-1">
         <Link to="/">
-          <Button variant="ghost" size="sm" className="gap-1 md:gap-2 text-xs md:text-sm p-1 md:p-2" onClick={goBackToMenu}>
+          <Button variant="ghost" size="sm" className="gap-1 md:gap-2 text-xs md:text-sm p-1 md:p-2">
             <ArrowLeft className="h-3 w-3 md:h-4 md:w-4" /> Back
           </Button>
         </Link>
@@ -343,7 +297,7 @@ const MentalMathsGame = () => {
       
       {/* Main content */}
       <Card className="w-full max-w-2xl shadow-lg border-none glass-morphism bg-white/90 overflow-hidden">
-        {(gameMode === "menu" || gameState === "idle") && (
+        {gameState === "idle" && (
           <>
             <CardHeader className="text-center p-3 md:p-6">
               <CardTitle className="text-xl md:text-3xl font-bold">Speed Math Challenge</CardTitle>
@@ -352,30 +306,17 @@ const MentalMathsGame = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-6 px-2 md:px-6">
-              {/* Game mode selection */}
-              <div className="grid grid-cols-1 gap-4">
-                <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleStartSinglePlayer}>
-                  <CardContent className="p-4 text-center">
-                    <Timer className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                    <h3 className="font-bold text-lg mb-2">Solo Challenge</h3>
-                    <p className="text-sm text-gray-600">Race against time with {totalQuestions} questions</p>
-                    <Button className="w-full mt-3 bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6]">
-                      Start Solo Game
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleMultiplayerMode}>
-                  <CardContent className="p-4 text-center">
-                    <Users className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                    <h3 className="font-bold text-lg mb-2">Multiplayer</h3>
-                    <p className="text-sm text-gray-600">Compete with friends in real-time</p>
-                    <Button className="w-full mt-3 bg-gradient-to-r from-blue-500 to-indigo-600">
-                      Play Multiplayer
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
+              {/* Start Game Button */}
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleStartGame}>
+                <CardContent className="p-4 text-center">
+                  <Timer className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+                  <h3 className="font-bold text-lg mb-2">Start Challenge</h3>
+                  <p className="text-sm text-gray-600">Race against time with {totalQuestions} questions</p>
+                  <Button className="w-full mt-3 bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6]">
+                    Start Game
+                  </Button>
+                </CardContent>
+              </Card>
 
               {/* How to play section */}
               <div className="bg-[#E5DEFF] rounded-lg p-3 md:p-6 text-center">
@@ -418,28 +359,7 @@ const MentalMathsGame = () => {
           </>
         )}
         
-        {/* Multiplayer Lobby */}
-        {gameMode === "multiplayer-lobby" && (
-          <CardContent className="p-4 md:p-6">
-            <MultiplayerLobby
-              onJoinRoom={handleJoinRoom}
-              onCreateRoom={handleCreateRoom}
-            />
-          </CardContent>
-        )}
-        
-        {/* Multiplayer Room */}
-        {gameMode === "multiplayer-room" && currentRoomId && (
-          <CardContent className="p-4 md:p-6">
-            <MultiplayerRoom
-              roomId={currentRoomId}
-              onLeaveRoom={handleLeaveRoom}
-              onGameComplete={handleGameComplete}
-            />
-          </CardContent>
-        )}
-        
-        {gameMode === "singleplayer" && gameState === "playing" && currentProblem && (
+        {gameState === "playing" && currentProblem && (
           <>
             <CardHeader className="text-center p-2 md:p-6">
               <div className="flex justify-between items-center">
@@ -534,7 +454,7 @@ const MentalMathsGame = () => {
           </>
         )}
         
-        {gameMode === "singleplayer" && gameState === "completed" && (
+        {gameState === "completed" && (
           <>
             <CardHeader className="text-center p-3 md:p-6">
               <CardTitle className="text-xl md:text-3xl font-bold">Challenge Complete!</CardTitle>
@@ -603,7 +523,7 @@ const MentalMathsGame = () => {
             <CardFooter className="flex justify-center gap-2 md:gap-4 p-3">
               <Button
                 variant="outline"
-                onClick={handleStartSinglePlayer}
+                onClick={handleStartGame}
                 className="text-xs md:text-sm px-3 py-1 md:px-6"
                 size={isMobile ? "sm" : "default"}
               >
