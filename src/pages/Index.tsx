@@ -1,4 +1,3 @@
-
 import React from "react";
 import Hero from "@/components/Hero";
 import GradeLevel from "@/components/GradeLevel";
@@ -23,9 +22,9 @@ const gradeLevels = [
       },
       {
         id: "shapes",
-        title: "Shape Explorer",
-        description: "Discover geometric shapes through interactive puzzles",
-        path: "/shape-explorer"
+        title: "Shape Match",
+        description: "Learn to identify different shapes and count their sides",
+        path: "/shape-match"
       },
       {
         id: "addition",
@@ -50,9 +49,9 @@ const gradeLevels = [
     games: [
       {
         id: "fractions",
-        title: "Fraction Frenzy",
-        description: "Master fractions with a fast-paced visual matching game",
-        path: "/fraction-frenzy"
+        title: "Fraction Basics",
+        description: "Master fractions with simple and clear exercises",
+        path: "/fraction-basics"
       },
       {
         id: "decimals",
@@ -132,11 +131,11 @@ const generalSkills = [
     color: "bg-gradient-to-r from-purple-500 to-indigo-500"
   },
   {
-    id: "shape-explorer",
-    title: "Shape Explorer",
-    description: "Discover the fascinating world of 2D geometric shapes",
-    path: "/shape-explorer", 
-    color: "bg-gradient-to-r from-indigo-500 to-purple-600"
+    id: "shape-match",
+    title: "Shape Match",
+    description: "Learn to identify shapes and count their sides",
+    path: "/shape-match", 
+    color: "bg-gradient-to-r from-emerald-500 to-cyan-600"
   },
   {
     id: "fraction-basics",
@@ -251,12 +250,33 @@ const Index = () => {
       
       <section id="general-skills" className="py-10 md:py-16 bg-gradient-to-b from-purple-50 to-pink-50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-6 md:mb-12">
-            <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">General Skills Games</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto text-lg md:text-2xl mb-3 md:mb-4 px-2">
-              Improve core mathematical abilities that are essential across all grade levels.
-            </p>
-            <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mb-6 md:mb-8 rounded-full"></div>
+          {/* Beautiful heading card */}
+          <div className="text-center mb-8 md:mb-16">
+            <div className="relative max-w-4xl mx-auto">
+              <Card className="overflow-hidden border-0 shadow-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600">
+                <CardContent className="p-8 md:p-12 text-white relative">
+                  {/* Decorative background pattern */}
+                  <div className="absolute inset-0 opacity-10">
+                    <div className="absolute top-4 left-4 w-8 h-8 border-2 border-white rounded-full"></div>
+                    <div className="absolute top-8 right-8 w-4 h-4 bg-white rounded-full"></div>
+                    <div className="absolute bottom-6 left-8 w-6 h-6 border-2 border-white transform rotate-45"></div>
+                    <div className="absolute bottom-4 right-4 w-5 h-5 bg-white transform rotate-12"></div>
+                    <div className="absolute top-1/2 left-1/4 w-3 h-3 bg-white rounded-full"></div>
+                    <div className="absolute top-1/3 right-1/3 w-7 h-7 border-2 border-white rounded transform rotate-45"></div>
+                  </div>
+                  
+                  <div className="relative z-10">
+                    <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-white to-purple-100 bg-clip-text text-transparent">
+                      Games for Primary Maths
+                    </h2>
+                    <p className="text-lg md:text-2xl mb-4 md:mb-6 text-purple-100 max-w-3xl mx-auto leading-relaxed">
+                      Improve core mathematical abilities that are essential across all grade levels through fun, engaging games.
+                    </p>
+                    <div className="w-32 h-1 bg-gradient-to-r from-white to-purple-200 mx-auto rounded-full"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">

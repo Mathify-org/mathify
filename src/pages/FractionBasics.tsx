@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -101,6 +100,43 @@ const FractionBasics = () => {
     return `${numerator/gcd}/${denominator/gcd}`;
   };
 
+  const parseUserFraction = (input: string): { numerator: number; denominator: number } | null => {
+    const trimmed = input.trim();
+    if (trimmed.includes('/')) {
+      const parts = trimmed.split('/');
+      if (parts.length === 2) {
+        const num = parseInt(parts[0].trim());
+        const den = parseInt(parts[1].trim());
+        if (!isNaN(num) && !isNaN(den) && den !== 0) {
+          return { numerator: num, denominator: den };
+        }
+      }
+    }
+    return null;
+  };
+
+  const areEquivalentFractions = (userFraction: { numerator: number; denominator: number }, correctAnswer: string): boolean => {
+    const correctFraction = parseUserFraction(correctAnswer);
+    if (!correctFraction) return false;
+
+    // Reduce both fractions to their simplest form and compare
+    const userGCD = findGCD(Math.abs(userFraction.numerator), Math.abs(userFraction.denominator));
+    const correctGCD = findGCD(Math.abs(correctFraction.numerator), Math.abs(correctFraction.denominator));
+
+    const userSimplified = {
+      numerator: userFraction.numerator / userGCD,
+      denominator: userFraction.denominator / userGCD
+    };
+
+    const correctSimplified = {
+      numerator: correctFraction.numerator / correctGCD,
+      denominator: correctFraction.denominator / correctGCD
+    };
+
+    return userSimplified.numerator === correctSimplified.numerator && 
+           userSimplified.denominator === correctSimplified.denominator;
+  };
+
   useEffect(() => {
     setCurrentQuestion(generateQuestion());
   }, []);
@@ -108,7 +144,17 @@ const FractionBasics = () => {
   const handleSubmit = () => {
     if (!currentQuestion || !userAnswer.trim()) return;
 
-    const correct = userAnswer.trim() === currentQuestion.answer;
+    let correct = false;
+    
+    // Check if user answer is a fraction
+    const userFraction = parseUserFraction(userAnswer);
+    if (userFraction) {
+      correct = areEquivalentFractions(userFraction, currentQuestion.answer);
+    } else {
+      // Direct string comparison for non-fraction answers
+      correct = userAnswer.trim() === currentQuestion.answer;
+    }
+
     setIsCorrect(correct);
     setShowResult(true);
     
