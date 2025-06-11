@@ -1,82 +1,162 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { GameRoom, GamePlayer, GameQuestion, GameAnswer } from "@/types/multiplayer";
 
 export class MultiplayerGameService {
   // Room management
   static async createRoom(hostId: string, roomName: string, maxPlayers: number = 4): Promise<{ data: GameRoom | null; error: any }> {
-    const { data, error } = await supabase
-      .from('game_rooms')
-      .insert({
-        name: roomName,
-        host_id: hostId,
-        max_players: maxPlayers,
-        current_players: 1,
-        game_mode: 'mental_maths',
-        status: 'waiting'
-      })
-      .select()
-      .single();
+    console.log('🏗️ Creating room with params:', { hostId, roomName, maxPlayers });
+    
+    try {
+      // First check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log('👤 Current user:', user?.id);
+      
+      if (!user) {
+        const authError = new Error('User not authenticated');
+        console.error('❌ Authentication error:', authError);
+        return { data: null, error: authError };
+      }
 
-    if (data && !error) {
-      // Add host as first player
-      await this.joinRoom(data.id, hostId, 'Host');
+      if (user.id !== hostId) {
+        const mismatchError = new Error(`User ID mismatch: authenticated user ${user.id} vs provided hostId ${hostId}`);
+        console.error('❌ User ID mismatch:', mismatchError);
+        return { data: null, error: mismatchError };
+      }
+
+      console.log('🔄 Inserting room into database...');
+      const { data, error } = await supabase
+        .from('game_rooms')
+        .insert({
+          name: roomName,
+          host_id: hostId,
+          max_players: maxPlayers,
+          current_players: 1,
+          game_mode: 'mental_maths',
+          status: 'waiting'
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Database insert error:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        return { data: null, error };
+      }
+
+      console.log('✅ Room created successfully:', data);
+
+      if (data) {
+        console.log('👥 Adding host as first player...');
+        const joinResult = await this.joinRoom(data.id, hostId, 'Host');
+        
+        if (joinResult.error) {
+          console.error('❌ Failed to add host as player:', joinResult.error);
+          // Try to clean up the room if adding the host failed
+          await supabase.from('game_rooms').delete().eq('id', data.id);
+          return { data: null, error: new Error(`Room created but failed to add host: ${joinResult.error.message}`) };
+        }
+        
+        console.log('✅ Host added as player successfully');
+      }
+
+      return { data: data as GameRoom, error };
+    } catch (unexpectedError) {
+      console.error('💥 Unexpected error in createRoom:', unexpectedError);
+      return { data: null, error: unexpectedError };
     }
-
-    return { data: data as GameRoom, error };
   }
 
   static async joinRoom(roomId: string, userId: string, displayName?: string): Promise<{ data: GamePlayer | null; error: any }> {
-    // Check if room exists and has space
-    const { data: room, error: roomError } = await supabase
-      .from('game_rooms')
-      .select('*')
-      .eq('id', roomId)
-      .eq('status', 'waiting')
-      .single();
-
-    if (roomError || !room) {
-      return { data: null, error: roomError || new Error('Room not found') };
-    }
-
-    if (room.current_players >= room.max_players) {
-      return { data: null, error: new Error('Room is full') };
-    }
-
-    // Check if user is already in the room
-    const { data: existingPlayer } = await supabase
-      .from('game_players')
-      .select('*')
-      .eq('room_id', roomId)
-      .eq('user_id', userId)
-      .single();
-
-    if (existingPlayer) {
-      return { data: existingPlayer as GamePlayer, error: null };
-    }
-
-    // Add player to room
-    const { data: player, error: playerError } = await supabase
-      .from('game_players')
-      .insert({
-        room_id: roomId,
-        user_id: userId,
-        display_name: displayName || 'Player',
-        score: 0,
-        is_ready: false
-      })
-      .select()
-      .single();
-
-    if (player && !playerError) {
-      // Update room player count
-      await supabase
+    console.log('🚪 Joining room with params:', { roomId, userId, displayName });
+    
+    try {
+      // Check if room exists and has space
+      console.log('🔍 Checking room availability...');
+      const { data: room, error: roomError } = await supabase
         .from('game_rooms')
-        .update({ current_players: room.current_players + 1 })
-        .eq('id', roomId);
-    }
+        .select('*')
+        .eq('id', roomId)
+        .eq('status', 'waiting')
+        .single();
 
-    return { data: player as GamePlayer, error: playerError };
+      if (roomError) {
+        console.error('❌ Room query error:', roomError);
+        return { data: null, error: roomError };
+      }
+
+      if (!room) {
+        const notFoundError = new Error('Room not found or not available');
+        console.error('❌ Room not found:', notFoundError);
+        return { data: null, error: notFoundError };
+      }
+
+      console.log('📊 Room details:', room);
+
+      if (room.current_players >= room.max_players) {
+        const fullError = new Error('Room is full');
+        console.error('❌ Room is full:', fullError);
+        return { data: null, error: fullError };
+      }
+
+      // Check if user is already in the room
+      console.log('🔍 Checking if user already in room...');
+      const { data: existingPlayer } = await supabase
+        .from('game_players')
+        .select('*')
+        .eq('room_id', roomId)
+        .eq('user_id', userId)
+        .single();
+
+      if (existingPlayer) {
+        console.log('✅ User already in room:', existingPlayer);
+        return { data: existingPlayer as GamePlayer, error: null };
+      }
+
+      // Add player to room
+      console.log('➕ Adding player to room...');
+      const { data: player, error: playerError } = await supabase
+        .from('game_players')
+        .insert({
+          room_id: roomId,
+          user_id: userId,
+          display_name: displayName || 'Player',
+          score: 0,
+          is_ready: false
+        })
+        .select()
+        .single();
+
+      if (playerError) {
+        console.error('❌ Player insert error:', playerError);
+        return { data: null, error: playerError };
+      }
+
+      console.log('✅ Player added successfully:', player);
+
+      if (player) {
+        // Update room player count
+        console.log('🔄 Updating room player count...');
+        const { error: updateError } = await supabase
+          .from('game_rooms')
+          .update({ current_players: room.current_players + 1 })
+          .eq('id', roomId);
+
+        if (updateError) {
+          console.error('⚠️ Failed to update player count (player still added):', updateError);
+        } else {
+          console.log('✅ Room player count updated');
+        }
+      }
+
+      return { data: player as GamePlayer, error: playerError };
+    } catch (unexpectedError) {
+      console.error('💥 Unexpected error in joinRoom:', unexpectedError);
+      return { data: null, error: unexpectedError };
+    }
   }
 
   static async leaveRoom(roomId: string, userId: string): Promise<{ error: any }> {

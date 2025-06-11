@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Users, Crown, Play, Loader2, Plus, RefreshCw } from "lucide-react";
+import { Users, Crown, Play, Loader2, Plus, RefreshCw, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { MultiplayerGameService } from "@/services/multiplayerGameService";
 import type { GameRoom, GamePlayer } from "@/types/multiplayer";
@@ -30,58 +30,126 @@ const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({ onJoinRoom, onCreat
 
   const loadAvailableRooms = async () => {
     setLoading(true);
+    console.log('🔄 Loading available rooms...');
     const { data, error } = await MultiplayerGameService.getAvailableRooms();
     if (error) {
-      toast.error("Failed to load rooms");
-      console.error(error);
+      console.error('❌ Failed to load rooms:', error);
+      toast.error(`Failed to load rooms: ${error.message}`);
     } else {
+      console.log('✅ Loaded rooms:', data);
       setAvailableRooms(data || []);
     }
     setLoading(false);
   };
 
   const handleCreateRoom = async () => {
-    if (!user || !roomName.trim()) {
-      toast.error("Please enter a room name");
+    if (!user) {
+      const errorMsg = "User not authenticated - please sign in";
+      console.error('❌ Create room failed:', errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
-    setCreating(true);
-    const { data, error } = await MultiplayerGameService.createRoom(
-      user.id,
-      roomName.trim(),
-      4
-    );
-
-    if (error) {
-      toast.error("Failed to create room");
-      console.error(error);
-    } else if (data) {
-      toast.success("Room created successfully!");
-      onCreateRoom(data.id);
+    if (!roomName.trim()) {
+      const errorMsg = "Please enter a room name";
+      console.error('❌ Create room failed:', errorMsg);
+      toast.error(errorMsg);
+      return;
     }
+
+    console.log('🏗️ Starting room creation process...');
+    console.log('User details:', { id: user.id, email: user.email });
+    
+    setCreating(true);
+    
+    try {
+      const { data, error } = await MultiplayerGameService.createRoom(
+        user.id,
+        roomName.trim(),
+        4
+      );
+
+      if (error) {
+        console.error('❌ Room creation failed with error:', error);
+        let errorMessage = "Failed to create room";
+        
+        if (error.message) {
+          errorMessage += `: ${error.message}`;
+        }
+        
+        if (error.details) {
+          errorMessage += ` (Details: ${error.details})`;
+        }
+        
+        if (error.hint) {
+          errorMessage += ` (Hint: ${error.hint})`;
+        }
+        
+        if (error.code) {
+          errorMessage += ` (Code: ${error.code})`;
+        }
+        
+        toast.error(errorMessage);
+      } else if (data) {
+        console.log('✅ Room created successfully:', data);
+        toast.success("Room created successfully!");
+        onCreateRoom(data.id);
+      } else {
+        console.error('❌ Room creation returned no data and no error');
+        toast.error("Failed to create room: No data returned");
+      }
+    } catch (unexpectedError) {
+      console.error('💥 Unexpected error during room creation:', unexpectedError);
+      toast.error(`Unexpected error: ${unexpectedError instanceof Error ? unexpectedError.message : 'Unknown error'}`);
+    }
+    
     setCreating(false);
     setRoomName("");
     setShowCreateForm(false);
   };
 
   const handleJoinRoom = async (roomId: string) => {
-    if (!user) return;
+    if (!user) {
+      const errorMsg = "User not authenticated - please sign in";
+      console.error('❌ Join room failed:', errorMsg);
+      toast.error(errorMsg);
+      return;
+    }
+
+    console.log('🚪 Starting join room process...');
+    console.log('Join details:', { roomId, userId: user.id, email: user.email });
 
     setJoining(roomId);
-    const { data, error } = await MultiplayerGameService.joinRoom(
-      roomId,
-      user.id,
-      user.email?.split('@')[0] || 'Player'
-    );
+    
+    try {
+      const { data, error } = await MultiplayerGameService.joinRoom(
+        roomId,
+        user.id,
+        user.email?.split('@')[0] || 'Player'
+      );
 
-    if (error) {
-      toast.error("Failed to join room: " + error.message);
-      console.error(error);
-    } else if (data) {
-      toast.success("Joined room successfully!");
-      onJoinRoom(roomId);
+      if (error) {
+        console.error('❌ Join room failed with error:', error);
+        let errorMessage = "Failed to join room";
+        
+        if (error.message) {
+          errorMessage += `: ${error.message}`;
+        }
+        
+        toast.error(errorMessage);
+      } else if (data) {
+        console.log('✅ Joined room successfully:', data);
+        toast.success("Joined room successfully!");
+        onJoinRoom(roomId);
+      } else {
+        console.error('❌ Join room returned no data and no error');
+        toast.error("Failed to join room: No data returned");
+      }
+    } catch (unexpectedError) {
+      console.error('💥 Unexpected error during join room:', unexpectedError);
+      toast.error(`Unexpected error: ${unexpectedError instanceof Error ? unexpectedError.message : 'Unknown error'}`);
     }
+    
     setJoining(null);
   };
 
@@ -90,6 +158,16 @@ const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({ onJoinRoom, onCreat
       <div className="text-center">
         <h2 className="text-2xl md:text-3xl font-bold mb-2">Multiplayer Lobby</h2>
         <p className="text-muted-foreground">Join an existing room or create your own</p>
+        
+        {/* Debug info for authenticated users */}
+        {user && (
+          <div className="mt-2 p-2 bg-blue-50 rounded-lg text-xs text-blue-700">
+            <div className="flex items-center gap-1 justify-center">
+              <AlertCircle className="h-3 w-3" />
+              <span>Signed in as: {user.email} (ID: {user.id.substring(0, 8)}...)</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Create Room Section */}
