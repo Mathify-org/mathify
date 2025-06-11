@@ -1,4 +1,3 @@
-
 import React from "react";
 import Hero from "@/components/Hero";
 import GradeLevel from "@/components/GradeLevel";
@@ -265,11 +264,11 @@ const Index = () => {
                   </div>
                   
                   <div className="relative z-10">
-                    <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-white to-purple-100 bg-clip-text text-transparent leading-tight">
+                    <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-white to-purple-100 bg-clip-text text-transparent leading-tight pb-2">
                       Games for Primary Maths
                     </h2>
                     <p className="text-lg md:text-2xl mb-4 md:mb-6 text-purple-100 max-w-3xl mx-auto leading-relaxed">
-                      Improve core mathematical abilities that are essential across all grade levels through fun, engaging games.
+                      Perfect for kindergarten and primary school students learning fundamental mathematical concepts through fun, engaging games.
                     </p>
                     <div className="w-32 h-1 bg-gradient-to-r from-white to-purple-200 mx-auto rounded-full"></div>
                   </div>
