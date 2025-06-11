@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import ExplorerMap from "@/components/ShapeExplorer/ExplorerMap";
 import ShapeChallenge from "@/components/ShapeExplorer/ShapeChallenge";
 import HelpModal from "@/components/ShapeExplorer/HelpModal";
 
-// Define island types and challenge data (removed angles island, all unlocked)
+// Define island types and challenge data (removed 3D shapes island)
 const islands = [
   {
     id: "polygons",
@@ -81,35 +80,6 @@ const islands = [
         name: "Circle Calculations",
         type: "calculate",
         description: "Practice calculations with circular shapes",
-        completed: false,
-        stars: 0
-      }
-    ]
-  },
-  {
-    id: "3d",
-    name: "3D Shape Summit",
-    description: "Climb to new heights with 3D shapes and their properties",
-    color: "bg-gradient-to-r from-amber-500 to-orange-600",
-    position: { x: 30, y: 70 },
-    unlocked: true,
-    completed: false,
-    stars: 0,
-    icon: "square",
-    challenges: [
-      {
-        id: "3d-1",
-        name: "3D Basics",
-        type: "match",
-        description: "Learn about cubes, pyramids, and spheres",
-        completed: false,
-        stars: 0
-      },
-      {
-        id: "3d-2",
-        name: "Net Builder",
-        type: "build",
-        description: "Create 3D shapes from 2D nets",
         completed: false,
         stars: 0
       }
@@ -266,16 +236,6 @@ const ShapeExplorer = () => {
                 <ArrowLeft />
               </Button>
             </Link>
-            {activeView === 'challenge' && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleBackToMap} 
-                className="text-white mr-2 hover:bg-white/10"
-              >
-                <ArrowLeft />
-              </Button>
-            )}
             <h1 className="text-xl md:text-3xl font-bold">
               {activeView === 'map' 
                 ? 'Shape Explorer' 

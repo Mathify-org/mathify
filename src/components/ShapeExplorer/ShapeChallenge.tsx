@@ -1,13 +1,16 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { RotateCw, Star, HelpCircle, ArrowLeft } from "lucide-react";
+import { RotateCw, Star } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import SortingChallenge from "./challenges/SortingChallenge";
 import MatchingChallenge from "./challenges/MatchingChallenge";
-import MeasureChallenge from "./challenges/MeasureChallenge";
-import BuildChallenge from "./challenges/BuildChallenge";
+import LabelingChallenge from "./challenges/LabelingChallenge";
+import CalculateChallenge from "./challenges/CalculateChallenge";
+import IdentifyChallenge from "./challenges/IdentifyChallenge";
+import RotateChallenge from "./challenges/RotateChallenge";
 
 interface Challenge {
   id: string;
@@ -146,13 +149,23 @@ const ShapeChallenge: React.FC<ShapeChallengeProps> = ({ challenge, onComplete, 
           challengeId={challenge.id} 
           onSuccess={handleChallengeSuccess} 
         />;
-      case "measure":
-        return <MeasureChallenge 
+      case "label":
+        return <LabelingChallenge 
           challengeId={challenge.id} 
           onSuccess={handleChallengeSuccess} 
         />;
-      case "build":
-        return <BuildChallenge 
+      case "calculate":
+        return <CalculateChallenge 
+          challengeId={challenge.id} 
+          onSuccess={handleChallengeSuccess} 
+        />;
+      case "identify":
+        return <IdentifyChallenge 
+          challengeId={challenge.id} 
+          onSuccess={handleChallengeSuccess} 
+        />;
+      case "rotate":
+        return <RotateChallenge 
           challengeId={challenge.id} 
           onSuccess={handleChallengeSuccess} 
         />;
