@@ -5,8 +5,8 @@ export interface GameRoom {
   host_id: string;
   max_players: number;
   current_players: number;
-  game_mode: 'mental_maths';
-  status: 'waiting' | 'in_progress' | 'completed';
+  game_mode: string; // Changed from literal type to string
+  status: string; // Changed from literal type to string
   created_at: string;
   updated_at: string;
 }
@@ -28,7 +28,7 @@ export interface GameQuestion {
   question_number: number;
   num1: number;
   num2: number;
-  operation: '+' | '-' | '*' | '/';
+  operation: string; // Changed from literal type to string
   correct_answer: number;
   options: number[];
   time_limit: number;

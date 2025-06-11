@@ -23,7 +23,7 @@ export class MultiplayerGameService {
       await this.joinRoom(data.id, hostId, 'Host');
     }
 
-    return { data, error };
+    return { data: data as GameRoom, error };
   }
 
   static async joinRoom(roomId: string, userId: string, displayName?: string): Promise<{ data: GamePlayer | null; error: any }> {
@@ -52,7 +52,7 @@ export class MultiplayerGameService {
       .single();
 
     if (existingPlayer) {
-      return { data: existingPlayer, error: null };
+      return { data: existingPlayer as GamePlayer, error: null };
     }
 
     // Add player to room
@@ -76,7 +76,7 @@ export class MultiplayerGameService {
         .eq('id', roomId);
     }
 
-    return { data: player, error: playerError };
+    return { data: player as GamePlayer, error: playerError };
   }
 
   static async leaveRoom(roomId: string, userId: string): Promise<{ error: any }> {
@@ -135,10 +135,10 @@ export class MultiplayerGameService {
       .from('game_rooms')
       .select('*')
       .eq('status', 'waiting')
-      .lt('current_players', supabase.raw('max_players'))
+      .filter('current_players', 'lt', 'max_players')
       .order('created_at', { ascending: false });
 
-    return { data, error };
+    return { data: data as GameRoom[], error };
   }
 
   static async getRoomPlayers(roomId: string): Promise<{ data: GamePlayer[] | null; error: any }> {
@@ -148,7 +148,7 @@ export class MultiplayerGameService {
       .eq('room_id', roomId)
       .order('joined_at', { ascending: true });
 
-    return { data, error };
+    return { data: data as GamePlayer[], error };
   }
 
   // Game management
@@ -229,7 +229,7 @@ export class MultiplayerGameService {
       .select()
       .single();
 
-    return { data, error };
+    return { data: data as GameQuestion, error };
   }
 
   static async submitAnswer(roomId: string, questionId: string, userId: string, selectedAnswer: number, responseTime: number): Promise<{ data: GameAnswer | null; error: any }> {
@@ -257,14 +257,24 @@ export class MultiplayerGameService {
 
     // Update player score if correct
     if (isCorrect && !error) {
-      await supabase
+      // Get current score and increment it
+      const { data: currentPlayer } = await supabase
         .from('game_players')
-        .update({ 
-          score: supabase.raw('score + 1'),
-          current_answer: selectedAnswer 
-        })
+        .select('score')
         .eq('room_id', roomId)
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .single();
+
+      if (currentPlayer) {
+        await supabase
+          .from('game_players')
+          .update({ 
+            score: currentPlayer.score + 1,
+            current_answer: selectedAnswer 
+          })
+          .eq('room_id', roomId)
+          .eq('user_id', userId);
+      }
     } else if (!error) {
       await supabase
         .from('game_players')
@@ -273,7 +283,7 @@ export class MultiplayerGameService {
         .eq('user_id', userId);
     }
 
-    return { data, error };
+    return { data: data as GameAnswer, error };
   }
 
   // Real-time subscriptions

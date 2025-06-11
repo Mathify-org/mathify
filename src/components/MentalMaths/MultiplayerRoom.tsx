@@ -79,7 +79,7 @@ const MultiplayerRoom: React.FC<MultiplayerRoomProps> = ({ roomId, onLeaveRoom, 
 
       setGameState(prev => ({
         ...prev,
-        room,
+        room: room as GameRoom,
         players: players || []
       }));
 
@@ -105,7 +105,7 @@ const MultiplayerRoom: React.FC<MultiplayerRoomProps> = ({ roomId, onLeaveRoom, 
     if (question && !error) {
       setGameState(prev => ({
         ...prev,
-        currentQuestion: question,
+        currentQuestion: question as GameQuestion,
         questionNumber: question.question_number,
         timeLeft: question.time_limit
       }));
