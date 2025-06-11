@@ -1,3 +1,4 @@
+
 import React from "react";
 import Hero from "@/components/Hero";
 import GradeLevel from "@/components/GradeLevel";
@@ -250,12 +251,10 @@ const Index = () => {
       
       <section id="general-skills" className="py-10 md:py-16 bg-gradient-to-b from-purple-50 to-pink-50">
         <div className="container mx-auto px-4">
-          {/* Beautiful heading card */}
           <div className="text-center mb-8 md:mb-16">
             <div className="relative max-w-4xl mx-auto">
               <Card className="overflow-hidden border-0 shadow-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600">
                 <CardContent className="p-8 md:p-12 text-white relative">
-                  {/* Decorative background pattern */}
                   <div className="absolute inset-0 opacity-10">
                     <div className="absolute top-4 left-4 w-8 h-8 border-2 border-white rounded-full"></div>
                     <div className="absolute top-8 right-8 w-4 h-4 bg-white rounded-full"></div>
@@ -315,5 +314,3 @@ const Index = () => {
 };
 
 export default Index;
-
-</initial_code>
