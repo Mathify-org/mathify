@@ -1,3 +1,4 @@
+
 import React from "react";
 import Hero from "@/components/Hero";
 import GradeLevel from "@/components/GradeLevel";
@@ -405,5 +406,3 @@ const Index = () => {
 };
 
 export default Index;
-
-</edits_to_apply>
