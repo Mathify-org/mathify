@@ -20,7 +20,7 @@ export class MultiplayerGameService {
 
     if (data && !error) {
       // Add host as first player
-      await this.joinRoom(data.id, hostId);
+      await this.joinRoom(data.id, hostId, 'Host');
     }
 
     return { data, error };
@@ -41,6 +41,18 @@ export class MultiplayerGameService {
 
     if (room.current_players >= room.max_players) {
       return { data: null, error: new Error('Room is full') };
+    }
+
+    // Check if user is already in the room
+    const { data: existingPlayer } = await supabase
+      .from('game_players')
+      .select('*')
+      .eq('room_id', roomId)
+      .eq('user_id', userId)
+      .single();
+
+    if (existingPlayer) {
+      return { data: existingPlayer, error: null };
     }
 
     // Add player to room

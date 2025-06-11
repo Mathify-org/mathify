@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Users, Crown, Play, LogOut, Timer, Trophy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { MultiplayerGameService } from "@/services/multiplayerGameService";
 import type { GameRoom, GamePlayer, GameQuestion, MultiplayerGameState } from "@/types/multiplayer";
 import { toast } from "sonner";
