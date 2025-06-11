@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import ExplorerMap from "@/components/ShapeExplorer/ExplorerMap";
 import ShapeChallenge from "@/components/ShapeExplorer/ShapeChallenge";
 import HelpModal from "@/components/ShapeExplorer/HelpModal";
 
-// Define island types and challenge data (removed 3D shapes island)
+// Define island types and challenge data (only 3 islands)
 const islands = [
   {
     id: "polygons",

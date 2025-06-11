@@ -1,3 +1,4 @@
+
 import React from "react";
 import Hero from "@/components/Hero";
 import GradeLevel from "@/components/GradeLevel";
@@ -133,15 +134,15 @@ const generalSkills = [
   {
     id: "shape-explorer",
     title: "Shape Explorer",
-    description: "Discover the fascinating world of 2D and 3D geometric shapes",
+    description: "Discover the fascinating world of 2D geometric shapes",
     path: "/shape-explorer", 
     color: "bg-gradient-to-r from-indigo-500 to-purple-600"
   },
   {
-    id: "fraction-frenzy",
-    title: "Fraction Frenzy",
-    description: "Match fractions with visuals in this fast-paced game",
-    path: "/fraction-frenzy",
+    id: "fraction-basics",
+    title: "Fraction Basics",
+    description: "Master fraction fundamentals with simple exercises",
+    path: "/fraction-basics",
     color: "bg-gradient-to-r from-pink-500 to-orange-400"
   },
   {

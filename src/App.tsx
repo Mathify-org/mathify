@@ -11,7 +11,7 @@ import MentalMathsGame from "./pages/MentalMathsGame";
 import TimesTablesMaster from "./pages/TimesTablesMaster";
 import MathFactsRace from "./pages/MathFactsRace";
 import ShapeExplorer from "./pages/ShapeExplorer";
-import FractionFrenzy from "./pages/FractionFrenzy";
+import FractionBasics from "./pages/FractionBasics";
 import ArithmeticHero from "./pages/ArithmeticHero";
 import TargetTakedown from "./pages/TargetTakedown";
 import NotFound from "./pages/NotFound";
@@ -55,7 +55,7 @@ const App = () => (
                 <Route path="/times-tables" element={<TimesTablesMaster />} />
                 <Route path="/math-facts" element={<MathFactsRace />} />
                 <Route path="/shape-explorer" element={<ShapeExplorer />} />
-                <Route path="/fraction-frenzy" element={<FractionFrenzy />} />
+                <Route path="/fraction-basics" element={<FractionBasics />} />
                 <Route path="/arithmetic-hero" element={<ArithmeticHero />} />
                 <Route path="/target-takedown" element={<TargetTakedown />} />
                 <Route path="/math-warp" element={<MathWarp />} />

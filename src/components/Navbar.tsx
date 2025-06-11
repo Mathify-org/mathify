@@ -79,7 +79,7 @@ const Navbar = () => {
                 ) : (
                   <Link to="/auth">
                     <Button className="bg-white text-purple-600 hover:bg-white/90">
-                      Sign Up
+                      Sign In
                     </Button>
                   </Link>
                 )
@@ -119,7 +119,7 @@ const Navbar = () => {
               ) : (
                 <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
                   <Button className="w-full bg-white text-purple-600 hover:bg-white/90">
-                    Sign Up
+                    Sign In
                   </Button>
                 </Link>
               )
