@@ -359,33 +359,35 @@ const Index = () => {
             {generalSkills.map((skill) => (
               <Card key={skill.id} className="overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1 border-0 relative">
                 <div className={`h-2 md:h-4 ${skill.color}`}></div>
-                <CardContent className="p-4 md:p-6 bg-white">
-                  {user && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleFavorite(skill.id)}
-                      className="absolute top-2 right-2 p-1 h-8 w-8"
-                    >
-                      <Heart 
-                        className={`h-4 w-4 ${favorites.includes(skill.id) 
-                          ? 'fill-red-500 text-red-500' 
-                          : 'text-gray-400 hover:text-red-500'
-                        }`} 
-                      />
-                    </Button>
-                  )}
-                  <h3 className="font-bold text-lg md:text-2xl mb-2 md:mb-3 line-clamp-1 pr-8">{skill.title}</h3>
+                <CardContent className="p-4 md:p-6 bg-white relative">
+                  <h3 className="font-bold text-lg md:text-2xl mb-2 md:mb-3 line-clamp-1">{skill.title}</h3>
                   <p className="text-slate-600 mb-3 md:mb-5 text-sm md:text-lg line-clamp-2">{skill.description}</p>
-                  <Link 
-                    to={skill.path} 
-                    className={`inline-flex items-center px-3 py-1 md:px-4 md:py-2 rounded-lg ${skill.color} text-white font-medium text-sm md:text-base hover:opacity-90 transition-opacity`}
-                  >
-                    Play Now
-                    <svg className="ml-1 md:ml-2 w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                  </Link>
+                  <div className="flex items-end justify-between">
+                    <Link 
+                      to={skill.path} 
+                      className={`inline-flex items-center px-3 py-1 md:px-4 md:py-2 rounded-lg ${skill.color} text-white font-medium text-sm md:text-base hover:opacity-90 transition-opacity`}
+                    >
+                      Play Now
+                      <svg className="ml-1 md:ml-2 w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                      </svg>
+                    </Link>
+                    {user && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleFavorite(skill.id)}
+                        className="p-2 h-auto hover:bg-red-50 rounded-full"
+                      >
+                        <Heart 
+                          className={`h-6 w-6 md:h-7 md:w-7 transition-all duration-200 ${favorites.includes(skill.id) 
+                            ? 'fill-red-500 text-red-500 scale-110' 
+                            : 'text-gray-400 hover:text-red-500 hover:scale-105'
+                          }`} 
+                        />
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))}

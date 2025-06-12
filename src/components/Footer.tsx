@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -11,20 +12,55 @@ const Footer = () => {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid email address.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const { error } = await supabase
+        .from('newsletter_subscribers')
+        .insert({
+          email: email.toLowerCase().trim()
+        });
+
+      if (error) {
+        if (error.code === '23505') { // Unique constraint violation
+          toast({
+            title: "Already subscribed!",
+            description: "This email is already subscribed to our newsletter.",
+            variant: "destructive"
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Subscribed!",
+          description: "Thank you for subscribing to our newsletter.",
+          duration: 5000
+        });
+        setEmail("");
+      }
+    } catch (error: any) {
+      console.error('Newsletter subscription error:', error);
       toast({
-        title: "Subscribed!",
-        description: "Thank you for subscribing to our newsletter.",
-        duration: 5000
+        title: "Error",
+        description: "Failed to subscribe. Please try again later.",
+        variant: "destructive"
       });
-      setEmail("");
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
   
   return (
