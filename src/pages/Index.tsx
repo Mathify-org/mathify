@@ -319,11 +319,13 @@ const Index = () => {
       >
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="text-center mb-8 md:mb-12 animate-fade-in">
-            <h2 className="font-extrabold text-3xl md:text-5xl mb-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 drop-shadow-lg animate-bounce">
-              📚 Mathify Video Hub
+            <h2 className="font-extrabold text-3xl md:text-5xl mb-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-amber-500 to-yellow-400 drop-shadow-lg animate-bounce">
+              Curated Mathematics Video Library by World-Class Educators
             </h2>
             <p className="text-yellow-900 text-lg md:text-2xl mx-auto max-w-2xl mb-4 font-medium">
-              Explore a handpicked library of world-class YouTube mathematics videos <span className="font-bold text-amber-700">by top educators</span>, curated for major curricula worldwide.
+              A hand-selected set of outstanding, comprehensive, and in-depth math videos—
+              <span className="font-bold text-amber-700"> created by top educators on YouTube and other platforms</span>.
+              All linked content belongs to the original creators.
             </p>
             <div className="mx-auto w-32 h-1 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 mb-2"></div>
           </div>
