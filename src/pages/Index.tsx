@@ -1,4 +1,3 @@
-
 import React from "react";
 import Hero from "@/components/Hero";
 import GradeLevel from "@/components/GradeLevel";
@@ -160,6 +159,39 @@ const generalSkills = [
   }
 ];
 
+const videoCurricula = [
+  {
+    id: "alevels",
+    label: "A-Levels (All Boards)",
+    color: "from-yellow-400 via-amber-400 to-orange-400",
+    iconBg: "bg-gradient-to-tr from-yellow-300 via-yellow-400 to-amber-400"
+  },
+  {
+    id: "ib",
+    label: "IB Mathematics",
+    color: "from-pink-300 via-pink-400 to-amber-400",
+    iconBg: "bg-gradient-to-tr from-pink-300 to-amber-400"
+  },
+  {
+    id: "gcse",
+    label: "GCSEs (All Boards)",
+    color: "from-yellow-200 via-yellow-400 to-yellow-700",
+    iconBg: "bg-gradient-to-tr from-yellow-200 to-yellow-500"
+  },
+  {
+    id: "us",
+    label: "US High School Math",
+    color: "from-orange-200 via-orange-400 to-pink-500",
+    iconBg: "bg-gradient-to-tr from-orange-200 to-pink-400"
+  },
+  {
+    id: "intl",
+    label: "Popular Global Exam Boards",
+    color: "from-amber-400 via-yellow-500 to-orange-500",
+    iconBg: "bg-gradient-to-tr from-yellow-300 to-orange-400"
+  }
+];
+
 const Index = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
@@ -238,6 +270,7 @@ const Index = () => {
     <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Hero />
       
+      
       <section className="container mx-auto px-4 py-10 md:py-16">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">Features That Make Learning Fun</h2>
@@ -278,53 +311,82 @@ const Index = () => {
           </div>
         </div>
       </section>
+
       
-      <section id="grade-levels" className="py-10 md:py-16 bg-gradient-to-b from-blue-50 to-purple-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-6 md:mb-12">
-            <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">Math Games By Grade Level</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto px-2 text-sm md:text-base">
-              Explore age-appropriate math games designed specifically for different educational stages.
+      <section
+        id="video-hub"
+        className="py-12 md:py-20 bg-gradient-to-b from-yellow-50 via-amber-50 to-orange-100"
+      >
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="text-center mb-8 md:mb-12 animate-fade-in">
+            <h2 className="font-extrabold text-3xl md:text-5xl mb-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 drop-shadow-lg animate-bounce">
+              📚 Mathify Video Hub
+            </h2>
+            <p className="text-yellow-900 text-lg md:text-2xl mx-auto max-w-2xl mb-4 font-medium">
+              Explore a handpicked library of world-class YouTube mathematics videos <span className="font-bold text-amber-700">by top educators</span>, curated for major curricula worldwide.
             </p>
+            <div className="mx-auto w-32 h-1 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 mb-2"></div>
           </div>
-          
-          <Tabs defaultValue="all" className="w-full">
-            <div className="flex justify-center mb-5 md:mb-8 overflow-x-auto pb-2">
-              <TabsList className="bg-white/70 p-1">
-                <TabsTrigger value="all" className="px-2 py-1 md:px-6 text-xs md:text-base whitespace-nowrap">All Levels</TabsTrigger>
-                <TabsTrigger value="elementary" className="px-2 py-1 md:px-6 text-xs md:text-base whitespace-nowrap">Elementary</TabsTrigger>
-                <TabsTrigger value="middle" className="px-2 py-1 md:px-6 text-xs md:text-base whitespace-nowrap">Middle School</TabsTrigger>
-                <TabsTrigger value="high" className="px-2 py-1 md:px-6 text-xs md:text-base whitespace-nowrap">High School</TabsTrigger>
-              </TabsList>
-            </div>
-            
-            <TabsContent value="all" className="space-y-5 md:space-y-8 animate-fade-in">
-              {gradeLevels.map((level) => (
-                <GradeLevel
-                  key={level.id}
-                  title={level.title}
-                  ageRange={level.ageRange}
-                  description={level.description}
-                  games={level.games}
-                  gradient={level.gradient}
-                />
-              ))}
-            </TabsContent>
-            
-            {gradeLevels.map((level) => (
-              <TabsContent key={level.id} value={level.id} className="animate-fade-in">
-                <GradeLevel
-                  title={level.title}
-                  ageRange={level.ageRange}
-                  description={level.description}
-                  games={level.games}
-                  gradient={level.gradient}
-                />
-              </TabsContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {videoCurricula.map((curric) => (
+              <div
+                key={curric.id}
+                className={`
+                  rounded-3xl shadow-xl border-4 border-yellow-200 relative bg-white glass-morphism
+                  transition-transform duration-200 hover:scale-105 hover:shadow-2xl group
+                  animate-fade-in
+                `}
+                style={{
+                  background:
+                    "linear-gradient(120deg, #fffbe7 70%, #ffe5a6 100%)"
+                }}
+              >
+                <div className={`absolute -top-7 left-1/2 -translate-x-1/2 rounded-full ${curric.iconBg} p-3 shadow-lg border-2 border-white`}>
+                  <svg width="40" height="40" fill="none">
+                    <circle cx="20" cy="20" r="16" fill="#fbbf24" fillOpacity="0.68" />
+                    <circle cx="20" cy="20" r="12" fill="#fff7ae" />
+                  </svg>
+                </div>
+                <div className="pt-12 pb-8 px-6 md:px-8 min-h-[240px] flex flex-col">
+                  <h3 className="font-extrabold text-xl md:text-2xl mb-2 text-amber-600 text-center drop-shadow-sm">
+                    {curric.label}
+                  </h3>
+                  <div className="w-16 h-1 bg-gradient-to-r from-amber-300 to-yellow-400 mx-auto rounded-full mb-3"></div>
+                  <div className="flex-1 flex items-center justify-center mb-4">
+                    <div className="rounded-2xl overflow-hidden shadow-inner w-full h-44 bg-gradient-to-tr from-yellow-100 to-amber-100 flex items-center justify-center">
+                      
+                      <span className="text-5xl md:text-6xl text-yellow-400 opacity-50">
+                        <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                          <circle cx="30" cy="30" r="28" stroke="#f59e42" strokeWidth="4" fill="#fff9db" />
+                          <polygon points="26,20 44,30 26,40" fill="#f59e42" />
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-slate-700 text-sm md:text-base text-center mb-4">
+                    Comprehensive collections of high-quality videos by leading educators. Embedded videos tailored for every major math exam and topic.
+                  </p>
+                  <button
+                    disabled
+                    className={`mt-auto w-full text-lg py-2 font-bold rounded-xl bg-gradient-to-r ${curric.color} text-white shadow 
+                      transition-opacity opacity-80 cursor-not-allowed`}
+                  >
+                    Coming Soon
+                  </button>
+                </div>
+                <div className="absolute right-5 top-5">
+                  <svg width="38" height="38" fill="none">
+                    <circle cx="19" cy="19" r="19" fill="#fff9db" />
+                  </svg>
+                </div>
+                <div className="absolute left-4 bottom-4 w-8 h-8 bg-gradient-to-br from-amber-300 to-yellow-100 rounded-full opacity-60"></div>
+                <div className="absolute right-6 bottom-2 w-10 h-10 bg-gradient-to-bl from-yellow-100 to-orange-100 rounded-full opacity-50"></div>
+              </div>
             ))}
-          </Tabs>
+          </div>
         </div>
       </section>
+
       
       <section id="general-skills" className="py-10 md:py-16 bg-gradient-to-b from-purple-50 to-pink-50">
         <div className="container mx-auto px-4">
