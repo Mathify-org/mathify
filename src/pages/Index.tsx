@@ -1,8 +1,7 @@
+
 import React from "react";
 import Hero from "@/components/Hero";
-import GradeLevel from "@/components/GradeLevel";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
@@ -164,31 +163,57 @@ const videoCurricula = [
     id: "alevels",
     label: "A-Levels (All Boards)",
     color: "from-yellow-400 via-amber-400 to-orange-400",
-    iconBg: "bg-gradient-to-tr from-yellow-300 via-yellow-400 to-amber-400"
+    iconBg: "bg-gradient-to-tr from-yellow-300 via-yellow-400 to-amber-400",
+    path: "/video-hub/alevels"
   },
   {
     id: "ib",
     label: "IB Mathematics",
     color: "from-pink-300 via-pink-400 to-amber-400",
-    iconBg: "bg-gradient-to-tr from-pink-300 to-amber-400"
+    iconBg: "bg-gradient-to-tr from-pink-300 to-amber-400",
+    path: "/video-hub/ib"
   },
   {
     id: "gcse",
     label: "GCSEs (All Boards)",
     color: "from-yellow-200 via-yellow-400 to-yellow-700",
-    iconBg: "bg-gradient-to-tr from-yellow-200 to-yellow-500"
+    iconBg: "bg-gradient-to-tr from-yellow-200 to-yellow-500",
+    path: "/video-hub/gcse"
   },
   {
     id: "us",
     label: "US High School Math",
     color: "from-orange-200 via-orange-400 to-pink-500",
-    iconBg: "bg-gradient-to-tr from-orange-200 to-pink-400"
+    iconBg: "bg-gradient-to-tr from-orange-200 to-pink-400",
+    path: "/video-hub/us"
+  },
+  {
+    id: "australia",
+    label: "Australian Curriculum",
+    color: "from-green-300 via-emerald-400 to-teal-500",
+    iconBg: "bg-gradient-to-tr from-green-300 to-teal-400",
+    path: "/video-hub/australia"
+  },
+  {
+    id: "canada",
+    label: "Canadian Curriculum",
+    color: "from-red-300 via-pink-400 to-purple-500",
+    iconBg: "bg-gradient-to-tr from-red-300 to-purple-400",
+    path: "/video-hub/canada"
+  },
+  {
+    id: "cbse",
+    label: "CBSE (India)",
+    color: "from-blue-300 via-indigo-400 to-purple-500",
+    iconBg: "bg-gradient-to-tr from-blue-300 to-purple-400",
+    path: "/video-hub/cbse"
   },
   {
     id: "intl",
     label: "Popular Global Exam Boards",
     color: "from-amber-400 via-yellow-500 to-orange-500",
-    iconBg: "bg-gradient-to-tr from-yellow-300 to-orange-400"
+    iconBg: "bg-gradient-to-tr from-yellow-300 to-orange-400",
+    path: "/video-hub/international"
   }
 ];
 
@@ -319,8 +344,8 @@ const Index = () => {
       >
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="text-center mb-8 md:mb-12 animate-fade-in">
-            <h2 className="font-extrabold text-3xl md:text-5xl mb-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-amber-500 to-yellow-400 drop-shadow-lg animate-bounce">
-              Curated Mathematics Video Library by World-Class Educators
+            <h2 className="font-extrabold text-3xl md:text-5xl mb-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-amber-500 to-yellow-400 drop-shadow-lg">
+              Curated Videos and Resources from the Internet for Secondary and High School Mathematics
             </h2>
             <p className="text-yellow-900 text-lg md:text-2xl mx-auto max-w-2xl mb-4 font-medium">
               A hand-selected set of outstanding, comprehensive, and in-depth math videos—
@@ -356,7 +381,6 @@ const Index = () => {
                   <div className="w-16 h-1 bg-gradient-to-r from-amber-300 to-yellow-400 mx-auto rounded-full mb-3"></div>
                   <div className="flex-1 flex items-center justify-center mb-4">
                     <div className="rounded-2xl overflow-hidden shadow-inner w-full h-44 bg-gradient-to-tr from-yellow-100 to-amber-100 flex items-center justify-center">
-                      
                       <span className="text-5xl md:text-6xl text-yellow-400 opacity-50">
                         <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
                           <circle cx="30" cy="30" r="28" stroke="#f59e42" strokeWidth="4" fill="#fff9db" />
@@ -368,13 +392,13 @@ const Index = () => {
                   <p className="text-slate-700 text-sm md:text-base text-center mb-4">
                     Comprehensive collections of high-quality videos by leading educators. Embedded videos tailored for every major math exam and topic.
                   </p>
-                  <button
-                    disabled
+                  <Link
+                    to={curric.path}
                     className={`mt-auto w-full text-lg py-2 font-bold rounded-xl bg-gradient-to-r ${curric.color} text-white shadow 
-                      transition-opacity opacity-80 cursor-not-allowed`}
+                      transition-all hover:scale-105 hover:shadow-lg text-center block`}
                   >
-                    Coming Soon
-                  </button>
+                    Explore Videos
+                  </Link>
                 </div>
                 <div className="absolute right-5 top-5">
                   <svg width="38" height="38" fill="none">
