@@ -13,6 +13,26 @@ const IBVideoHub = () => {
       unit: "Number and Algebra",
       videos: [
         {
+          title: "IB Math AA HL Algebra",
+          educator: "StudyCollab: Targeted Tutoring",
+          isPlaylist: true,
+          playlistId: "PL6S08t2cIqdItbr7YUH5sBGlZ_MzVQk9d",
+          description: "Comprehensive Algebra Course"
+        },
+        {
+          title: "IB Math AI HL Logarithms",
+          educator: "StudyCollab: Targeted Tutoring",
+          videoId: "7ZHNv9qWYIY",
+          description: "Logarithms and Exponential Functions"
+        },
+        {
+          title: "IB Math Algebra and Functions",
+          educator: "Wacky Science",
+          isPlaylist: true,
+          playlistId: "PLrcncMxF7TvXbaavCvHhDlfBsIWYUonX_",
+          description: "Algebra and Functions Revision"
+        },
+        {
           title: "Exponential Operations and Laws (IB Math AI SL)",
           educator: "ExamQA",
           videoId: "tE6_7FXwE34",
@@ -54,13 +74,128 @@ const IBVideoHub = () => {
           educator: "ExamQA",
           videoId: "5IZ8gpRDB0g",
           description: "Solving Systems of Linear Equations"
+        }
+      ]
+    },
+    {
+      unit: "Geometry and Trigonometry",
+      videos: [
+        {
+          title: "IB Math AA HL Geometry",
+          educator: "StudyCollab: Targeted Tutoring",
+          isPlaylist: true,
+          playlistId: "PLrVxQwkfAdPSmLFeB8OLnd9DUnU29yOId",
+          description: "Comprehensive Geometry Course"
+        },
+        {
+          title: "IB Math AA HL Trigonometry",
+          educator: "StudyCollab: Targeted Tutoring",
+          isPlaylist: true,
+          playlistId: "PLrVxQwkfAdPTS30PSSDBhH2TT88f8K_Oa",
+          description: "Comprehensive Trigonometry Course"
+        },
+        {
+          title: "IB Math AI HL 3D Trigonometry",
+          educator: "StudyCollab: Targeted Tutoring",
+          videoId: "fkZKf1dVH48",
+          description: "3D Trigonometry Applications"
+        }
+      ]
+    },
+    {
+      unit: "Statistics and Probability",
+      videos: [
+        {
+          title: "IB Math AA HL Statistics",
+          educator: "StudyCollab: Targeted Tutoring",
+          isPlaylist: true,
+          playlistId: "PLrVxQwkfAdPSycoarc7hTj4uZ6g8n7p9o",
+          description: "Comprehensive Statistics Course"
+        },
+        {
+          title: "IB Math AA HL Probability",
+          educator: "StudyCollab: Targeted Tutoring",
+          isPlaylist: true,
+          playlistId: "PLrVxQwkfAdPQyxI1ZgnCkT1-BTDavYEZQ",
+          description: "Comprehensive Probability Course"
+        },
+        {
+          title: "IB Math AA SL/HL Statistics",
+          educator: "Khan Academy",
+          isPlaylist: true,
+          playlistId: "PLTzMaA6R8ce15xqPq3PwTBeOGd6JvtGt8",
+          description: "Statistics and Probability"
+        }
+      ]
+    },
+    {
+      unit: "Vectors",
+      videos: [
+        {
+          title: "IB Math AI HL Vectors Introduction",
+          educator: "StudyCollab: Targeted Tutoring",
+          videoId: "SvcdK2omZQs",
+          description: "Introduction to Vectors"
+        },
+        {
+          title: "IB Math AI HL Vector Applications",
+          educator: "StudyCollab: Targeted Tutoring",
+          videoId: "oQmRfNl6pqI",
+          description: "Vector Applications and Problems"
+        },
+        {
+          title: "IB Math AI HL Advanced Vectors",
+          educator: "StudyCollab: Targeted Tutoring",
+          videoId: "6zfHoO95huE",
+          description: "Advanced Vector Concepts"
+        }
+      ]
+    },
+    {
+      unit: "Complex Numbers",
+      videos: [
+        {
+          title: "IB Math AI HL Complex Numbers Introduction",
+          educator: "StudyCollab: Targeted Tutoring",
+          videoId: "7Q8Q24Knpig",
+          description: "Introduction to Complex Numbers"
+        },
+        {
+          title: "IB Math AI HL Complex Number Operations",
+          educator: "StudyCollab: Targeted Tutoring",
+          videoId: "LKz-1Fi5F-c",
+          description: "Complex Number Operations"
         },
         {
           title: "Complex Numbers",
-          educator: "Eddie Woo",
+          educator: "Khan Academy",
           isPlaylist: true,
-          playlistId: "PL5KkMZvBpo5CE__2qeqZQa5e8gSkt1Ypy",
-          description: "Complex Numbers (HL)"
+          playlistId: "PL3ZWX0qgGNGqn67GEjP1PbNC8fz37qlLD",
+          description: "Complex Numbers Course"
+        }
+      ]
+    },
+    {
+      unit: "Calculus",
+      videos: [
+        {
+          title: "IB Math AA HL Calculus",
+          educator: "StudyCollab: Targeted Tutoring",
+          isPlaylist: true,
+          playlistId: "PLrVxQwkfAdPQLOaYTY9UKU96lU0jeQXIA",
+          description: "Comprehensive Calculus Course"
+        },
+        {
+          title: "IB Math AI HL Calculus Applications",
+          educator: "StudyCollab: Targeted Tutoring",
+          videoId: "BftY8qZCfRE",
+          description: "Calculus Applications"
+        },
+        {
+          title: "IB Math AI HL Advanced Calculus",
+          educator: "StudyCollab: Targeted Tutoring",
+          videoId: "DcU5r2_TdWU",
+          description: "Advanced Calculus Concepts"
         }
       ]
     },

@@ -10,6 +10,103 @@ const GCSEVideoHub = () => {
 
   const foundationTopics = [
     {
+      unit: "Algebra",
+      videos: [
+        {
+          title: "GCSE Maths - Algebra",
+          educator: "TLMaths",
+          isPlaylist: true,
+          playlistId: "PL7O6CcKg0HaHfod9GrM-MR1y04WFDbQog",
+          description: "Complete Algebra Course"
+        },
+        {
+          title: "GCSE Maths - Substitution (Algebra)",
+          educator: "TLMaths",
+          videoId: "OZ_LEcqiV2M",
+          description: "Algebraic Substitution"
+        },
+        {
+          title: "GCSE Maths - Expanding Brackets (Algebra)",
+          educator: "TLMaths",
+          videoId: "9FuR91H8EVU",
+          description: "Expanding and Factoring"
+        }
+      ]
+    },
+    {
+      unit: "Geometry and Trigonometry",
+      videos: [
+        {
+          title: "GCSE Maths - Angles, Lines and Polygons",
+          educator: "The GCSE Maths Tutor",
+          isPlaylist: true,
+          playlistId: "PLHnDkwDE03A-nNeIocIWkFsNUaxvwXp9N",
+          description: "Geometry Fundamentals"
+        },
+        {
+          title: "GCSE Maths - Circle Theorems",
+          educator: "The GCSE Maths Tutor",
+          videoId: "RMJCOl6qtUA",
+          description: "Circle Theorems and Properties"
+        },
+        {
+          title: "GCSE Maths - Trigonometry (SOHCAHTOA)",
+          educator: "The GCSE Maths Tutor",
+          videoId: "AJCvuZH5rXA",
+          description: "Basic Trigonometry"
+        }
+      ]
+    },
+    {
+      unit: "Statistics and Probability",
+      videos: [
+        {
+          title: "GCSE Maths - Probability",
+          educator: "The GCSE Maths Tutor",
+          videoId: "GIzhiBOGxys",
+          description: "Basic Probability Concepts"
+        },
+        {
+          title: "GCSE Maths - Data and Statistics",
+          educator: "The GCSE Maths Tutor",
+          isPlaylist: true,
+          playlistId: "PLHnDkwDE03A9xeure4jcWdW0w5e-i8QES",
+          description: "Statistics and Data Analysis"
+        },
+        {
+          title: "GCSE Maths - Tree Diagrams (Probability)",
+          educator: "The GCSE Maths Tutor",
+          videoId: "h78FV6dRETI",
+          description: "Probability Tree Diagrams"
+        }
+      ]
+    },
+    {
+      unit: "Rates and Proportion",
+      videos: [
+        {
+          title: "GCSE Maths - Ratio and Proportion",
+          educator: "The GCSE Maths Tutor",
+          videoId: "ZJ9J0ObHs_0",
+          description: "Basic Ratio and Proportion"
+        },
+        {
+          title: "GCSE Maths - Percentage, Ratio and Proportion",
+          educator: "TLMaths",
+          isPlaylist: true,
+          playlistId: "PL7O6CcKg0HaE5N8ITJLRqC3z_U4adEebe",
+          description: "Percentages and Proportions"
+        },
+        {
+          title: "GCSE Maths - Ratio and Proportion (Higher)",
+          educator: "1st Class Maths",
+          isPlaylist: true,
+          playlistId: "PLqxP5EuGxPneT5DQ6aUHd8FD9kdXUeATN",
+          description: "Advanced Ratio and Proportion"
+        }
+      ]
+    },
+    {
       unit: "Number",
       videos: [
         {

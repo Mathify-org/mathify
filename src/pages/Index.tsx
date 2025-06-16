@@ -1,4 +1,3 @@
-
 import React from "react";
 import Hero from "@/components/Hero";
 import { Card, CardContent } from "@/components/ui/card";
@@ -205,7 +204,7 @@ const videoCurricula = [
     color: "from-red-300 via-pink-400 to-purple-500",
     iconBg: "bg-gradient-to-tr from-red-300 to-purple-400",
     path: "/video-hub/canadian",
-    logoUrl: "https://images.unsplash.com/photo-1551817958-d9d86fb29431?w=400&h=300&fit=crop"
+    logoUrl: "https://images.unsplash.com/photo-1473091534298-04dcbce3278c?w=400&h=300&fit=crop"
   },
   {
     id: "cbse",
@@ -213,7 +212,7 @@ const videoCurricula = [
     color: "from-blue-300 via-indigo-400 to-purple-500",
     iconBg: "bg-gradient-to-tr from-blue-300 to-purple-400",
     path: "/video-hub/cbse",
-    logoUrl: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=300&fit=crop"
+    logoUrl: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=300&fit=crop"
   },
   {
     id: "past-papers",
@@ -222,7 +221,7 @@ const videoCurricula = [
     iconBg: "bg-gradient-to-tr from-slate-300 to-gray-400",
     path: "#",
     comingSoon: true,
-    logoUrl: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=400&h=300&fit=crop"
+    logoUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop"
   }
 ];
 
@@ -419,12 +418,14 @@ const Index = () => {
                         alt={`${curric.label} logo`}
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                        <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-                          <circle cx="30" cy="30" r="28" stroke="#ffffff" strokeWidth="3" fill="rgba(255,255,255,0.9)" />
-                          <polygon points="26,20 44,30 26,40" fill="#f59e42" />
-                        </svg>
-                      </div>
+                      {!curric.comingSoon && (
+                        <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                          <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                            <circle cx="30" cy="30" r="28" stroke="#ffffff" strokeWidth="3" fill="rgba(255,255,255,0.9)" />
+                            <polygon points="26,20 44,30 26,40" fill="#f59e42" />
+                          </svg>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <p className="text-slate-700 text-sm md:text-base text-center mb-4">
