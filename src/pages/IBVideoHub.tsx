@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -116,6 +115,84 @@ const IBVideoHub = () => {
           educator: "ExamQA",
           videoId: "5bX5gi51vaA",
           description: "Transformations of Graphs"
+        }
+      ]
+    },
+    {
+      unit: "Geometry and Trigonometry",
+      videos: [
+        {
+          title: "IB Math SL Trigonometry",
+          educator: "Revision Village",
+          videoId: "dQtGwUTlV8E",
+          description: "Trigonometric Functions and Identities"
+        },
+        {
+          title: "Sine and Cosine Rules (IB Math)",
+          educator: "ExamQA",
+          videoId: "mTlHJXeFnWc",
+          description: "Sine and Cosine Rules Applications"
+        },
+        {
+          title: "Geometry for IB Math",
+          educator: "IB Math Teacher",
+          isPlaylist: true,
+          playlistId: "PLjQN6rjKE2cZ6Y4GjlZtP0cG5b7QI2wA6",
+          description: "Complete Geometry Topics"
+        }
+      ]
+    },
+    {
+      unit: "Statistics and Probability",
+      videos: [
+        {
+          title: "IB Math Statistics and Probability",
+          educator: "Khan Academy",
+          isPlaylist: true,
+          playlistId: "PL1328115D3D8A2566",
+          description: "Statistics and Probability Fundamentals"
+        },
+        {
+          title: "Normal Distribution (IB Math)",
+          educator: "ExamQA",
+          videoId: "rzFX5NWojp0",
+          description: "Normal Distribution and Applications"
+        },
+        {
+          title: "Binomial Distribution IB Math",
+          educator: "Math Studies Help",
+          videoId: "qIzC1-9PwQo",
+          description: "Binomial Distribution Theory and Practice"
+        }
+      ]
+    },
+    {
+      unit: "Calculus",
+      videos: [
+        {
+          title: "IB Math SL Calculus",
+          educator: "Revision Village",
+          isPlaylist: true,
+          playlistId: "PLvxOuBpazmsNIQKe_g4MbVaFLdN6TUESK",
+          description: "Complete Calculus for IB Math SL"
+        },
+        {
+          title: "Differentiation (IB Math AI SL)",
+          educator: "ExamQA",
+          videoId: "dP15zlyHdHk",
+          description: "Basic Differentiation Rules"
+        },
+        {
+          title: "Integration Basics IB Math",
+          educator: "Math Studies Master",
+          videoId: "H9eCT6f_Ftw",
+          description: "Introduction to Integration"
+        },
+        {
+          title: "Applications of Calculus IB Math",
+          educator: "IB Math Helper",
+          videoId: "yQhQQ6ccE5E",
+          description: "Real-world Calculus Applications"
         }
       ]
     }

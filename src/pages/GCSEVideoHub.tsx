@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -86,6 +85,87 @@ const GCSEVideoHub = () => {
           description: "Using a Calculator (Edexcel)"
         }
       ]
+    },
+    {
+      unit: "Algebra",
+      videos: [
+        {
+          title: "GCSE Algebra Basics",
+          educator: "MathsGenie",
+          videoId: "P8p6YhMDhMk",
+          description: "Introduction to Algebraic Expressions"
+        },
+        {
+          title: "Solving Linear Equations",
+          educator: "ExamQA",
+          videoId: "YmXGiQ9bQTs",
+          description: "Linear Equations and Solutions"
+        },
+        {
+          title: "Factorising Quadratics",
+          educator: "GCSE Maths Tutor",
+          videoId: "dn6T_aO0zdk",
+          description: "Quadratic Expressions and Factorisation"
+        },
+        {
+          title: "Simultaneous Equations",
+          educator: "Corbettmaths",
+          videoId: "AzYhLKe4bIw",
+          description: "Solving Simultaneous Linear Equations"
+        }
+      ]
+    },
+    {
+      unit: "Geometry and Measures",
+      videos: [
+        {
+          title: "Area and Perimeter",
+          educator: "MathsGenie",
+          videoId: "WLlHMf_5R4o",
+          description: "Basic Area and Perimeter Calculations"
+        },
+        {
+          title: "Angles in Parallel Lines",
+          educator: "ExamQA",
+          videoId: "rR8cP5HwMzU",
+          description: "Properties of Parallel Lines and Angles"
+        },
+        {
+          title: "Circle Theorems GCSE",
+          educator: "Corbettmaths",
+          videoId: "PxWd7sI5zF4",
+          description: "Essential Circle Theorems"
+        },
+        {
+          title: "Pythagoras Theorem",
+          educator: "GCSE Maths Tutor",
+          videoId: "YmCMJ3KybTo",
+          description: "Pythagoras Theorem Applications"
+        }
+      ]
+    },
+    {
+      unit: "Statistics",
+      videos: [
+        {
+          title: "Mean, Median and Mode",
+          educator: "ExamQA",
+          videoId: "k3aKKasOmIw",
+          description: "Measures of Central Tendency"
+        },
+        {
+          title: "Drawing Bar Charts and Pie Charts",
+          educator: "MathsGenie",
+          videoId: "mTp2AjMpNI4",
+          description: "Data Representation"
+        },
+        {
+          title: "Probability Basics GCSE",
+          educator: "Corbettmaths",
+          videoId: "xSqn-U-wNKI",
+          description: "Introduction to Probability"
+        }
+      ]
     }
   ];
 
@@ -112,6 +192,52 @@ const GCSEVideoHub = () => {
           isPlaylist: true,
           playlistId: "PLxp90x5c0ttaVi28JY2gI549l35mSh-Ja",
           description: "Full Course (OCR)"
+        }
+      ]
+    },
+    {
+      unit: "Advanced Algebra",
+      videos: [
+        {
+          title: "Quadratic Formula GCSE Higher",
+          educator: "ExamQA",
+          videoId: "VOvdq6_o9a8",
+          description: "Advanced Quadratic Equations"
+        },
+        {
+          title: "Algebraic Fractions",
+          educator: "MathsGenie",
+          videoId: "GNqP2pOLuTY",
+          description: "Simplifying Algebraic Fractions"
+        },
+        {
+          title: "Completing the Square",
+          educator: "GCSE Maths Tutor",
+          videoId: "wXOKkM_1z8c",
+          description: "Advanced Quadratic Techniques"
+        }
+      ]
+    },
+    {
+      unit: "Advanced Geometry",
+      videos: [
+        {
+          title: "Trigonometry GCSE Higher",
+          educator: "Corbettmaths",
+          videoId: "kpWLCaHhT8M",
+          description: "Advanced Trigonometry"
+        },
+        {
+          title: "Vectors GCSE",
+          educator: "ExamQA",
+          videoId: "HKwL8fWW5o4",
+          description: "Introduction to Vectors"
+        },
+        {
+          title: "Similar Triangles",
+          educator: "MathsGenie",
+          videoId: "YuOF1T6h6t4",
+          description: "Properties of Similar Shapes"
         }
       ]
     }

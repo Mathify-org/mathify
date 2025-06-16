@@ -77,7 +77,7 @@ const Footer = () => {
               <span className="font-bold text-xl md:text-2xl">Mathify</span>
             </div>
             <p className="text-slate-300 text-sm">
-              Helping individuals of all ages learn mathematics through interactive games.
+              Enabling mathematics education for individuals of all ages.
             </p>
           </div>
           

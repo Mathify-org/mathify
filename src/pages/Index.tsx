@@ -1,4 +1,3 @@
-
 import React from "react";
 import Hero from "@/components/Hero";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
+import { Heart, BookOpen, GamepadIcon, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -192,14 +191,14 @@ const videoCurricula = [
     label: "Australian Curriculum",
     color: "from-green-300 via-emerald-400 to-teal-500",
     iconBg: "bg-gradient-to-tr from-green-300 to-teal-400",
-    path: "/video-hub/australia"
+    path: "/video-hub/australian"
   },
   {
     id: "canada",
     label: "Canadian Curriculum",
     color: "from-red-300 via-pink-400 to-purple-500",
     iconBg: "bg-gradient-to-tr from-red-300 to-purple-400",
-    path: "/video-hub/canada"
+    path: "/video-hub/canadian"
   },
   {
     id: "cbse",
@@ -209,11 +208,12 @@ const videoCurricula = [
     path: "/video-hub/cbse"
   },
   {
-    id: "intl",
-    label: "Popular Global Exam Boards",
-    color: "from-amber-400 via-yellow-500 to-orange-500",
-    iconBg: "bg-gradient-to-tr from-yellow-300 to-orange-400",
-    path: "/video-hub/international"
+    id: "past-papers",
+    label: "Past Exam Papers",
+    color: "from-slate-300 via-gray-400 to-slate-500",
+    iconBg: "bg-gradient-to-tr from-slate-300 to-gray-400",
+    path: "#",
+    comingSoon: true
   }
 ];
 
@@ -295,49 +295,73 @@ const Index = () => {
     <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Hero />
       
-      
+      {/* New Mathify Description Section */}
       <section className="container mx-auto px-4 py-10 md:py-16">
-        <div className="text-center mb-8 md:mb-12">
-          <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">Features That Make Learning Fun</h2>
-          <p className="text-slate-600 max-w-2xl mx-auto text-sm md:text-xl px-2">
-            Discover why Mathify is the perfect platform for learners of all ages to improve their math skills.
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-          <div className="bg-gradient-to-br from-purple-100 to-indigo-100 p-5 md:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
-            <div className="w-14 h-14 md:w-20 md:h-20 bg-gradient-to-r from-purple-600 to-indigo-500 rounded-2xl flex items-center justify-center mb-3 md:mb-6 text-white font-bold text-xl md:text-3xl shadow-md">
-              1
-            </div>
-            <h3 className="text-lg md:text-2xl font-bold mb-2 md:mb-3">Adaptive Learning</h3>
-            <p className="text-slate-700 text-sm md:text-lg">
-              Games adjust to your skill level, making learning both challenging and enjoyable.
-            </p>
+        <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-3xl shadow-2xl">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-8 left-8 w-16 h-16 border-4 border-white rounded-full animate-pulse"></div>
+            <div className="absolute top-16 right-12 w-8 h-8 bg-white rounded-full animate-bounce"></div>
+            <div className="absolute bottom-12 left-16 w-12 h-12 border-4 border-white transform rotate-45 animate-spin"></div>
+            <div className="absolute bottom-8 right-8 w-10 h-10 bg-white transform rotate-12 animate-pulse"></div>
+            <div className="absolute top-1/2 left-1/3 w-6 h-6 bg-white rounded-full animate-ping"></div>
+            <div className="absolute top-1/3 right-1/4 w-14 h-14 border-4 border-white rounded transform rotate-45 animate-bounce"></div>
           </div>
           
-          <div className="bg-gradient-to-br from-pink-100 to-rose-100 p-5 md:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
-            <div className="w-14 h-14 md:w-20 md:h-20 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl flex items-center justify-center mb-3 md:mb-6 text-white font-bold text-xl md:text-3xl shadow-md">
-              2
+          <div className="relative z-10 p-8 md:p-16 text-center text-white">
+            <h2 className="text-3xl md:text-5xl font-extrabold mb-6 leading-tight">
+              Your Complete Mathematics Education Platform
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mt-12">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                  <BookOpen className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Curated Resources</h3>
+                <p className="text-white/90 text-sm">
+                  Hand-picked educational content from top educators across the web
+                </p>
+              </div>
+              
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-blue-500 rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                  <Zap className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Practice & Revision</h3>
+                <p className="text-white/90 text-sm">
+                  Comprehensive tools for secondary mathematics practice and exam preparation
+                </p>
+              </div>
+              
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-pink-400 to-purple-500 rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                  <GamepadIcon className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Learning Games</h3>
+                <p className="text-white/90 text-sm">
+                  Interactive games that make primary mathematics fun and engaging
+                </p>
+              </div>
+              
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                  <Heart className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Completely Free</h3>
+                <p className="text-white/90 text-sm">
+                  Access all features and content without any cost or subscription
+                </p>
+              </div>
             </div>
-            <h3 className="text-lg md:text-2xl font-bold mb-2 md:mb-3">Progress Tracking</h3>
-            <p className="text-slate-700 text-sm md:text-lg">
-              Monitor improvement over time with detailed statistics and achievement badges.
-            </p>
-          </div>
-          
-          <div className="bg-gradient-to-br from-amber-100 to-orange-100 p-5 md:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
-            <div className="w-14 h-14 md:w-20 md:h-20 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center mb-3 md:mb-6 text-white font-bold text-xl md:text-3xl shadow-md">
-              3
+            
+            <div className="mt-12">
+              <div className="w-32 h-1 bg-gradient-to-r from-white/50 to-purple-200/50 mx-auto rounded-full"></div>
             </div>
-            <h3 className="text-lg md:text-2xl font-bold mb-2 md:mb-3">Reward System</h3>
-            <p className="text-slate-700 text-sm md:text-lg">
-              Earn points, unlock new levels, and compete with friends to stay motivated.
-            </p>
           </div>
         </div>
       </section>
 
-      
+      {/* Video Hub Section */}
       <section
         id="video-hub"
         className="py-12 md:py-20 bg-gradient-to-b from-yellow-50 via-amber-50 to-orange-100"
@@ -345,7 +369,7 @@ const Index = () => {
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="text-center mb-8 md:mb-12 animate-fade-in">
             <h2 className="font-extrabold text-3xl md:text-5xl mb-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-amber-500 to-yellow-400 drop-shadow-lg">
-              Curated Videos and Resources from the Internet for Secondary and High School Mathematics
+              Secondary and High School Mathematics
             </h2>
             <p className="text-yellow-900 text-lg md:text-2xl mx-auto max-w-2xl mb-4 font-medium">
               A hand-selected set of outstanding, comprehensive, and in-depth math videos—
@@ -390,15 +414,24 @@ const Index = () => {
                     </div>
                   </div>
                   <p className="text-slate-700 text-sm md:text-base text-center mb-4">
-                    Comprehensive collections of high-quality videos by leading educators. Embedded videos tailored for every major math exam and topic.
+                    {curric.comingSoon 
+                      ? "Comprehensive collection of past examination papers from major exam boards worldwide. Access previous years' questions for effective revision."
+                      : "Comprehensive collections of high-quality videos by leading educators. Embedded videos tailored for every major math exam and topic."
+                    }
                   </p>
-                  <Link
-                    to={curric.path}
-                    className={`mt-auto w-full text-lg py-2 font-bold rounded-xl bg-gradient-to-r ${curric.color} text-white shadow 
-                      transition-all hover:scale-105 hover:shadow-lg text-center block`}
-                  >
-                    Explore Videos
-                  </Link>
+                  {curric.comingSoon ? (
+                    <div className="mt-auto w-full text-lg py-2 font-bold rounded-xl bg-gradient-to-r from-slate-400 to-gray-500 text-white shadow text-center">
+                      Coming Soon
+                    </div>
+                  ) : (
+                    <Link
+                      to={curric.path}
+                      className={`mt-auto w-full text-lg py-2 font-bold rounded-xl bg-gradient-to-r ${curric.color} text-white shadow 
+                        transition-all hover:scale-105 hover:shadow-lg text-center block`}
+                    >
+                      Explore Videos
+                    </Link>
+                  )}
                 </div>
                 <div className="absolute right-5 top-5">
                   <svg width="38" height="38" fill="none">
@@ -413,7 +446,7 @@ const Index = () => {
         </div>
       </section>
 
-      
+      {/* Games Section */}
       <section id="general-skills" className="py-10 md:py-16 bg-gradient-to-b from-purple-50 to-pink-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 md:mb-16">
