@@ -1,3 +1,4 @@
+
 import React from "react";
 import Hero from "@/components/Hero";
 import { Card, CardContent } from "@/components/ui/card";
@@ -163,49 +164,56 @@ const videoCurricula = [
     label: "A-Levels (All Boards)",
     color: "from-yellow-400 via-amber-400 to-orange-400",
     iconBg: "bg-gradient-to-tr from-yellow-300 via-yellow-400 to-amber-400",
-    path: "/video-hub/alevels"
+    path: "/video-hub/alevels",
+    logoUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop"
   },
   {
     id: "ib",
     label: "IB Mathematics",
     color: "from-pink-300 via-pink-400 to-amber-400",
     iconBg: "bg-gradient-to-tr from-pink-300 to-amber-400",
-    path: "/video-hub/ib"
+    path: "/video-hub/ib",
+    logoUrl: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&h=300&fit=crop"
   },
   {
     id: "gcse",
     label: "GCSEs (All Boards)",
     color: "from-yellow-200 via-yellow-400 to-yellow-700",
     iconBg: "bg-gradient-to-tr from-yellow-200 to-yellow-500",
-    path: "/video-hub/gcse"
+    path: "/video-hub/gcse",
+    logoUrl: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=300&fit=crop"
   },
   {
     id: "us",
     label: "US High School Math",
     color: "from-orange-200 via-orange-400 to-pink-500",
     iconBg: "bg-gradient-to-tr from-orange-200 to-pink-400",
-    path: "/video-hub/us"
+    path: "/video-hub/us",
+    logoUrl: "https://images.unsplash.com/photo-1569098644584-210bcd375b59?w=400&h=300&fit=crop"
   },
   {
     id: "australian",
     label: "Australian Curriculum",
     color: "from-green-300 via-emerald-400 to-teal-500",
     iconBg: "bg-gradient-to-tr from-green-300 to-teal-400",
-    path: "/video-hub/australian"
+    path: "/video-hub/australian",
+    logoUrl: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=300&fit=crop"
   },
   {
     id: "canadian",
     label: "Canadian Curriculum",
     color: "from-red-300 via-pink-400 to-purple-500",
     iconBg: "bg-gradient-to-tr from-red-300 to-purple-400",
-    path: "/video-hub/canadian"
+    path: "/video-hub/canadian",
+    logoUrl: "https://images.unsplash.com/photo-1551817958-d9d86fb29431?w=400&h=300&fit=crop"
   },
   {
     id: "cbse",
     label: "CBSE (India)",
     color: "from-blue-300 via-indigo-400 to-purple-500",
     iconBg: "bg-gradient-to-tr from-blue-300 to-purple-400",
-    path: "/video-hub/cbse"
+    path: "/video-hub/cbse",
+    logoUrl: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=300&fit=crop"
   },
   {
     id: "past-papers",
@@ -213,7 +221,8 @@ const videoCurricula = [
     color: "from-slate-300 via-gray-400 to-slate-500",
     iconBg: "bg-gradient-to-tr from-slate-300 to-gray-400",
     path: "#",
-    comingSoon: true
+    comingSoon: true,
+    logoUrl: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=400&h=300&fit=crop"
   }
 ];
 
@@ -404,13 +413,18 @@ const Index = () => {
                   </h3>
                   <div className="w-16 h-1 bg-gradient-to-r from-amber-300 to-yellow-400 mx-auto rounded-full mb-3"></div>
                   <div className="flex-1 flex items-center justify-center mb-4">
-                    <div className="rounded-2xl overflow-hidden shadow-inner w-full h-44 bg-gradient-to-tr from-yellow-100 to-amber-100 flex items-center justify-center">
-                      <span className="text-5xl md:text-6xl text-yellow-400 opacity-50">
+                    <div className="rounded-2xl overflow-hidden shadow-inner w-full h-44 relative">
+                      <img 
+                        src={curric.logoUrl} 
+                        alt={`${curric.label} logo`}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
                         <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-                          <circle cx="30" cy="30" r="28" stroke="#f59e42" strokeWidth="4" fill="#fff9db" />
+                          <circle cx="30" cy="30" r="28" stroke="#ffffff" strokeWidth="3" fill="rgba(255,255,255,0.9)" />
                           <polygon points="26,20 44,30 26,40" fill="#f59e42" />
                         </svg>
-                      </span>
+                      </div>
                     </div>
                   </div>
                   <p className="text-slate-700 text-sm md:text-base text-center mb-4">
