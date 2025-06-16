@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -47,7 +46,7 @@ const TargetTakedown = () => {
                 <ArrowLeft />
               </Button>
             </Link>
-            <h1 className="text-4xl md:text-6xl font-bold text-white animate-bounce">
+            <h1 className="text-4xl md:text-6xl font-bold text-white">
               🎯 Target Takedown
             </h1>
           </div>

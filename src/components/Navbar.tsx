@@ -117,8 +117,8 @@ const Navbar = () => {
                   className="flex items-center gap-4 text-white hover:bg-white/20 px-4 py-3 rounded-xl transition-all duration-300"
                   onClick={closeMenu}
                 >
-                  <div className="p-2 bg-white/20 rounded-lg">
-                    <Home className="h-5 w-5" />
+                  <div className="p-2 bg-blue-500/30 rounded-lg">
+                    <Home className="h-5 w-5 text-blue-300" />
                   </div>
                   <span className="font-medium">Home</span>
                 </Link>
@@ -128,8 +128,8 @@ const Navbar = () => {
                   onClick={openGamePopup}
                   className="w-full flex items-center gap-4 text-white hover:bg-white/20 px-4 py-3 rounded-xl transition-all duration-300"
                 >
-                  <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg">
-                    <Gamepad2 className="h-5 w-5" />
+                  <div className="p-2 bg-green-500/30 rounded-lg">
+                    <Gamepad2 className="h-5 w-5 text-green-300" />
                   </div>
                   <span className="font-medium">Games</span>
                 </button>
@@ -139,8 +139,8 @@ const Navbar = () => {
                   onClick={openSecondaryPopup}
                   className="w-full flex items-center gap-4 text-white hover:bg-white/20 px-4 py-3 rounded-xl transition-all duration-300"
                 >
-                  <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg">
-                    <GraduationCap className="h-5 w-5" />
+                  <div className="p-2 bg-purple-500/30 rounded-lg">
+                    <GraduationCap className="h-5 w-5 text-purple-300" />
                   </div>
                   <span className="font-medium">Secondary Maths</span>
                 </button>
@@ -151,8 +151,8 @@ const Navbar = () => {
                   className="flex items-center gap-4 text-white hover:bg-white/20 px-4 py-3 rounded-xl transition-all duration-300"
                   onClick={closeMenu}
                 >
-                  <div className="p-2 bg-white/20 rounded-lg">
-                    <Phone className="h-5 w-5" />
+                  <div className="p-2 bg-orange-500/30 rounded-lg">
+                    <Phone className="h-5 w-5 text-orange-300" />
                   </div>
                   <span className="font-medium">Contact</span>
                 </Link>
@@ -163,8 +163,8 @@ const Navbar = () => {
                   className="flex items-center gap-4 text-white hover:bg-white/20 px-4 py-3 rounded-xl transition-all duration-300"
                   onClick={closeMenu}
                 >
-                  <div className="p-2 bg-white/20 rounded-lg">
-                    <HelpCircle className="h-5 w-5" />
+                  <div className="p-2 bg-pink-500/30 rounded-lg">
+                    <HelpCircle className="h-5 w-5 text-pink-300" />
                   </div>
                   <span className="font-medium">FAQ</span>
                 </Link>

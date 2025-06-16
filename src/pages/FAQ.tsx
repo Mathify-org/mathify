@@ -66,10 +66,10 @@ const FAQ = () => {
             <span className="text-sm font-medium text-purple-800">Support Center</span>
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 mb-6 leading-tight">
+          <h1 className="text-3xl md:text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 mb-6 leading-tight">
             Frequently Asked
             <br />
-            <span className="text-4xl md:text-6xl">Questions</span>
+            <span className="text-3xl md:text-4xl">Questions</span>
           </h1>
           
           <p className="text-xl text-slate-700 max-w-3xl mx-auto leading-relaxed">
