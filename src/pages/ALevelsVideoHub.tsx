@@ -7,16 +7,17 @@ import { ExternalLink, PlayCircle, List } from "lucide-react";
 
 const ALevelsVideoHub = () => {
   const [activeUnit, setActiveUnit] = useState("pure");
+  const [playingVideo, setPlayingVideo] = useState<string | null>(null);
 
   const pureTopics = [
     {
       unit: "Proof",
       videos: [
         {
-          title: "A-Level Maths: A1-01 [Introduction to Proof]",
-          educator: "TLMaths",
-          videoId: "R9Y095oT60E",
-          description: "Introduction to Proof"
+          title: "HARDEST EVER Proof By Contradiction Question",
+          educator: "Neil Does Maths",
+          videoId: "Rc4xVMS6UNY",
+          description: "Proof by Contradiction"
         },
         {
           title: "Proof by Contradiction Chapter 1 section 1 Edexcel Pure A Level",
@@ -205,74 +206,86 @@ const ALevelsVideoHub = () => {
     }
   ];
 
-  const VideoCard = ({ video }: { video: any }) => (
-    <Card className="mb-6 hover:shadow-lg transition-all duration-300 border-2 border-amber-100">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg font-bold text-amber-800 mb-2 line-clamp-2">
-              {video.title}
-            </CardTitle>
-            <div className="flex items-center gap-2 mb-2">
-              <Badge variant="secondary" className="bg-amber-100 text-amber-800">
-                {video.educator}
-              </Badge>
-              <Badge variant="outline" className="border-amber-300">
-                {video.isPlaylist ? "Playlist" : "Video"}
-              </Badge>
+  const VideoCard = ({ video }: { video: any }) => {
+    const videoKey = video.videoId || video.playlistId;
+    const isPlaying = playingVideo === videoKey;
+
+    return (
+      <Card className="mb-4 hover:shadow-lg transition-all duration-300 border-2 border-amber-100">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <CardTitle className="text-base font-bold text-amber-800 mb-2 line-clamp-2">
+                {video.title}
+              </CardTitle>
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="secondary" className="bg-amber-100 text-amber-800 text-xs">
+                  {video.educator}
+                </Badge>
+                <Badge variant="outline" className="border-amber-300 text-xs">
+                  {video.isPlaylist ? "Playlist" : "Video"}
+                </Badge>
+              </div>
+              <p className="text-xs text-gray-600">{video.description}</p>
             </div>
-            <p className="text-sm text-gray-600">{video.description}</p>
           </div>
-          <div className="ml-4">
-            {video.isPlaylist ? (
-              <List className="h-8 w-8 text-amber-600" />
-            ) : (
-              <PlayCircle className="h-8 w-8 text-amber-600" />
-            )}
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        {video.videoId && (
-          <div className="aspect-video rounded-lg overflow-hidden shadow-md">
-            <iframe
-              width="100%"
-              height="100%"
-              src={`https://www.youtube.com/embed/${video.videoId}`}
-              title={video.title}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="w-full h-full"
-            />
-          </div>
-        )}
-        {video.isPlaylist && video.playlistId && (
-          <div className="aspect-video rounded-lg overflow-hidden shadow-md">
-            <iframe
-              width="100%"
-              height="100%"
-              src={`https://www.youtube.com/embed/videoseries?list=${video.playlistId}`}
-              title={video.title}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="w-full h-full"
-            />
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
+        </CardHeader>
+        <CardContent className="pt-0">
+          {!isPlaying ? (
+            <div 
+              className="relative aspect-video rounded-lg overflow-hidden shadow-md cursor-pointer bg-gray-100 flex items-center justify-center"
+              onClick={() => setPlayingVideo(videoKey)}
+            >
+              <img
+                src={`https://img.youtube.com/vi/${video.videoId || 'default'}/hqdefault.jpg`}
+                alt={video.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                <PlayCircle className="h-12 w-12 text-white" />
+              </div>
+            </div>
+          ) : (
+            <div className="aspect-video rounded-lg overflow-hidden shadow-md">
+              {video.videoId && (
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={`https://www.youtube.com/embed/${video.videoId}?autoplay=1`}
+                  title={video.title}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              )}
+              {video.isPlaylist && video.playlistId && (
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={`https://www.youtube.com/embed/videoseries?list=${video.playlistId}&autoplay=1`}
+                  title={video.title}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
 
   const TopicSection = ({ topics }: { topics: any[] }) => (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {topics.map((topic, index) => (
         <div key={index}>
-          <h3 className="text-2xl font-bold text-amber-800 mb-4 border-b-2 border-amber-200 pb-2">
+          <h3 className="text-xl font-bold text-amber-800 mb-3 border-b-2 border-amber-200 pb-2">
             {topic.unit}
           </h3>
-          <div className="grid gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {topic.videos.map((video: any, videoIndex: number) => (
               <VideoCard key={videoIndex} video={video} />
             ))}

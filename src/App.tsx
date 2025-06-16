@@ -15,6 +15,12 @@ import FractionBasics from "./pages/FractionBasics";
 import ArithmeticHero from "./pages/ArithmeticHero";
 import TargetTakedown from "./pages/TargetTakedown";
 import ALevelsVideoHub from "./pages/ALevelsVideoHub";
+import IBVideoHub from "./pages/IBVideoHub";
+import GCSEVideoHub from "./pages/GCSEVideoHub";
+import USVideoHub from "./pages/USVideoHub";
+import AustralianVideoHub from "./pages/AustralianVideoHub";
+import CanadianVideoHub from "./pages/CanadianVideoHub";
+import CBSEVideoHub from "./pages/CBSEVideoHub";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -61,6 +67,12 @@ const App = () => (
                 <Route path="/target-takedown" element={<TargetTakedown />} />
                 <Route path="/math-warp" element={<MathWarp />} />
                 <Route path="/video-hub/alevels" element={<ALevelsVideoHub />} />
+                <Route path="/video-hub/ib" element={<IBVideoHub />} />
+                <Route path="/video-hub/gcse" element={<GCSEVideoHub />} />
+                <Route path="/video-hub/us" element={<USVideoHub />} />
+                <Route path="/video-hub/australian" element={<AustralianVideoHub />} />
+                <Route path="/video-hub/canadian" element={<CanadianVideoHub />} />
+                <Route path="/video-hub/cbse" element={<CBSEVideoHub />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
