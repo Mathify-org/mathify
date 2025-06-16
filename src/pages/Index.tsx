@@ -187,14 +187,14 @@ const videoCurricula = [
     path: "/video-hub/us"
   },
   {
-    id: "australia",
+    id: "australian",
     label: "Australian Curriculum",
     color: "from-green-300 via-emerald-400 to-teal-500",
     iconBg: "bg-gradient-to-tr from-green-300 to-teal-400",
     path: "/video-hub/australian"
   },
   {
-    id: "canada",
+    id: "canadian",
     label: "Canadian Curriculum",
     color: "from-red-300 via-pink-400 to-purple-500",
     iconBg: "bg-gradient-to-tr from-red-300 to-purple-400",
@@ -295,67 +295,67 @@ const Index = () => {
     <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Hero />
       
-      {/* New Mathify Description Section */}
-      <section className="container mx-auto px-4 py-10 md:py-16">
-        <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-3xl shadow-2xl">
+      {/* Updated Mathify Description Section */}
+      <section className="container mx-auto px-4 py-8 md:py-12">
+        <div className="relative overflow-hidden bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl shadow-xl">
           <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-8 left-8 w-16 h-16 border-4 border-white rounded-full animate-pulse"></div>
-            <div className="absolute top-16 right-12 w-8 h-8 bg-white rounded-full animate-bounce"></div>
-            <div className="absolute bottom-12 left-16 w-12 h-12 border-4 border-white transform rotate-45 animate-spin"></div>
-            <div className="absolute bottom-8 right-8 w-10 h-10 bg-white transform rotate-12 animate-pulse"></div>
-            <div className="absolute top-1/2 left-1/3 w-6 h-6 bg-white rounded-full animate-ping"></div>
-            <div className="absolute top-1/3 right-1/4 w-14 h-14 border-4 border-white rounded transform rotate-45 animate-bounce"></div>
+            <div className="absolute top-6 left-6 w-12 h-12 border-3 border-white rounded-full animate-pulse"></div>
+            <div className="absolute top-12 right-8 w-6 h-6 bg-white rounded-full animate-bounce"></div>
+            <div className="absolute bottom-8 left-12 w-8 h-8 border-3 border-white transform rotate-45 animate-spin"></div>
+            <div className="absolute bottom-6 right-6 w-7 h-7 bg-white transform rotate-12 animate-pulse"></div>
+            <div className="absolute top-1/2 left-1/3 w-4 h-4 bg-white rounded-full animate-ping"></div>
+            <div className="absolute top-1/3 right-1/4 w-10 h-10 border-3 border-white rounded transform rotate-45 animate-bounce"></div>
           </div>
           
-          <div className="relative z-10 p-8 md:p-16 text-center text-white">
-            <h2 className="text-3xl md:text-5xl font-extrabold mb-6 leading-tight">
-              Your Complete Mathematics Education Platform
+          <div className="relative z-10 p-6 md:p-10 text-center text-white">
+            <h2 className="text-2xl md:text-4xl font-extrabold mb-4 leading-tight">
+              Resources and Learning
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mt-12">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                  <BookOpen className="h-8 w-8 text-white" />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mt-8">
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 md:p-5 border border-white/20 hover:bg-white/25 transition-all duration-300">
+                <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center mb-3 mx-auto">
+                  <BookOpen className="h-6 w-6 md:h-7 md:w-7 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Curated Resources</h3>
-                <p className="text-white/90 text-sm">
+                <h3 className="text-base md:text-lg font-bold mb-2">Curated Resources</h3>
+                <p className="text-white/90 text-xs md:text-sm">
                   Hand-picked educational content from top educators across the web
                 </p>
               </div>
               
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-blue-500 rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                  <Zap className="h-8 w-8 text-white" />
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 md:p-5 border border-white/20 hover:bg-white/25 transition-all duration-300">
+                <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-green-400 to-blue-500 rounded-xl flex items-center justify-center mb-3 mx-auto">
+                  <Zap className="h-6 w-6 md:h-7 md:w-7 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Practice & Revision</h3>
-                <p className="text-white/90 text-sm">
+                <h3 className="text-base md:text-lg font-bold mb-2">Practice & Revision</h3>
+                <p className="text-white/90 text-xs md:text-sm">
                   Comprehensive tools for secondary mathematics practice and exam preparation
                 </p>
               </div>
               
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-pink-400 to-purple-500 rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                  <GamepadIcon className="h-8 w-8 text-white" />
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 md:p-5 border border-white/20 hover:bg-white/25 transition-all duration-300">
+                <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-pink-400 to-purple-500 rounded-xl flex items-center justify-center mb-3 mx-auto">
+                  <GamepadIcon className="h-6 w-6 md:h-7 md:w-7 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Learning Games</h3>
-                <p className="text-white/90 text-sm">
+                <h3 className="text-base md:text-lg font-bold mb-2">Learning Games</h3>
+                <p className="text-white/90 text-xs md:text-sm">
                   Interactive games that make primary mathematics fun and engaging
                 </p>
               </div>
               
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                  <Heart className="h-8 w-8 text-white" />
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 md:p-5 border border-white/20 hover:bg-white/25 transition-all duration-300">
+                <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-xl flex items-center justify-center mb-3 mx-auto">
+                  <Heart className="h-6 w-6 md:h-7 md:w-7 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Completely Free</h3>
-                <p className="text-white/90 text-sm">
+                <h3 className="text-base md:text-lg font-bold mb-2">Completely Free</h3>
+                <p className="text-white/90 text-xs md:text-sm">
                   Access all features and content without any cost or subscription
                 </p>
               </div>
             </div>
             
-            <div className="mt-12">
-              <div className="w-32 h-1 bg-gradient-to-r from-white/50 to-purple-200/50 mx-auto rounded-full"></div>
+            <div className="mt-8">
+              <div className="w-24 h-1 bg-gradient-to-r from-white/50 to-purple-200/50 mx-auto rounded-full"></div>
             </div>
           </div>
         </div>
@@ -368,7 +368,7 @@ const Index = () => {
       >
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="text-center mb-8 md:mb-12 animate-fade-in">
-            <h2 className="font-extrabold text-3xl md:text-5xl mb-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-amber-500 to-yellow-400 drop-shadow-lg">
+            <h2 className="font-extrabold text-3xl md:text-5xl mb-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-amber-500 to-yellow-400 drop-shadow-lg pb-2 leading-tight">
               Secondary and High School Mathematics
             </h2>
             <p className="text-yellow-900 text-lg md:text-2xl mx-auto max-w-2xl mb-4 font-medium">
