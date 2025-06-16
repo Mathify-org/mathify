@@ -20,12 +20,34 @@ const Hero = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col md:flex-row items-center justify-center">
           <div className={`md:w-1/2 text-center ${isMobile ? "mb-6" : ""}`}>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2 md:mb-4 leading-tight mt-2 md:mt-0">
-              Fun and interactive ways to<br className="hidden sm:block" /> learn Mathematics.
-              <span className="block mt-3 whitespace-normal">Free and Open-Source.</span>
-            </h1>
+            <div className="relative mb-4 md:mb-6">
+              {/* Stunning main title with enhanced styling */}
+              <div className="relative">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mt-2 md:mt-0 relative z-10">
+                  <span className="inline-block bg-gradient-to-r from-white via-yellow-100 to-white bg-clip-text text-transparent drop-shadow-2xl font-extrabold tracking-tight">
+                    Fun and interactive ways to<br className="hidden sm:block" /> learn Mathematics.
+                  </span>
+                </h1>
+                {/* Subtle glow effect behind text */}
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-yellow-200/20 to-white/20 blur-xl -z-10 transform scale-110"></div>
+              </div>
+              
+              {/* Enhanced "Free and Open-Source" badge */}
+              <div className="inline-block mt-4 md:mt-6 relative">
+                <div className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 p-0.5 rounded-2xl shadow-2xl">
+                  <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 px-6 py-3 rounded-2xl backdrop-blur-sm">
+                    <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent tracking-wide">
+                      Free and Open-Source
+                    </span>
+                  </div>
+                </div>
+                {/* Subtle pulse glow */}
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-300/30 via-teal-300/30 to-cyan-300/30 rounded-2xl blur-lg animate-pulse -z-10"></div>
+              </div>
+            </div>
+            
             <p className="text-white/90 text-base md:text-xl mb-6 md:mb-8 max-w-xl mx-auto px-3 md:px-0">
-              Mathify makes learning math fun and engaging with games designed for all ages and skill levels.
+              Mathify is your destination for mastering primary, secondary, higher and advanced mathematics. Made for all ages and skill levels.
             </p>
           </div>
           

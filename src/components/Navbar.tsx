@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, User, Home, Phone, HelpCircle, Gamepad2, GraduationCap } from "lucide-react";
@@ -123,7 +122,7 @@ const Navbar = () => {
                   <span className="font-medium">Home</span>
                 </Link>
 
-                {/* Games */}
+                {/* Primary Games */}
                 <button 
                   onClick={openGamePopup}
                   className="w-full flex items-center gap-4 text-white hover:bg-white/20 px-4 py-3 rounded-xl transition-all duration-300"
@@ -131,7 +130,7 @@ const Navbar = () => {
                   <div className="p-2 bg-green-500/30 rounded-lg">
                     <Gamepad2 className="h-5 w-5 text-green-300" />
                   </div>
-                  <span className="font-medium">Games</span>
+                  <span className="font-medium">Primary Games</span>
                 </button>
 
                 {/* Secondary Maths */}
