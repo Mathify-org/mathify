@@ -69,7 +69,7 @@ const FAQ = () => {
           <h1 className="text-5xl md:text-7xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 mb-6 leading-tight">
             Frequently Asked
             <br />
-            <span className="text-4xl md:text-6xl">Questions</span>
+            <span className="text-5xl md:text-7xl">Questions</span>
           </h1>
           
           <p className="text-xl text-slate-700 max-w-3xl mx-auto leading-relaxed">
