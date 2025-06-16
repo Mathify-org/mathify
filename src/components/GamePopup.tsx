@@ -1,6 +1,5 @@
-
 import React from "react";
-import { X, Gamepad2, Calculator, Target, Zap, Shapes, Fraction } from "lucide-react";
+import { X, Gamepad2, Calculator, Target, Zap, Shapes, Divide } from "lucide-react";
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -43,7 +42,7 @@ const GamePopup: React.FC<GamePopupProps> = ({ isOpen, onClose }) => {
     {
       title: "Fraction Basics",
       description: "Learn fractions",
-      icon: <Fraction className="h-8 w-8" />,
+      icon: <Divide className="h-8 w-8" />,
       path: "/fraction-basics",
       gradient: "from-indigo-500 to-purple-600"
     },
