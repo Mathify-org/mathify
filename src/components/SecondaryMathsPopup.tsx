@@ -1,7 +1,7 @@
 
 import React from "react";
 import { X, GraduationCap, BookOpen, School, Globe } from "lucide-react";
-import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 
@@ -77,9 +77,12 @@ const SecondaryMathsPopup: React.FC<SecondaryMathsPopupProps> = ({ isOpen, onClo
           {/* Header */}
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_50%)]"></div>
-            <DialogClose className="absolute top-4 right-4 p-2 bg-white/20 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors">
+            <button 
+              onClick={onClose}
+              className="absolute top-4 right-4 p-2 bg-white/20 rounded-full backdrop-blur-sm hover:bg-white/30 transition-colors"
+            >
               <X className="h-5 w-5 text-white" />
-            </DialogClose>
+            </button>
             <div className="flex items-center justify-center gap-3 mb-2">
               <GraduationCap className="h-8 w-8 text-white" />
               <h2 className="text-2xl font-bold text-white">Secondary Maths</h2>

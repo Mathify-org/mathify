@@ -248,8 +248,8 @@ const MathFactsRace = () => {
             <h1 className="text-4xl md:text-6xl font-bold text-white">🏎️ Math Facts Race</h1>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card>
+          <div className="grid md:grid-cols-2 gap-8 justify-items-center md:justify-items-stretch">
+            <Card className="w-full max-w-md md:max-w-none">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Target className="text-blue-500" />
@@ -282,7 +282,7 @@ const MathFactsRace = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="w-full max-w-md md:max-w-none">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Zap className="text-purple-500" />
