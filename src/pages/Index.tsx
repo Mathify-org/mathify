@@ -142,11 +142,11 @@ const generalSkills = [
     color: "bg-gradient-to-r from-emerald-500 to-cyan-600"
   },
   {
-    id: "fraction-basics",
-    title: "Fraction Basics",
-    description: "Master fraction fundamentals with simple exercises",
-    path: "/fraction-basics",
-    color: "bg-gradient-to-r from-pink-500 to-orange-400"
+    id: "algebra-adventure",
+    title: "Algebra Adventure",
+    description: "Master basic algebra with fun, colorful challenges",
+    path: "/algebra-adventure",
+    color: "bg-gradient-to-r from-indigo-500 to-purple-600"
   },
   {
     id: "target-takedown",

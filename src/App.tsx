@@ -14,6 +14,7 @@ import ShapeMatch from "./pages/ShapeMatch";
 import FractionBasics from "./pages/FractionBasics";
 import ArithmeticHero from "./pages/ArithmeticHero";
 import TargetTakedown from "./pages/TargetTakedown";
+import AlgebraAdventure from "./pages/AlgebraAdventure";
 import ALevelsVideoHub from "./pages/ALevelsVideoHub";
 import IBVideoHub from "./pages/IBVideoHub";
 import GCSEVideoHub from "./pages/GCSEVideoHub";
@@ -65,6 +66,7 @@ const App = () => (
                 <Route path="/fraction-basics" element={<FractionBasics />} />
                 <Route path="/arithmetic-hero" element={<ArithmeticHero />} />
                 <Route path="/target-takedown" element={<TargetTakedown />} />
+                <Route path="/algebra-adventure" element={<AlgebraAdventure />} />
                 <Route path="/math-warp" element={<MathWarp />} />
                 <Route path="/video-hub/alevels" element={<ALevelsVideoHub />} />
                 <Route path="/video-hub/ib" element={<IBVideoHub />} />
