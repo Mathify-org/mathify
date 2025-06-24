@@ -246,34 +246,43 @@ const AlgebraAdventure = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button
-                  onClick={() => setGameMode('findX')}
-                  variant={gameMode === 'findX' ? 'default' : 'outline'}
-                  className={`w-full transition-all duration-200 ${
+                  onClick={() => {
+                    console.log('Setting game mode to findX');
+                    setGameMode('findX');
+                  }}
+                  variant="outline"
+                  className={`w-full transition-all duration-200 cursor-pointer ${
                     gameMode === 'findX' 
-                      ? 'bg-white text-black hover:bg-gray-200' 
-                      : 'border-white/30 text-black bg-white hover:bg-gray-100'
+                      ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600' 
+                      : 'bg-white/90 text-black border-gray-300 hover:bg-white hover:border-gray-400'
                   }`}
                 >
                   🔍 Find X
                 </Button>
                 <Button
-                  onClick={() => setGameMode('balance')}
-                  variant={gameMode === 'balance' ? 'default' : 'outline'}
-                  className={`w-full transition-all duration-200 ${
+                  onClick={() => {
+                    console.log('Setting game mode to balance');
+                    setGameMode('balance');
+                  }}
+                  variant="outline"
+                  className={`w-full transition-all duration-200 cursor-pointer ${
                     gameMode === 'balance' 
-                      ? 'bg-white text-black hover:bg-gray-200' 
-                      : 'border-white/30 text-black bg-white hover:bg-gray-100'
+                      ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600' 
+                      : 'bg-white/90 text-black border-gray-300 hover:bg-white hover:border-gray-400'
                   }`}
                 >
                   ⚖️ Balance Equations
                 </Button>
                 <Button
-                  onClick={() => setGameMode('substitute')}
-                  variant={gameMode === 'substitute' ? 'default' : 'outline'}
-                  className={`w-full transition-all duration-200 ${
+                  onClick={() => {
+                    console.log('Setting game mode to substitute');
+                    setGameMode('substitute');
+                  }}
+                  variant="outline"
+                  className={`w-full transition-all duration-200 cursor-pointer ${
                     gameMode === 'substitute' 
-                      ? 'bg-white text-black hover:bg-gray-200' 
-                      : 'border-white/30 text-black bg-white hover:bg-gray-100'
+                      ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600' 
+                      : 'bg-white/90 text-black border-gray-300 hover:bg-white hover:border-gray-400'
                   }`}
                 >
                   🔄 Substitution
@@ -290,34 +299,43 @@ const AlgebraAdventure = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button
-                  onClick={() => setDifficulty('easy')}
-                  variant={difficulty === 'easy' ? 'default' : 'outline'}
-                  className={`w-full transition-all duration-200 ${
+                  onClick={() => {
+                    console.log('Setting difficulty to easy');
+                    setDifficulty('easy');
+                  }}
+                  variant="outline"
+                  className={`w-full transition-all duration-200 cursor-pointer ${
                     difficulty === 'easy' 
-                      ? 'bg-white text-black hover:bg-gray-200' 
-                      : 'border-white/30 text-black bg-white hover:bg-gray-100'
+                      ? 'bg-green-500 text-white border-green-500 hover:bg-green-600' 
+                      : 'bg-white/90 text-black border-gray-300 hover:bg-white hover:border-gray-400'
                   }`}
                 >
                   🌱 Easy
                 </Button>
                 <Button
-                  onClick={() => setDifficulty('medium')}
-                  variant={difficulty === 'medium' ? 'default' : 'outline'}
-                  className={`w-full transition-all duration-200 ${
+                  onClick={() => {
+                    console.log('Setting difficulty to medium');
+                    setDifficulty('medium');
+                  }}
+                  variant="outline"
+                  className={`w-full transition-all duration-200 cursor-pointer ${
                     difficulty === 'medium' 
-                      ? 'bg-white text-black hover:bg-gray-200' 
-                      : 'border-white/30 text-black bg-white hover:bg-gray-100'
+                      ? 'bg-orange-500 text-white border-orange-500 hover:bg-orange-600' 
+                      : 'bg-white/90 text-black border-gray-300 hover:bg-white hover:border-gray-400'
                   }`}
                 >
                   🔥 Medium
                 </Button>
                 <Button
-                  onClick={() => setDifficulty('hard')}
-                  variant={difficulty === 'hard' ? 'default' : 'outline'}
-                  className={`w-full transition-all duration-200 ${
+                  onClick={() => {
+                    console.log('Setting difficulty to hard');
+                    setDifficulty('hard');
+                  }}
+                  variant="outline"
+                  className={`w-full transition-all duration-200 cursor-pointer ${
                     difficulty === 'hard' 
-                      ? 'bg-white text-black hover:bg-gray-200' 
-                      : 'border-white/30 text-black bg-white hover:bg-gray-100'
+                      ? 'bg-red-500 text-white border-red-500 hover:bg-red-600' 
+                      : 'bg-white/90 text-black border-gray-300 hover:bg-white hover:border-gray-400'
                   }`}
                 >
                   💎 Hard
