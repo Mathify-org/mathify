@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Star, Trophy, Zap, Heart, Calculator } from 'lucide-react';
+import { ArrowLeft, Star, Trophy, Zap, Heart, Calculator, Sparkles, Target } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 type GameMode = 'findX' | 'balance' | 'substitute';
@@ -18,6 +18,16 @@ interface Problem {
   explanation: string;
 }
 
+interface Particle {
+  id: number;
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+  life: number;
+  color: string;
+}
+
 const AlgebraAdventure = () => {
   const [gameState, setGameState] = useState<GameState>('menu');
   const [gameMode, setGameMode] = useState<GameMode>('findX');
@@ -29,7 +39,41 @@ const AlgebraAdventure = () => {
   const [level, setLevel] = useState(1);
   const [timeLeft, setTimeLeft] = useState(30);
   const [isAnswering, setIsAnswering] = useState(false);
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const [showCorrectAnimation, setShowCorrectAnimation] = useState(false);
+  const [showWrongAnimation, setShowWrongAnimation] = useState(false);
+  const [comboMultiplier, setComboMultiplier] = useState(1);
   const { toast } = useToast();
+
+  // Particle system for visual effects
+  const createParticles = (x: number, y: number, color: string, count: number = 10) => {
+    const newParticles = Array.from({ length: count }, (_, i) => ({
+      id: Date.now() + i,
+      x,
+      y,
+      dx: (Math.random() - 0.5) * 4,
+      dy: (Math.random() - 0.5) * 4,
+      life: 1,
+      color
+    }));
+    setParticles(prev => [...prev, ...newParticles]);
+  };
+
+  // Update particles
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setParticles(prev => prev
+        .map(p => ({
+          ...p,
+          x: p.x + p.dx,
+          y: p.y + p.dy,
+          life: p.life - 0.02
+        }))
+        .filter(p => p.life > 0)
+      );
+    }, 16);
+    return () => clearInterval(interval);
+  }, []);
 
   const generateProblem = (): Problem => {
     let equation = '';
@@ -78,23 +122,42 @@ const AlgebraAdventure = () => {
     setStreak(0);
     setLevel(1);
     setTimeLeft(30);
+    setComboMultiplier(1);
     setCurrentProblem(generateProblem());
   };
 
-  const handleAnswer = (selectedAnswer: number) => {
+  const handleAnswer = (selectedAnswer: number, event: React.MouseEvent) => {
     if (isAnswering) return;
     setIsAnswering(true);
 
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+
     if (selectedAnswer === currentProblem?.answer) {
-      const points = (difficulty === 'easy' ? 10 : difficulty === 'medium' ? 20 : 30) * (streak + 1);
+      const basePoints = (difficulty === 'easy' ? 10 : difficulty === 'medium' ? 20 : 30);
+      const streakBonus = Math.floor(streak / 3);
+      const timeBonus = Math.floor(timeLeft / 3);
+      const points = (basePoints + streakBonus + timeBonus) * comboMultiplier;
+      
       setScore(prev => prev + points);
       setStreak(prev => prev + 1);
+      setShowCorrectAnimation(true);
+      
+      // Create success particles
+      createParticles(x, y, '#22c55e', 15);
+      
+      // Increase combo multiplier
+      if (streak > 0 && streak % 3 === 0) {
+        setComboMultiplier(prev => Math.min(prev + 0.5, 3));
+      }
       
       if (streak > 0 && streak % 5 === 0) {
         setLevel(prev => prev + 1);
+        createParticles(window.innerWidth / 2, window.innerHeight / 2, '#fbbf24', 30);
         toast({
           title: "🎉 Level Up!",
-          description: `You've reached level ${level + 1}!`,
+          description: `You've reached level ${level + 1}! Combo multiplier: ${comboMultiplier}x`,
         });
       }
 
@@ -105,6 +168,12 @@ const AlgebraAdventure = () => {
     } else {
       setLives(prev => prev - 1);
       setStreak(0);
+      setComboMultiplier(1);
+      setShowWrongAnimation(true);
+      
+      // Create failure particles
+      createParticles(x, y, '#ef4444', 10);
+      
       toast({
         title: "❌ Not quite right",
         description: currentProblem?.explanation,
@@ -113,6 +182,9 @@ const AlgebraAdventure = () => {
     }
 
     setTimeout(() => {
+      setShowCorrectAnimation(false);
+      setShowWrongAnimation(false);
+      
       if (lives <= 1 && selectedAnswer !== currentProblem?.answer) {
         setGameState('gameOver');
       } else {
@@ -130,6 +202,7 @@ const AlgebraAdventure = () => {
     } else if (timeLeft === 0 && gameState === 'playing') {
       setLives(prev => prev - 1);
       setStreak(0);
+      setComboMultiplier(1);
       if (lives <= 1) {
         setGameState('gameOver');
       } else {
@@ -141,29 +214,33 @@ const AlgebraAdventure = () => {
 
   if (gameState === 'menu') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-4">
-        <div className="max-w-6xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.05)_0%,transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.03)_0%,transparent_50%)]"></div>
+        
+        <div className="max-w-6xl mx-auto relative z-10">
           <div className="flex items-center mb-8">
             <Link to="/">
-              <Button variant="ghost" size="icon" className="text-white mr-4 hover:bg-white/10">
+              <Button variant="ghost" size="icon" className="text-white mr-4 hover:bg-white/10 border border-white/20">
                 <ArrowLeft />
               </Button>
             </Link>
-            <h1 className="text-4xl md:text-6xl font-bold text-white">
+            <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-2xl">
               🧮 Algebra Adventure
             </h1>
           </div>
           
           <div className="text-center mb-8">
-            <p className="text-xl text-white/90">
-              Master basic algebra with fun, colorful challenges! Perfect for ages 8-14
+            <p className="text-xl text-gray-300 drop-shadow-lg">
+              Master basic algebra with fun, interactive challenges! Perfect for ages 8-14
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <Card className="glass-morphism border-2 border-white/30">
+            <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:bg-white/15 transition-all duration-300 hover:scale-105">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl">
+                <CardTitle className="flex items-center gap-2 text-xl text-white">
                   <Calculator className="text-blue-400" />
                   Game Mode
                 </CardTitle>
@@ -172,30 +249,42 @@ const AlgebraAdventure = () => {
                 <Button
                   onClick={() => setGameMode('findX')}
                   variant={gameMode === 'findX' ? 'default' : 'outline'}
-                  className="w-full"
+                  className={`w-full transition-all duration-200 ${
+                    gameMode === 'findX' 
+                      ? 'bg-white text-black hover:bg-gray-200' 
+                      : 'border-white/30 text-white hover:bg-white/10'
+                  }`}
                 >
                   🔍 Find X
                 </Button>
                 <Button
                   onClick={() => setGameMode('balance')}
                   variant={gameMode === 'balance' ? 'default' : 'outline'}
-                  className="w-full"
+                  className={`w-full transition-all duration-200 ${
+                    gameMode === 'balance' 
+                      ? 'bg-white text-black hover:bg-gray-200' 
+                      : 'border-white/30 text-white hover:bg-white/10'
+                  }`}
                 >
                   ⚖️ Balance Equations
                 </Button>
                 <Button
                   onClick={() => setGameMode('substitute')}
                   variant={gameMode === 'substitute' ? 'default' : 'outline'}
-                  className="w-full"
+                  className={`w-full transition-all duration-200 ${
+                    gameMode === 'substitute' 
+                      ? 'bg-white text-black hover:bg-gray-200' 
+                      : 'border-white/30 text-white hover:bg-white/10'
+                  }`}
                 >
                   🔄 Substitution
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="glass-morphism border-2 border-white/30">
+            <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:bg-white/15 transition-all duration-300 hover:scale-105">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl">
+                <CardTitle className="flex items-center gap-2 text-xl text-white">
                   <Zap className="text-yellow-400" />
                   Difficulty
                 </CardTitle>
@@ -204,30 +293,42 @@ const AlgebraAdventure = () => {
                 <Button
                   onClick={() => setDifficulty('easy')}
                   variant={difficulty === 'easy' ? 'default' : 'outline'}
-                  className="w-full"
+                  className={`w-full transition-all duration-200 ${
+                    difficulty === 'easy' 
+                      ? 'bg-white text-black hover:bg-gray-200' 
+                      : 'border-white/30 text-white hover:bg-white/10'
+                  }`}
                 >
                   🌱 Easy
                 </Button>
                 <Button
                   onClick={() => setDifficulty('medium')}
                   variant={difficulty === 'medium' ? 'default' : 'outline'}
-                  className="w-full"
+                  className={`w-full transition-all duration-200 ${
+                    difficulty === 'medium' 
+                      ? 'bg-white text-black hover:bg-gray-200' 
+                      : 'border-white/30 text-white hover:bg-white/10'
+                  }`}
                 >
                   🔥 Medium
                 </Button>
                 <Button
                   onClick={() => setDifficulty('hard')}
                   variant={difficulty === 'hard' ? 'default' : 'outline'}
-                  className="w-full"
+                  className={`w-full transition-all duration-200 ${
+                    difficulty === 'hard' 
+                      ? 'bg-white text-black hover:bg-gray-200' 
+                      : 'border-white/30 text-white hover:bg-white/10'
+                  }`}
                 >
                   💎 Hard
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="glass-morphism border-2 border-white/30">
+            <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:bg-white/15 transition-all duration-300 hover:scale-105">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl">
+                <CardTitle className="flex items-center gap-2 text-xl text-white">
                   <Star className="text-yellow-400" />
                   How to Play
                 </CardTitle>
@@ -235,19 +336,19 @@ const AlgebraAdventure = () => {
               <CardContent className="space-y-3 text-sm">
                 <div className="flex items-start gap-2">
                   <Badge className="bg-blue-500 text-white">1</Badge>
-                  <p>Look at the algebra equation or expression</p>
+                  <p className="text-gray-300">Look at the algebra equation or expression</p>
                 </div>
                 <div className="flex items-start gap-2">
                   <Badge className="bg-green-500 text-white">2</Badge>
-                  <p>Choose the correct answer from the options</p>
+                  <p className="text-gray-300">Choose the correct answer from the options</p>
                 </div>
                 <div className="flex items-start gap-2">
                   <Badge className="bg-purple-500 text-white">3</Badge>
-                  <p>Build streaks for bonus points!</p>
+                  <p className="text-gray-300">Build streaks for bonus points!</p>
                 </div>
                 <div className="flex items-start gap-2">
                   <Badge className="bg-orange-500 text-white">⏰</Badge>
-                  <p>Answer within 30 seconds or lose a life!</p>
+                  <p className="text-gray-300">Answer within 30 seconds or lose a life!</p>
                 </div>
               </CardContent>
             </Card>
@@ -256,7 +357,7 @@ const AlgebraAdventure = () => {
           <div className="text-center">
             <Button
               onClick={startGame}
-              className="text-2xl py-6 px-12 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold shadow-lg transform hover:scale-105 transition-all duration-200"
+              className="text-2xl py-6 px-12 bg-white text-black hover:bg-gray-200 font-bold shadow-2xl transform hover:scale-110 transition-all duration-300 border-2 border-white/30"
             >
               🚀 Start Adventure!
             </Button>
@@ -268,16 +369,19 @@ const AlgebraAdventure = () => {
 
   if (gameState === 'gameOver') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-600 via-purple-600 to-blue-600 p-4 flex items-center justify-center">
-        <Card className="glass-morphism border-2 border-white/30 max-w-md w-full">
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 flex items-center justify-center relative overflow-hidden">
+        {/* Animated background */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.05)_0%,transparent_70%)]"></div>
+        
+        <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl max-w-md w-full">
           <CardHeader className="text-center">
             <div className="flex items-center justify-between mb-4">
               <Link to="/">
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 border border-white/20">
                   <ArrowLeft />
                 </Button>
               </Link>
-              <CardTitle className="text-4xl mb-4">
+              <CardTitle className="text-4xl mb-4 text-white">
                 🏆 Adventure Complete!
               </CardTitle>
               <div></div>
@@ -285,24 +389,24 @@ const AlgebraAdventure = () => {
           </CardHeader>
           <CardContent className="text-center space-y-6">
             <div className="space-y-2">
-              <p className="text-3xl font-bold text-yellow-400">Final Score: {score}</p>
-              <p className="text-xl">Best Streak: {streak}</p>
-              <p className="text-lg">Level Reached: {level}</p>
-              <Badge className="text-lg px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500">
+              <p className="text-3xl font-bold text-yellow-400 drop-shadow-lg">Final Score: {score}</p>
+              <p className="text-xl text-gray-300">Best Streak: {streak}</p>
+              <p className="text-lg text-gray-300">Level Reached: {level}</p>
+              <Badge className="text-lg px-4 py-2 bg-white text-black">
                 {difficulty.toUpperCase()} Mode
               </Badge>
             </div>
             <div className="space-y-3">
               <Button
                 onClick={startGame}
-                className="w-full text-xl py-4 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold"
+                className="w-full text-xl py-4 bg-white text-black hover:bg-gray-200 font-bold transition-all duration-200 hover:scale-105"
               >
                 🔄 Play Again
               </Button>
               <Button
                 onClick={() => setGameState('menu')}
                 variant="outline"
-                className="w-full text-lg py-3"
+                className="w-full text-lg py-3 border-white/30 text-white hover:bg-white/10"
               >
                 🏠 Main Menu
               </Button>
@@ -314,69 +418,107 @@ const AlgebraAdventure = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-500 via-blue-500 to-purple-600 p-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 relative overflow-hidden">
+      {/* Particles */}
+      {particles.map(particle => (
+        <div
+          key={particle.id}
+          className="absolute w-2 h-2 rounded-full pointer-events-none"
+          style={{
+            left: particle.x,
+            top: particle.y,
+            backgroundColor: particle.color,
+            opacity: particle.life,
+            transform: `scale(${particle.life})`,
+          }}
+        />
+      ))}
+      
+      {/* Success/Failure animations */}
+      {showCorrectAnimation && (
+        <div className="absolute inset-0 bg-green-500/20 animate-pulse pointer-events-none" />
+      )}
+      {showWrongAnimation && (
+        <div className="absolute inset-0 bg-red-500/20 animate-pulse pointer-events-none" />
+      )}
+      
+      {/* Background effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.03)_0%,transparent_50%)]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.02)_0%,transparent_50%)]"></div>
+      
+      <div className="max-w-4xl mx-auto relative z-10">
         <div className="flex items-center justify-between mb-6">
           <Link to="/">
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 border border-white/20">
               <ArrowLeft />
             </Button>
           </Link>
-          <h1 className="text-2xl md:text-4xl font-bold text-white">🧮 Algebra Adventure</h1>
+          <h1 className="text-2xl md:text-4xl font-bold text-white drop-shadow-2xl">🧮 Algebra Adventure</h1>
           <div></div>
         </div>
         
         {/* Game Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          <Card className="glass-morphism border border-white/30">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+          <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-yellow-400">{score}</div>
-              <div className="text-sm text-white/80">Score</div>
+              <div className="text-2xl font-bold text-yellow-400 drop-shadow-lg">{score}</div>
+              <div className="text-sm text-gray-300">Score</div>
             </CardContent>
           </Card>
-          <Card className="glass-morphism border border-white/30">
+          <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-red-400 flex items-center justify-center gap-1">
                 {Array.from({ length: lives }, (_, i) => (
-                  <Heart key={i} className="h-5 w-5 fill-current" />
+                  <Heart key={i} className="h-5 w-5 fill-current animate-pulse" />
                 ))}
               </div>
-              <div className="text-sm text-white/80">Lives</div>
+              <div className="text-sm text-gray-300">Lives</div>
             </CardContent>
           </Card>
-          <Card className="glass-morphism border border-white/30">
+          <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-orange-400">{streak}</div>
-              <div className="text-sm text-white/80">Streak</div>
+              <div className="text-2xl font-bold text-orange-400 drop-shadow-lg">{streak}</div>
+              <div className="text-sm text-gray-300">Streak</div>
             </CardContent>
           </Card>
-          <Card className="glass-morphism border border-white/30">
+          <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-purple-400">{level}</div>
-              <div className="text-sm text-white/80">Level</div>
+              <div className="text-2xl font-bold text-purple-400 drop-shadow-lg">{level}</div>
+              <div className="text-sm text-gray-300">Level</div>
             </CardContent>
           </Card>
-          <Card className="glass-morphism border border-white/30">
+          <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-cyan-400">{timeLeft}s</div>
-              <div className="text-sm text-white/80">Time</div>
+              <div className={`text-2xl font-bold drop-shadow-lg ${timeLeft <= 10 ? 'text-red-400 animate-pulse' : 'text-cyan-400'}`}>
+                {timeLeft}s
+              </div>
+              <div className="text-sm text-gray-300">Time</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
+            <CardContent className="p-4 text-center">
+              <div className="text-xl font-bold text-green-400 drop-shadow-lg flex items-center justify-center gap-1">
+                {comboMultiplier}x
+                {comboMultiplier > 1 && <Sparkles className="h-4 w-4" />}
+              </div>
+              <div className="text-sm text-gray-300">Combo</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Problem Display */}
         {currentProblem && (
-          <Card className="glass-morphism border-2 border-white/30 mb-8">
+          <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl mb-8 hover:bg-white/15 transition-all duration-300">
             <CardContent className="p-8 text-center">
               <div className="mb-6">
-                <Badge className="mb-4 text-lg px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500">
+                <Badge className="mb-4 text-lg px-4 py-2 bg-white text-black">
                   {gameMode === 'findX' ? 'Find X' : gameMode === 'balance' ? 'Balance' : 'Substitute'}
                 </Badge>
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 drop-shadow-2xl font-mono">
                   {currentProblem.equation}
                 </h2>
                 {gameMode === 'substitute' && (
-                  <p className="text-xl text-white/90">What is the value?</p>
+                  <p className="text-xl text-gray-300">What is the value?</p>
                 )}
               </div>
               
@@ -384,14 +526,14 @@ const AlgebraAdventure = () => {
                 {currentProblem.choices.map((choice, index) => (
                   <Button
                     key={index}
-                    onClick={() => handleAnswer(choice)}
+                    onClick={(e) => handleAnswer(choice, e)}
                     disabled={isAnswering}
-                    className={`text-xl py-8 font-bold transition-all duration-200 transform hover:scale-105 ${
+                    className={`text-xl py-8 font-bold transition-all duration-300 transform hover:scale-110 border-2 ${
                       isAnswering && choice === currentProblem.answer
-                        ? 'bg-green-500 hover:bg-green-500'
+                        ? 'bg-green-500 hover:bg-green-500 border-green-400 text-white shadow-2xl'
                         : isAnswering && choice !== currentProblem.answer
-                        ? 'bg-red-500 hover:bg-red-500'
-                        : 'bg-gradient-to-r from-white/20 to-white/30 hover:from-white/30 hover:to-white/40'
+                        ? 'bg-red-500 hover:bg-red-500 border-red-400 text-white'
+                        : 'bg-white/20 hover:bg-white/30 border-white/30 text-white backdrop-blur-sm shadow-xl hover:shadow-2xl'
                     }`}
                   >
                     {choice}
