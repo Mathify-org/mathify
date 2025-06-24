@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -252,7 +251,7 @@ const AlgebraAdventure = () => {
                   className={`w-full transition-all duration-200 ${
                     gameMode === 'findX' 
                       ? 'bg-white text-black hover:bg-gray-200' 
-                      : 'border-white/30 text-white hover:bg-white/10'
+                      : 'border-white/30 text-black bg-white hover:bg-gray-100'
                   }`}
                 >
                   🔍 Find X
@@ -263,7 +262,7 @@ const AlgebraAdventure = () => {
                   className={`w-full transition-all duration-200 ${
                     gameMode === 'balance' 
                       ? 'bg-white text-black hover:bg-gray-200' 
-                      : 'border-white/30 text-white hover:bg-white/10'
+                      : 'border-white/30 text-black bg-white hover:bg-gray-100'
                   }`}
                 >
                   ⚖️ Balance Equations
@@ -274,7 +273,7 @@ const AlgebraAdventure = () => {
                   className={`w-full transition-all duration-200 ${
                     gameMode === 'substitute' 
                       ? 'bg-white text-black hover:bg-gray-200' 
-                      : 'border-white/30 text-white hover:bg-white/10'
+                      : 'border-white/30 text-black bg-white hover:bg-gray-100'
                   }`}
                 >
                   🔄 Substitution
@@ -296,7 +295,7 @@ const AlgebraAdventure = () => {
                   className={`w-full transition-all duration-200 ${
                     difficulty === 'easy' 
                       ? 'bg-white text-black hover:bg-gray-200' 
-                      : 'border-white/30 text-white hover:bg-white/10'
+                      : 'border-white/30 text-black bg-white hover:bg-gray-100'
                   }`}
                 >
                   🌱 Easy
@@ -307,7 +306,7 @@ const AlgebraAdventure = () => {
                   className={`w-full transition-all duration-200 ${
                     difficulty === 'medium' 
                       ? 'bg-white text-black hover:bg-gray-200' 
-                      : 'border-white/30 text-white hover:bg-white/10'
+                      : 'border-white/30 text-black bg-white hover:bg-gray-100'
                   }`}
                 >
                   🔥 Medium
@@ -318,7 +317,7 @@ const AlgebraAdventure = () => {
                   className={`w-full transition-all duration-200 ${
                     difficulty === 'hard' 
                       ? 'bg-white text-black hover:bg-gray-200' 
-                      : 'border-white/30 text-white hover:bg-white/10'
+                      : 'border-white/30 text-black bg-white hover:bg-gray-100'
                   }`}
                 >
                   💎 Hard
