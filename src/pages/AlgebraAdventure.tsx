@@ -420,13 +420,6 @@ const AlgebraAdventure = () => {
               >
                 🔄 Play Again
               </Button>
-              <Button
-                onClick={() => setGameState('menu')}
-                variant="outline"
-                className="w-full text-lg py-3 border-white/30 text-white hover:bg-white/10"
-              >
-                🏠 Main Menu
-              </Button>
             </div>
           </CardContent>
         </Card>
