@@ -218,40 +218,40 @@ const AlgebraAdventure = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.05)_0%,transparent_50%)]"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.03)_0%,transparent_50%)]"></div>
         
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="flex items-center mb-8">
+        <div className="max-w-6xl mx-auto relative z-10 md:pt-16">
+          <div className="flex items-center mb-6 md:mb-8">
             <Link to="/">
               <Button variant="ghost" size="icon" className="text-white mr-4 hover:bg-white/10 border border-white/20">
                 <ArrowLeft />
               </Button>
             </Link>
-            <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-2xl">
+            <h1 className="text-3xl md:text-6xl font-bold text-white drop-shadow-2xl">
               🧮 Algebra Adventure
             </h1>
           </div>
           
-          <div className="text-center mb-8">
-            <p className="text-xl text-gray-300 drop-shadow-lg">
+          <div className="text-center mb-6 md:mb-8">
+            <p className="text-lg md:text-xl text-gray-300 drop-shadow-lg">
               Master basic algebra with fun, interactive challenges! Perfect for ages 8-14
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="grid md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
             <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:bg-white/15 transition-all duration-300 hover:scale-105">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl text-white">
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-white">
                   <Calculator className="text-blue-400" />
                   Game Mode
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2 md:space-y-3 p-4 md:p-6 pt-0">
                 <Button
                   onClick={() => {
                     console.log('Setting game mode to findX');
                     setGameMode('findX');
                   }}
                   variant="outline"
-                  className={`w-full transition-all duration-200 cursor-pointer ${
+                  className={`w-full transition-all duration-200 cursor-pointer text-sm md:text-base py-2 md:py-3 ${
                     gameMode === 'findX' 
                       ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600' 
                       : 'bg-white/90 text-black border-gray-300 hover:bg-white hover:border-gray-400'
@@ -265,7 +265,7 @@ const AlgebraAdventure = () => {
                     setGameMode('balance');
                   }}
                   variant="outline"
-                  className={`w-full transition-all duration-200 cursor-pointer ${
+                  className={`w-full transition-all duration-200 cursor-pointer text-sm md:text-base py-2 md:py-3 ${
                     gameMode === 'balance' 
                       ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600' 
                       : 'bg-white/90 text-black border-gray-300 hover:bg-white hover:border-gray-400'
@@ -279,7 +279,7 @@ const AlgebraAdventure = () => {
                     setGameMode('substitute');
                   }}
                   variant="outline"
-                  className={`w-full transition-all duration-200 cursor-pointer ${
+                  className={`w-full transition-all duration-200 cursor-pointer text-sm md:text-base py-2 md:py-3 ${
                     gameMode === 'substitute' 
                       ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600' 
                       : 'bg-white/90 text-black border-gray-300 hover:bg-white hover:border-gray-400'
@@ -291,20 +291,20 @@ const AlgebraAdventure = () => {
             </Card>
 
             <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:bg-white/15 transition-all duration-300 hover:scale-105">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl text-white">
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="flex items-center gap-2 text-lg md:text-xl text-white">
                   <Zap className="text-yellow-400" />
                   Difficulty
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2 md:space-y-3 p-4 md:p-6 pt-0">
                 <Button
                   onClick={() => {
                     console.log('Setting difficulty to easy');
                     setDifficulty('easy');
                   }}
                   variant="outline"
-                  className={`w-full transition-all duration-200 cursor-pointer ${
+                  className={`w-full transition-all duration-200 cursor-pointer text-sm md:text-base py-2 md:py-3 ${
                     difficulty === 'easy' 
                       ? 'bg-green-500 text-white border-green-500 hover:bg-green-600' 
                       : 'bg-white/90 text-black border-gray-300 hover:bg-white hover:border-gray-400'
@@ -318,7 +318,7 @@ const AlgebraAdventure = () => {
                     setDifficulty('medium');
                   }}
                   variant="outline"
-                  className={`w-full transition-all duration-200 cursor-pointer ${
+                  className={`w-full transition-all duration-200 cursor-pointer text-sm md:text-base py-2 md:py-3 ${
                     difficulty === 'medium' 
                       ? 'bg-orange-500 text-white border-orange-500 hover:bg-orange-600' 
                       : 'bg-white/90 text-black border-gray-300 hover:bg-white hover:border-gray-400'
@@ -332,7 +332,7 @@ const AlgebraAdventure = () => {
                     setDifficulty('hard');
                   }}
                   variant="outline"
-                  className={`w-full transition-all duration-200 cursor-pointer ${
+                  className={`w-full transition-all duration-200 cursor-pointer text-sm md:text-base py-2 md:py-3 ${
                     difficulty === 'hard' 
                       ? 'bg-red-500 text-white border-red-500 hover:bg-red-600' 
                       : 'bg-white/90 text-black border-gray-300 hover:bg-white hover:border-gray-400'
@@ -343,7 +343,8 @@ const AlgebraAdventure = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:bg-white/15 transition-all duration-300 hover:scale-105">
+            {/* How to Play card - hidden on mobile, will be shown below start button */}
+            <Card className="hidden md:block bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:bg-white/15 transition-all duration-300 hover:scale-105">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-xl text-white">
                   <Star className="text-yellow-400" />
@@ -371,13 +372,44 @@ const AlgebraAdventure = () => {
             </Card>
           </div>
 
-          <div className="text-center">
+          {/* Start button - mobile first, desktop second */}
+          <div className="text-center mb-6">
             <Button
               onClick={startGame}
-              className="text-2xl py-6 px-12 bg-white text-black hover:bg-gray-200 font-bold shadow-2xl transform hover:scale-110 transition-all duration-300 border-2 border-white/30"
+              className="text-lg md:text-2xl py-4 md:py-6 px-8 md:px-12 bg-white text-black hover:bg-gray-200 font-bold shadow-2xl transform hover:scale-110 transition-all duration-300 border-2 border-white/30"
             >
               🚀 Start Adventure!
             </Button>
+          </div>
+
+          {/* How to Play card - mobile only, shown after start button */}
+          <div className="md:hidden">
+            <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:bg-white/15 transition-all duration-300">
+              <CardHeader className="p-4">
+                <CardTitle className="flex items-center gap-2 text-lg text-white">
+                  <Star className="text-yellow-400" />
+                  How to Play
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm p-4 pt-0">
+                <div className="flex items-start gap-2">
+                  <Badge className="bg-blue-500 text-white text-xs">1</Badge>
+                  <p className="text-gray-300">Look at the algebra equation or expression</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Badge className="bg-green-500 text-white text-xs">2</Badge>
+                  <p className="text-gray-300">Choose the correct answer from the options</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Badge className="bg-purple-500 text-white text-xs">3</Badge>
+                  <p className="text-gray-300">Build streaks for bonus points!</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Badge className="bg-orange-500 text-white text-xs">⏰</Badge>
+                  <p className="text-gray-300">Answer within 30 seconds or lose a life!</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
@@ -456,89 +488,89 @@ const AlgebraAdventure = () => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.03)_0%,transparent_50%)]"></div>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.02)_0%,transparent_50%)]"></div>
       
-      <div className="max-w-4xl mx-auto relative z-10">
-        <div className="flex items-center justify-between mb-6">
+      <div className="max-w-4xl mx-auto relative z-10 md:pt-16">
+        <div className="flex items-center justify-between mb-4 md:mb-6">
           <Link to="/">
             <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 border border-white/20">
               <ArrowLeft />
             </Button>
           </Link>
-          <h1 className="text-2xl md:text-4xl font-bold text-white drop-shadow-2xl">🧮 Algebra Adventure</h1>
+          <h1 className="text-xl md:text-4xl font-bold text-white drop-shadow-2xl">🧮 Algebra Adventure</h1>
           <div></div>
         </div>
         
         {/* Game Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4 mb-6 md:mb-8">
           <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-yellow-400 drop-shadow-lg">{score}</div>
-              <div className="text-sm text-gray-300">Score</div>
+            <CardContent className="p-2 md:p-4 text-center">
+              <div className="text-lg md:text-2xl font-bold text-yellow-400 drop-shadow-lg">{score}</div>
+              <div className="text-xs md:text-sm text-gray-300">Score</div>
             </CardContent>
           </Card>
           <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-red-400 flex items-center justify-center gap-1">
+            <CardContent className="p-2 md:p-4 text-center">
+              <div className="text-lg md:text-2xl font-bold text-red-400 flex items-center justify-center gap-1">
                 {Array.from({ length: lives }, (_, i) => (
-                  <Heart key={i} className="h-5 w-5 fill-current animate-pulse" />
+                  <Heart key={i} className="h-3 w-3 md:h-5 md:w-5 fill-current animate-pulse" />
                 ))}
               </div>
-              <div className="text-sm text-gray-300">Lives</div>
+              <div className="text-xs md:text-sm text-gray-300">Lives</div>
             </CardContent>
           </Card>
           <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-orange-400 drop-shadow-lg">{streak}</div>
-              <div className="text-sm text-gray-300">Streak</div>
+            <CardContent className="p-2 md:p-4 text-center">
+              <div className="text-lg md:text-2xl font-bold text-orange-400 drop-shadow-lg">{streak}</div>
+              <div className="text-xs md:text-sm text-gray-300">Streak</div>
             </CardContent>
           </Card>
           <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-purple-400 drop-shadow-lg">{level}</div>
-              <div className="text-sm text-gray-300">Level</div>
+            <CardContent className="p-2 md:p-4 text-center">
+              <div className="text-lg md:text-2xl font-bold text-purple-400 drop-shadow-lg">{level}</div>
+              <div className="text-xs md:text-sm text-gray-300">Level</div>
             </CardContent>
           </Card>
           <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
-            <CardContent className="p-4 text-center">
-              <div className={`text-2xl font-bold drop-shadow-lg ${timeLeft <= 10 ? 'text-red-400 animate-pulse' : 'text-cyan-400'}`}>
+            <CardContent className="p-2 md:p-4 text-center">
+              <div className={`text-lg md:text-2xl font-bold drop-shadow-lg ${timeLeft <= 10 ? 'text-red-400 animate-pulse' : 'text-cyan-400'}`}>
                 {timeLeft}s
               </div>
-              <div className="text-sm text-gray-300">Time</div>
+              <div className="text-xs md:text-sm text-gray-300">Time</div>
             </CardContent>
           </Card>
           <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
-            <CardContent className="p-4 text-center">
-              <div className="text-xl font-bold text-green-400 drop-shadow-lg flex items-center justify-center gap-1">
+            <CardContent className="p-2 md:p-4 text-center">
+              <div className="text-lg md:text-xl font-bold text-green-400 drop-shadow-lg flex items-center justify-center gap-1">
                 {comboMultiplier}x
-                {comboMultiplier > 1 && <Sparkles className="h-4 w-4" />}
+                {comboMultiplier > 1 && <Sparkles className="h-3 w-3 md:h-4 md:w-4" />}
               </div>
-              <div className="text-sm text-gray-300">Combo</div>
+              <div className="text-xs md:text-sm text-gray-300">Combo</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Problem Display */}
         {currentProblem && (
-          <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl mb-8 hover:bg-white/15 transition-all duration-300">
-            <CardContent className="p-8 text-center">
-              <div className="mb-6">
-                <Badge className="mb-4 text-lg px-4 py-2 bg-white text-black">
+          <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl mb-6 md:mb-8 hover:bg-white/15 transition-all duration-300">
+            <CardContent className="p-4 md:p-8 text-center">
+              <div className="mb-4 md:mb-6">
+                <Badge className="mb-2 md:mb-4 text-sm md:text-lg px-3 md:px-4 py-1 md:py-2 bg-white text-black">
                   {gameMode === 'findX' ? 'Find X' : gameMode === 'balance' ? 'Balance' : 'Substitute'}
                 </Badge>
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 drop-shadow-2xl font-mono">
+                <h2 className="text-2xl md:text-5xl font-bold text-white mb-2 md:mb-4 drop-shadow-2xl font-mono">
                   {currentProblem.equation}
                 </h2>
                 {gameMode === 'substitute' && (
-                  <p className="text-xl text-gray-300">What is the value?</p>
+                  <p className="text-lg md:text-xl text-gray-300">What is the value?</p>
                 )}
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
                 {currentProblem.choices.map((choice, index) => (
                   <Button
                     key={index}
                     onClick={(e) => handleAnswer(choice, e)}
                     disabled={isAnswering}
-                    className={`text-xl py-8 font-bold transition-all duration-300 transform hover:scale-110 border-2 ${
+                    className={`text-lg md:text-xl py-4 md:py-8 font-bold transition-all duration-300 transform hover:scale-110 border-2 ${
                       isAnswering && choice === currentProblem.answer
                         ? 'bg-green-500 hover:bg-green-500 border-green-400 text-white shadow-2xl'
                         : isAnswering && choice !== currentProblem.answer
