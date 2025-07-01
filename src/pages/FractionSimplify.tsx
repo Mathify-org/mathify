@@ -9,12 +9,23 @@ import confetti from 'canvas-confetti';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 type GameState = 'menu' | 'playing' | 'finished';
+type QuestionType = 'simplify' | 'add' | 'subtract';
 
 interface Question {
-  numerator: number;
-  denominator: number;
-  simplifiedNumerator: number;
-  simplifiedDenominator: number;
+  type: QuestionType;
+  // For simplification
+  numerator?: number;
+  denominator?: number;
+  simplifiedNumerator?: number;
+  simplifiedDenominator?: number;
+  // For addition/subtraction
+  fraction1Num?: number;
+  fraction1Den?: number;
+  fraction2Num?: number;
+  fraction2Den?: number;
+  resultNum?: number;
+  resultDen?: number;
+  operation?: '+' | '-';
 }
 
 const FractionSimplify = () => {
@@ -23,7 +34,7 @@ const FractionSimplify = () => {
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(10);
+  const [timeLeft, setTimeLeft] = useState(30);
   const [totalTimeLeft, setTotalTimeLeft] = useState(180); // 3 minutes
   const [userNumerator, setUserNumerator] = useState('');
   const [userDenominator, setUserDenominator] = useState('');
@@ -38,37 +49,110 @@ const FractionSimplify = () => {
     return b === 0 ? a : gcd(b, a % b);
   };
 
-  // Generate questions based on difficulty
-  const generateQuestion = (): Question => {
-    let numerator: number, denominator: number;
-    
-    switch (difficulty) {
-      case 'easy':
-        numerator = Math.floor(Math.random() * 20) + 2;
-        denominator = Math.floor(Math.random() * 20) + 2;
-        break;
-      case 'medium':
-        numerator = Math.floor(Math.random() * 50) + 5;
-        denominator = Math.floor(Math.random() * 50) + 5;
-        break;
-      case 'hard':
-        numerator = Math.floor(Math.random() * 100) + 10;
-        denominator = Math.floor(Math.random() * 100) + 10;
-        break;
-    }
+  // Generate LCM function
+  const lcm = (a: number, b: number): number => {
+    return (a * b) / gcd(a, b);
+  };
 
-    // Ensure the fraction can be simplified
-    const commonFactor = Math.floor(Math.random() * 5) + 2;
-    numerator *= commonFactor;
-    denominator *= commonFactor;
-
-    const divisor = gcd(numerator, denominator);
+  // Simplify fraction
+  const simplifyFraction = (num: number, den: number) => {
+    const divisor = gcd(Math.abs(num), Math.abs(den));
     return {
-      numerator,
-      denominator,
-      simplifiedNumerator: numerator / divisor,
-      simplifiedDenominator: denominator / divisor
+      numerator: num / divisor,
+      denominator: den / divisor
     };
+  };
+
+  // Generate questions based on difficulty and type
+  const generateQuestion = (): Question => {
+    const questionTypes: QuestionType[] = ['simplify', 'add', 'subtract'];
+    const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+    
+    if (questionType === 'simplify') {
+      let numerator: number, denominator: number;
+      
+      switch (difficulty) {
+        case 'easy':
+          numerator = Math.floor(Math.random() * 20) + 2;
+          denominator = Math.floor(Math.random() * 20) + 2;
+          break;
+        case 'medium':
+          numerator = Math.floor(Math.random() * 50) + 5;
+          denominator = Math.floor(Math.random() * 50) + 5;
+          break;
+        case 'hard':
+          numerator = Math.floor(Math.random() * 100) + 10;
+          denominator = Math.floor(Math.random() * 100) + 10;
+          break;
+      }
+
+      // Ensure the fraction can be simplified
+      const commonFactor = Math.floor(Math.random() * 5) + 2;
+      numerator *= commonFactor;
+      denominator *= commonFactor;
+
+      const divisor = gcd(numerator, denominator);
+      return {
+        type: 'simplify',
+        numerator,
+        denominator,
+        simplifiedNumerator: numerator / divisor,
+        simplifiedDenominator: denominator / divisor
+      };
+    } else {
+      // Addition or subtraction
+      let f1Num: number, f1Den: number, f2Num: number, f2Den: number;
+      
+      switch (difficulty) {
+        case 'easy':
+          f1Num = Math.floor(Math.random() * 10) + 1;
+          f1Den = Math.floor(Math.random() * 10) + 2;
+          f2Num = Math.floor(Math.random() * 10) + 1;
+          f2Den = Math.floor(Math.random() * 10) + 2;
+          break;
+        case 'medium':
+          f1Num = Math.floor(Math.random() * 20) + 1;
+          f1Den = Math.floor(Math.random() * 20) + 2;
+          f2Num = Math.floor(Math.random() * 20) + 1;
+          f2Den = Math.floor(Math.random() * 20) + 2;
+          break;
+        case 'hard':
+          f1Num = Math.floor(Math.random() * 30) + 1;
+          f1Den = Math.floor(Math.random() * 30) + 2;
+          f2Num = Math.floor(Math.random() * 30) + 1;
+          f2Den = Math.floor(Math.random() * 30) + 2;
+          break;
+      }
+
+      const operation = questionType === 'add' ? '+' : '-';
+      const commonDen = lcm(f1Den, f2Den);
+      const adjustedF1Num = f1Num * (commonDen / f1Den);
+      const adjustedF2Num = f2Num * (commonDen / f2Den);
+      
+      let resultNum: number;
+      if (operation === '+') {
+        resultNum = adjustedF1Num + adjustedF2Num;
+      } else {
+        resultNum = adjustedF1Num - adjustedF2Num;
+        // Ensure positive result for simplicity
+        if (resultNum < 0) {
+          resultNum = Math.abs(resultNum);
+        }
+      }
+
+      const simplified = simplifyFraction(resultNum, commonDen);
+
+      return {
+        type: questionType,
+        fraction1Num: f1Num,
+        fraction1Den: f1Den,
+        fraction2Num: f2Num,
+        fraction2Den: f2Den,
+        operation,
+        resultNum: simplified.numerator,
+        resultDen: simplified.denominator
+      };
+    }
   };
 
   // Start game
@@ -78,7 +162,7 @@ const FractionSimplify = () => {
     setScore(0);
     setQuestionIndex(0);
     setStreak(0);
-    setTimeLeft(10);
+    setTimeLeft(30);
     setTotalTimeLeft(180);
     setCurrentQuestion(generateQuestion());
     setUserNumerator('');
@@ -93,8 +177,17 @@ const FractionSimplify = () => {
     const userNum = parseInt(userNumerator);
     const userDen = parseInt(userDenominator);
     
-    if (userNum === currentQuestion.simplifiedNumerator && 
-        userDen === currentQuestion.simplifiedDenominator) {
+    let isCorrect = false;
+    
+    if (currentQuestion.type === 'simplify') {
+      isCorrect = userNum === currentQuestion.simplifiedNumerator && 
+                  userDen === currentQuestion.simplifiedDenominator;
+    } else {
+      isCorrect = userNum === currentQuestion.resultNum && 
+                  userDen === currentQuestion.resultDen;
+    }
+    
+    if (isCorrect) {
       setScore(score + 1);
       setStreak(streak + 1);
       setBestStreak(Math.max(bestStreak, streak + 1));
@@ -131,7 +224,7 @@ const FractionSimplify = () => {
       setUserNumerator('');
       setUserDenominator('');
       setFeedback(null);
-      setTimeLeft(10);
+      setTimeLeft(30);
     }
   };
 
@@ -179,15 +272,76 @@ const FractionSimplify = () => {
     return "💪 Keep trying! Practice makes perfect!";
   };
 
+  const renderQuestion = () => {
+    if (!currentQuestion) return null;
+    
+    if (currentQuestion.type === 'simplify') {
+      return (
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-8 text-gray-800">Simplify this fraction:</h2>
+          <div className="inline-block">
+            <div className="text-6xl font-bold text-purple-600 border-b-4 border-purple-600 px-4 pb-2">
+              {currentQuestion.numerator}
+            </div>
+            <div className="text-6xl font-bold text-purple-600 px-4 pt-2">
+              {currentQuestion.denominator}
+            </div>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-8 text-gray-800">
+            {currentQuestion.type === 'add' ? 'Add' : 'Subtract'} these fractions:
+          </h2>
+          <div className="flex items-center justify-center gap-6">
+            <div className="inline-block">
+              <div className="text-4xl font-bold text-purple-600 border-b-4 border-purple-600 px-3 pb-1">
+                {currentQuestion.fraction1Num}
+              </div>
+              <div className="text-4xl font-bold text-purple-600 px-3 pt-1">
+                {currentQuestion.fraction1Den}
+              </div>
+            </div>
+            <div className="text-4xl font-bold text-gray-600">
+              {currentQuestion.operation}
+            </div>
+            <div className="inline-block">
+              <div className="text-4xl font-bold text-purple-600 border-b-4 border-purple-600 px-3 pb-1">
+                {currentQuestion.fraction2Num}
+              </div>
+              <div className="text-4xl font-bold text-purple-600 px-3 pt-1">
+                {currentQuestion.fraction2Den}
+              </div>
+            </div>
+            <div className="text-4xl font-bold text-gray-600">=</div>
+            <div className="text-4xl font-bold text-gray-400">?</div>
+          </div>
+        </div>
+      );
+    }
+  };
+
+  const getCorrectAnswer = () => {
+    if (!currentQuestion) return '';
+    
+    if (currentQuestion.type === 'simplify') {
+      return `${currentQuestion.simplifiedNumerator}/${currentQuestion.simplifiedDenominator}`;
+    } else {
+      return `${currentQuestion.resultNum}/${currentQuestion.resultDen}`;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 p-4">
       <div className="container mx-auto max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-            Fraction Simplify Quest
+            Fraction Master
           </h1>
-          <p className="text-lg text-gray-600">Simplify fractions and become a math hero!</p>
+          <p className="text-lg text-gray-600">Master fractions and become a math hero!</p>
         </div>
 
         {/* Menu State */}
@@ -203,9 +357,9 @@ const FractionSimplify = () => {
                       <CardContent className="p-6 text-center">
                         <h3 className="text-xl font-bold mb-2 capitalize">{diff}</h3>
                         <p className="text-gray-600 mb-4">
-                          {diff === 'easy' && 'Simple fractions (2-20)'}
-                          {diff === 'medium' && 'Medium fractions (5-50)'}
-                          {diff === 'hard' && 'Complex fractions (10-100)'}
+                          {diff === 'easy' && 'Simple fractions & operations'}
+                          {diff === 'medium' && 'Medium fractions & operations'}
+                          {diff === 'hard' && 'Complex fractions & operations'}
                         </p>
                         <Button 
                           onClick={() => startGame(diff)}
@@ -225,14 +379,14 @@ const FractionSimplify = () => {
                 <h3 className="text-xl font-bold mb-4">How to Play</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p>• Simplify fractions to their lowest terms</p>
-                    <p>• 10 seconds per question</p>
-                    <p>• 3 minutes total time limit</p>
+                    <p>• Simplify fractions to lowest terms</p>
+                    <p>• Add and subtract fractions</p>
+                    <p>• 30 seconds per question</p>
                   </div>
                   <div>
+                    <p>• 3 minutes total time limit</p>
                     <p>• 10 questions per game</p>
                     <p>• Build streaks for bonus points</p>
-                    <p>• Press Enter to submit answers</p>
                   </div>
                 </div>
               </CardContent>
@@ -278,26 +432,14 @@ const FractionSimplify = () => {
                   <Clock className="h-5 w-5 text-orange-500" />
                   <span className="font-medium">Question Timer: {timeLeft}s</span>
                 </div>
-                <Progress value={(timeLeft / 10) * 100} className="h-2" />
+                <Progress value={(timeLeft / 30) * 100} className="h-2" />
               </CardContent>
             </Card>
 
             {/* Main Question */}
             <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl">
               <CardContent className="p-8 text-center">
-                <h2 className="text-xl font-bold mb-8 text-gray-800">Simplify this fraction:</h2>
-                
-                {/* Fraction Display */}
-                <div className="mb-8">
-                  <div className="inline-block">
-                    <div className="text-6xl font-bold text-purple-600 border-b-4 border-purple-600 px-4 pb-2">
-                      {currentQuestion.numerator}
-                    </div>
-                    <div className="text-6xl font-bold text-purple-600 px-4 pt-2">
-                      {currentQuestion.denominator}
-                    </div>
-                  </div>
-                </div>
+                {renderQuestion()}
 
                 {/* Answer Inputs */}
                 <div className="flex items-center justify-center gap-4 mb-6">
@@ -342,7 +484,7 @@ const FractionSimplify = () => {
                         <>
                           <XCircle className="h-6 w-6" />
                           <span className="font-bold">
-                            Incorrect. Answer: {currentQuestion.simplifiedNumerator}/{currentQuestion.simplifiedDenominator}
+                            Incorrect. Answer: {getCorrectAnswer()}
                           </span>
                         </>
                       )}
@@ -386,14 +528,6 @@ const FractionSimplify = () => {
                 >
                   <RotateCcw className="h-5 w-5 mr-2" />
                   Play Again
-                </Button>
-                <Button
-                  onClick={() => setGameState('menu')}
-                  variant="outline"
-                  className="border-2 border-purple-300 hover:bg-purple-50 font-bold px-8 py-3"
-                >
-                  <Home className="h-5 w-5 mr-2" />
-                  Main Menu
                 </Button>
               </div>
             </CardContent>
