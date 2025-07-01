@@ -230,21 +230,36 @@ const FractionSimplify = () => {
     setFeedback(null);
   };
 
-  // Check answer
+  // Check answer - Updated to accept any equivalent fraction
   const checkAnswer = () => {
     if (!currentQuestion || !userNumerator || !userDenominator) return;
 
     const userNum = parseInt(userNumerator);
     const userDen = parseInt(userDenominator);
     
+    if (userDen === 0) {
+      setStreak(0);
+      setFeedback('incorrect');
+      setTimeout(nextQuestion, 1500);
+      return;
+    }
+    
     let isCorrect = false;
     
     if (currentQuestion.type === 'simplify') {
-      isCorrect = userNum === currentQuestion.simplifiedNumerator && 
-                  userDen === currentQuestion.simplifiedDenominator;
+      // Accept any equivalent fraction, not just simplified
+      const expectedNum = currentQuestion.simplifiedNumerator!;
+      const expectedDen = currentQuestion.simplifiedDenominator!;
+      
+      // Check if fractions are equivalent: a/b = c/d if a*d = b*c
+      isCorrect = userNum * expectedDen === userDen * expectedNum;
     } else {
-      isCorrect = userNum === currentQuestion.resultNum && 
-                  userDen === currentQuestion.resultDen;
+      // For other operations, also accept equivalent fractions
+      const expectedNum = currentQuestion.resultNum!;
+      const expectedDen = currentQuestion.resultDen!;
+      
+      // Check if fractions are equivalent: a/b = c/d if a*d = b*c
+      isCorrect = userNum * expectedDen === userDen * expectedNum;
     }
     
     if (isCorrect) {
@@ -441,7 +456,7 @@ const FractionSimplify = () => {
                 <h3 className="text-xl font-bold mb-4">How to Play</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p>• Simplify fractions to lowest terms</p>
+                    <p>• Work with fractions in any form</p>
                     <p>• Add, subtract, and multiply fractions</p>
                     <p>• 60 seconds per question</p>
                   </div>

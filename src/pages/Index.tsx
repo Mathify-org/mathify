@@ -142,11 +142,25 @@ const generalSkills = [
     color: "bg-gradient-to-r from-emerald-500 to-cyan-600"
   },
   {
-    id: "fraction-simplify",
-    title: "Fraction Simplify Quest",
-    description: "Master fraction simplification with timed challenges",
+    id: "fraction-master",
+    title: "Fraction Master",
+    description: "Master fractions with addition, subtraction, and multiplication",
     path: "/fraction-simplify",
     color: "bg-gradient-to-r from-rose-500 to-purple-600"
+  },
+  {
+    id: "time-master",
+    title: "Time Master",
+    description: "Learn to tell time and work with dates and clocks",
+    path: "/time-master",
+    color: "bg-gradient-to-r from-blue-500 to-indigo-600"
+  },
+  {
+    id: "money-counter",
+    title: "Money Counter",
+    description: "Practice counting coins and bills with fun challenges",
+    path: "/money-counter",
+    color: "bg-gradient-to-r from-green-500 to-emerald-600"
   },
   {
     id: "algebra-adventure",

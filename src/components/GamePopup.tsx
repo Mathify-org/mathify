@@ -48,6 +48,20 @@ const GamePopup: React.FC<GamePopupProps> = ({ isOpen, onClose }) => {
       gradient: "from-rose-500 to-purple-600"
     },
     {
+      title: "Time Master",
+      description: "Learn time & dates",
+      icon: <Calculator className="h-8 w-8" />,
+      path: "/time-master",
+      gradient: "from-blue-500 to-indigo-600"
+    },
+    {
+      title: "Money Counter",
+      description: "Count coins & bills",
+      icon: <Calculator className="h-8 w-8" />,
+      path: "/money-counter",
+      gradient: "from-green-500 to-emerald-600"
+    },
+    {
       title: "Algebra Adventure",
       description: "Basic algebra fun",
       icon: <Calculator className="h-8 w-8" />,

@@ -32,6 +32,8 @@ import Terms from "./pages/Terms";
 import MathWarp from "./pages/MathWarp";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import TimeMaster from "./pages/TimeMaster";
+import MoneyCounter from "./pages/MoneyCounter";
 
 // ScrollToTop component that will trigger on route changes
 const ScrollToTop = () => {
@@ -65,6 +67,8 @@ const App = () => (
                 <Route path="/shape-match" element={<ShapeMatch />} />
                 <Route path="/fraction-basics" element={<FractionBasics />} />
                 <Route path="/fraction-simplify" element={<FractionSimplify />} />
+                <Route path="/time-master" element={<TimeMaster />} />
+                <Route path="/money-counter" element={<MoneyCounter />} />
                 <Route path="/arithmetic-hero" element={<ArithmeticHero />} />
                 <Route path="/target-takedown" element={<TargetTakedown />} />
                 <Route path="/algebra-adventure" element={<AlgebraAdventure />} />
