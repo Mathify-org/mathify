@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import confetti from 'canvas-confetti';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 type GameState = 'menu' | 'playing' | 'finished';
-type QuestionType = 'simplify' | 'add' | 'subtract';
+type QuestionType = 'simplify' | 'add' | 'subtract' | 'multiply';
 
 interface Question {
   type: QuestionType;
@@ -18,14 +17,14 @@ interface Question {
   denominator?: number;
   simplifiedNumerator?: number;
   simplifiedDenominator?: number;
-  // For addition/subtraction
+  // For addition/subtraction/multiplication
   fraction1Num?: number;
   fraction1Den?: number;
   fraction2Num?: number;
   fraction2Den?: number;
   resultNum?: number;
   resultDen?: number;
-  operation?: '+' | '-';
+  operation?: '+' | '-' | '×';
 }
 
 const FractionSimplify = () => {
@@ -34,7 +33,7 @@ const FractionSimplify = () => {
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(30);
+  const [timeLeft, setTimeLeft] = useState(60);
   const [totalTimeLeft, setTotalTimeLeft] = useState(180); // 3 minutes
   const [userNumerator, setUserNumerator] = useState('');
   const [userDenominator, setUserDenominator] = useState('');
@@ -65,7 +64,7 @@ const FractionSimplify = () => {
 
   // Generate questions based on difficulty and type
   const generateQuestion = (): Question => {
-    const questionTypes: QuestionType[] = ['simplify', 'add', 'subtract'];
+    const questionTypes: QuestionType[] = ['simplify', 'add', 'subtract', 'multiply'];
     const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
     
     if (questionType === 'simplify') {
@@ -73,8 +72,9 @@ const FractionSimplify = () => {
       
       switch (difficulty) {
         case 'easy':
-          numerator = Math.floor(Math.random() * 20) + 2;
-          denominator = Math.floor(Math.random() * 20) + 2;
+          // Much simpler fractions for easy mode
+          numerator = Math.floor(Math.random() * 12) + 2;
+          denominator = Math.floor(Math.random() * 12) + 2;
           break;
         case 'medium':
           numerator = Math.floor(Math.random() * 50) + 5;
@@ -87,7 +87,7 @@ const FractionSimplify = () => {
       }
 
       // Ensure the fraction can be simplified
-      const commonFactor = Math.floor(Math.random() * 5) + 2;
+      const commonFactor = difficulty === 'easy' ? Math.floor(Math.random() * 3) + 2 : Math.floor(Math.random() * 5) + 2;
       numerator *= commonFactor;
       denominator *= commonFactor;
 
@@ -99,48 +99,108 @@ const FractionSimplify = () => {
         simplifiedNumerator: numerator / divisor,
         simplifiedDenominator: denominator / divisor
       };
-    } else {
-      // Addition or subtraction
+    } else if (questionType === 'multiply') {
+      // Multiplication of fractions
       let f1Num: number, f1Den: number, f2Num: number, f2Den: number;
       
       switch (difficulty) {
         case 'easy':
+          f1Num = Math.floor(Math.random() * 5) + 1;
+          f1Den = Math.floor(Math.random() * 5) + 2;
+          f2Num = Math.floor(Math.random() * 5) + 1;
+          f2Den = Math.floor(Math.random() * 5) + 2;
+          break;
+        case 'medium':
           f1Num = Math.floor(Math.random() * 10) + 1;
           f1Den = Math.floor(Math.random() * 10) + 2;
           f2Num = Math.floor(Math.random() * 10) + 1;
           f2Den = Math.floor(Math.random() * 10) + 2;
           break;
-        case 'medium':
-          f1Num = Math.floor(Math.random() * 20) + 1;
-          f1Den = Math.floor(Math.random() * 20) + 2;
-          f2Num = Math.floor(Math.random() * 20) + 1;
-          f2Den = Math.floor(Math.random() * 20) + 2;
-          break;
         case 'hard':
-          f1Num = Math.floor(Math.random() * 30) + 1;
-          f1Den = Math.floor(Math.random() * 30) + 2;
-          f2Num = Math.floor(Math.random() * 30) + 1;
-          f2Den = Math.floor(Math.random() * 30) + 2;
+          f1Num = Math.floor(Math.random() * 15) + 1;
+          f1Den = Math.floor(Math.random() * 15) + 2;
+          f2Num = Math.floor(Math.random() * 15) + 1;
+          f2Den = Math.floor(Math.random() * 15) + 2;
           break;
       }
 
-      const operation = questionType === 'add' ? '+' : '-';
-      const commonDen = lcm(f1Den, f2Den);
-      const adjustedF1Num = f1Num * (commonDen / f1Den);
-      const adjustedF2Num = f2Num * (commonDen / f2Den);
+      const resultNum = f1Num * f2Num;
+      const resultDen = f1Den * f2Den;
+      const simplified = simplifyFraction(resultNum, resultDen);
+
+      return {
+        type: 'multiply',
+        fraction1Num: f1Num,
+        fraction1Den: f1Den,
+        fraction2Num: f2Num,
+        fraction2Den: f2Den,
+        operation: '×',
+        resultNum: simplified.numerator,
+        resultDen: simplified.denominator
+      };
+    } else {
+      // Addition or subtraction
+      let f1Num: number, f1Den: number, f2Num: number, f2Den: number;
       
-      let resultNum: number;
-      if (operation === '+') {
-        resultNum = adjustedF1Num + adjustedF2Num;
+      if (difficulty === 'easy') {
+        // For easy mode, use same denominators
+        const commonDen = [2, 3, 4, 5, 6, 8, 10][Math.floor(Math.random() * 7)];
+        f1Den = commonDen;
+        f2Den = commonDen;
+        f1Num = Math.floor(Math.random() * (commonDen - 1)) + 1;
+        f2Num = Math.floor(Math.random() * (commonDen - 1)) + 1;
+        
+        // For subtraction, ensure first fraction is larger
+        if (questionType === 'subtract' && f1Num < f2Num) {
+          [f1Num, f2Num] = [f2Num, f1Num];
+        }
       } else {
-        resultNum = adjustedF1Num - adjustedF2Num;
-        // Ensure positive result for simplicity
-        if (resultNum < 0) {
-          resultNum = Math.abs(resultNum);
+        switch (difficulty) {
+          case 'medium':
+            f1Num = Math.floor(Math.random() * 20) + 1;
+            f1Den = Math.floor(Math.random() * 20) + 2;
+            f2Num = Math.floor(Math.random() * 20) + 1;
+            f2Den = Math.floor(Math.random() * 20) + 2;
+            break;
+          case 'hard':
+            f1Num = Math.floor(Math.random() * 30) + 1;
+            f1Den = Math.floor(Math.random() * 30) + 2;
+            f2Num = Math.floor(Math.random() * 30) + 1;
+            f2Den = Math.floor(Math.random() * 30) + 2;
+            break;
         }
       }
 
-      const simplified = simplifyFraction(resultNum, commonDen);
+      const operation = questionType === 'add' ? '+' : '-';
+      let resultNum: number, resultDen: number;
+
+      if (difficulty === 'easy') {
+        // Same denominators - simple calculation
+        resultDen = f1Den;
+        if (operation === '+') {
+          resultNum = f1Num + f2Num;
+        } else {
+          resultNum = f1Num - f2Num;
+        }
+      } else {
+        // Different denominators - need common denominator
+        const commonDen = lcm(f1Den, f2Den);
+        const adjustedF1Num = f1Num * (commonDen / f1Den);
+        const adjustedF2Num = f2Num * (commonDen / f2Den);
+        
+        if (operation === '+') {
+          resultNum = adjustedF1Num + adjustedF2Num;
+        } else {
+          resultNum = adjustedF1Num - adjustedF2Num;
+          // Ensure positive result for simplicity
+          if (resultNum < 0) {
+            resultNum = Math.abs(resultNum);
+          }
+        }
+        resultDen = commonDen;
+      }
+
+      const simplified = simplifyFraction(resultNum, resultDen);
 
       return {
         type: questionType,
@@ -162,7 +222,7 @@ const FractionSimplify = () => {
     setScore(0);
     setQuestionIndex(0);
     setStreak(0);
-    setTimeLeft(30);
+    setTimeLeft(60);
     setTotalTimeLeft(180);
     setCurrentQuestion(generateQuestion());
     setUserNumerator('');
@@ -224,7 +284,7 @@ const FractionSimplify = () => {
       setUserNumerator('');
       setUserDenominator('');
       setFeedback(null);
-      setTimeLeft(30);
+      setTimeLeft(60);
     }
   };
 
@@ -290,10 +350,12 @@ const FractionSimplify = () => {
         </div>
       );
     } else {
+      const operationText = currentQuestion.type === 'add' ? 'Add' : 
+                           currentQuestion.type === 'subtract' ? 'Subtract' : 'Multiply';
       return (
         <div className="mb-8">
           <h2 className="text-xl font-bold mb-8 text-gray-800">
-            {currentQuestion.type === 'add' ? 'Add' : 'Subtract'} these fractions:
+            {operationText} these fractions:
           </h2>
           <div className="flex items-center justify-center gap-6">
             <div className="inline-block">
@@ -357,9 +419,9 @@ const FractionSimplify = () => {
                       <CardContent className="p-6 text-center">
                         <h3 className="text-xl font-bold mb-2 capitalize">{diff}</h3>
                         <p className="text-gray-600 mb-4">
-                          {diff === 'easy' && 'Simple fractions & operations'}
-                          {diff === 'medium' && 'Medium fractions & operations'}
-                          {diff === 'hard' && 'Complex fractions & operations'}
+                          {diff === 'easy' && 'Simple fractions with same denominators'}
+                          {diff === 'medium' && 'Medium fractions with different denominators'}
+                          {diff === 'hard' && 'Complex fractions and operations'}
                         </p>
                         <Button 
                           onClick={() => startGame(diff)}
@@ -380,8 +442,8 @@ const FractionSimplify = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <p>• Simplify fractions to lowest terms</p>
-                    <p>• Add and subtract fractions</p>
-                    <p>• 30 seconds per question</p>
+                    <p>• Add, subtract, and multiply fractions</p>
+                    <p>• 60 seconds per question</p>
                   </div>
                   <div>
                     <p>• 3 minutes total time limit</p>
@@ -432,7 +494,7 @@ const FractionSimplify = () => {
                   <Clock className="h-5 w-5 text-orange-500" />
                   <span className="font-medium">Question Timer: {timeLeft}s</span>
                 </div>
-                <Progress value={(timeLeft / 30) * 100} className="h-2" />
+                <Progress value={(timeLeft / 60) * 100} className="h-2" />
               </CardContent>
             </Card>
 
