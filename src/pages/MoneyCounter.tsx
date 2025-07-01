@@ -192,10 +192,11 @@ const MoneyCounter = () => {
   const checkAnswer = () => {
     if (!currentQuestion || !userAnswer) return;
 
-    const userValue = parseFloat(userAnswer);
-    const correctValue = currentQuestion.answer;
+    // Parse user answer as dollars and convert to cents for comparison
+    const userValueInCents = Math.round(parseFloat(userAnswer) * 100);
+    const correctValueInCents = currentQuestion.answer;
     
-    const isCorrect = Math.abs(userValue - correctValue) < 0.01;
+    const isCorrect = userValueInCents === correctValueInCents;
     
     if (isCorrect) {
       setScore(score + 1);
@@ -217,6 +218,7 @@ const MoneyCounter = () => {
   };
 
   const selectAnswer = (value: number) => {
+    // Store the dollar value directly as string for display
     setUserAnswer((value / 100).toFixed(2));
   };
 

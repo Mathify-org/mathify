@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,15 +8,13 @@ import confetti from 'canvas-confetti';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 type GameState = 'menu' | 'playing' | 'finished';
-type QuestionType = 'tellTime' | 'elapsedTime' | 'timeComparison' | 'dateArithmetic';
+type QuestionType = 'timeConversion' | 'elapsedTime' | 'timeComparison' | 'dateArithmetic';
 
 interface Question {
   type: QuestionType;
   question: string;
   answer: string;
   options?: string[];
-  hours?: number;
-  minutes?: number;
 }
 
 const TimeMaster = () => {
@@ -45,29 +42,49 @@ const TimeMaster = () => {
   };
 
   const generateQuestion = (): Question => {
-    const questionTypes: QuestionType[] = ['tellTime', 'elapsedTime', 'timeComparison', 'dateArithmetic'];
+    const questionTypes: QuestionType[] = ['timeConversion', 'elapsedTime', 'timeComparison', 'dateArithmetic'];
     const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
     
     switch (questionType) {
-      case 'tellTime':
-        const hours = Math.floor(Math.random() * 12) + 1;
-        const minutes = difficulty === 'easy' ? 
-          [0, 15, 30, 45][Math.floor(Math.random() * 4)] :
-          Math.floor(Math.random() * 60);
-        
-        return {
-          type: 'tellTime',
-          question: `What time is shown on the clock?`,
-          answer: formatTime(hours, minutes, true),
-          hours,
-          minutes,
-          options: difficulty !== 'hard' ? [
-            formatTime(hours, minutes, true),
-            formatTime(hours + 1, minutes, true),
-            formatTime(hours, minutes + 15, true),
-            formatTime(hours - 1, minutes, true)
-          ].sort(() => Math.random() - 0.5) : undefined
-        };
+      case 'timeConversion':
+        if (difficulty === 'easy') {
+          const hours = Math.floor(Math.random() * 5) + 1;
+          const minutes = hours * 60;
+          return {
+            type: 'timeConversion',
+            question: `How many minutes are in ${hours} hour${hours > 1 ? 's' : ''}?`,
+            answer: minutes.toString(),
+            options: [
+              minutes.toString(),
+              (minutes + 10).toString(),
+              (minutes - 10).toString(),
+              (minutes + 30).toString()
+            ].sort(() => Math.random() - 0.5)
+          };
+        } else if (difficulty === 'medium') {
+          const totalMinutes = (Math.floor(Math.random() * 4) + 2) * 60 + (Math.floor(Math.random() * 6) * 10);
+          const hours = Math.floor(totalMinutes / 60);
+          const mins = totalMinutes % 60;
+          return {
+            type: 'timeConversion',
+            question: `Convert ${totalMinutes} minutes to hours and minutes.`,
+            answer: mins === 0 ? `${hours} hours` : `${hours} hours ${mins} minutes`,
+            options: [
+              mins === 0 ? `${hours} hours` : `${hours} hours ${mins} minutes`,
+              mins === 0 ? `${hours + 1} hours` : `${hours + 1} hours ${mins} minutes`,
+              mins === 0 ? `${hours} hours 30 minutes` : `${hours} hours ${mins + 10} minutes`,
+              mins === 0 ? `${hours - 1} hours` : `${hours - 1} hours ${mins} minutes`
+            ].sort(() => Math.random() - 0.5)
+          };
+        } else {
+          const days = Math.floor(Math.random() * 7) + 3;
+          const hours = days * 24;
+          return {
+            type: 'timeConversion',
+            question: `How many hours are in ${days} days?`,
+            answer: hours.toString()
+          };
+        }
 
       case 'elapsedTime':
         const startHour = Math.floor(Math.random() * 10) + 1;
@@ -230,64 +247,6 @@ const TimeMaster = () => {
     return "⏱️ Keep trying! Practice makes perfect!";
   };
 
-  const renderClock = () => {
-    if (!currentQuestion || currentQuestion.type !== 'tellTime') return null;
-    
-    const { hours = 0, minutes = 0 } = currentQuestion;
-    const hourAngle = (hours % 12) * 30 + minutes * 0.5;
-    const minuteAngle = minutes * 6;
-    
-    return (
-      <div className="relative w-48 h-48 mx-auto mb-6">
-        <div className="absolute inset-0 bg-white rounded-full border-8 border-blue-600 shadow-xl">
-          {/* Clock numbers */}
-          {[...Array(12)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute text-lg font-bold text-blue-800"
-              style={{
-                top: `${50 - 35 * Math.cos((i * 30 - 90) * Math.PI / 180)}%`,
-                left: `${50 + 35 * Math.sin((i * 30 - 90) * Math.PI / 180)}%`,
-                transform: 'translate(-50%, -50%)'
-              }}
-            >
-              {i === 0 ? 12 : i}
-            </div>
-          ))}
-          
-          {/* Hour hand */}
-          <div
-            className="absolute bg-blue-800 origin-bottom rounded-full"
-            style={{
-              width: '6px',
-              height: '60px',
-              top: '25%',
-              left: '50%',
-              transformOrigin: '50% 100%',
-              transform: `translateX(-50%) rotate(${hourAngle}deg)`
-            }}
-          />
-          
-          {/* Minute hand */}
-          <div
-            className="absolute bg-red-600 origin-bottom rounded-full"
-            style={{
-              width: '4px',
-              height: '80px',
-              top: '15%',
-              left: '50%',
-              transformOrigin: '50% 100%',
-              transform: `translateX(-50%) rotate(${minuteAngle}deg)`
-            }}
-          />
-          
-          {/* Center dot */}
-          <div className="absolute w-4 h-4 bg-gray-800 rounded-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-cyan-50 to-indigo-100 p-4">
       <div className="container mx-auto max-w-4xl">
@@ -310,7 +269,7 @@ const TimeMaster = () => {
                       <CardContent className="p-6 text-center">
                         <h3 className="text-xl font-bold mb-2 capitalize">{diff}</h3>
                         <p className="text-gray-600 mb-4">
-                          {diff === 'easy' && 'Simple time telling and basic calculations'}
+                          {diff === 'easy' && 'Simple time conversions and basic calculations'}
                           {diff === 'medium' && 'More complex time problems and comparisons'}
                           {diff === 'hard' && 'Advanced time arithmetic and conversions'}
                         </p>
@@ -332,7 +291,7 @@ const TimeMaster = () => {
                 <h3 className="text-xl font-bold mb-4">How to Play</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p>• Tell time from analog clocks</p>
+                    <p>• Convert between time units</p>
                     <p>• Calculate elapsed time</p>
                     <p>• Compare different times</p>
                   </div>
@@ -389,8 +348,6 @@ const TimeMaster = () => {
             <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl">
               <CardContent className="p-8 text-center">
                 <h2 className="text-xl font-bold mb-6 text-gray-800">{currentQuestion.question}</h2>
-                
-                {renderClock()}
                 
                 {currentQuestion.options ? (
                   <div className="grid grid-cols-1 gap-3 mb-6">
