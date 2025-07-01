@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +11,7 @@ import TimesTablesMaster from "./pages/TimesTablesMaster";
 import MathFactsRace from "./pages/MathFactsRace";
 import ShapeMatch from "./pages/ShapeMatch";
 import FractionBasics from "./pages/FractionBasics";
+import FractionSimplify from "./pages/FractionSimplify";
 import ArithmeticHero from "./pages/ArithmeticHero";
 import TargetTakedown from "./pages/TargetTakedown";
 import AlgebraAdventure from "./pages/AlgebraAdventure";
@@ -64,6 +64,7 @@ const App = () => (
                 <Route path="/math-facts" element={<MathFactsRace />} />
                 <Route path="/shape-match" element={<ShapeMatch />} />
                 <Route path="/fraction-basics" element={<FractionBasics />} />
+                <Route path="/fraction-simplify" element={<FractionSimplify />} />
                 <Route path="/arithmetic-hero" element={<ArithmeticHero />} />
                 <Route path="/target-takedown" element={<TargetTakedown />} />
                 <Route path="/algebra-adventure" element={<AlgebraAdventure />} />

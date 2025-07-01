@@ -142,6 +142,13 @@ const generalSkills = [
     color: "bg-gradient-to-r from-emerald-500 to-cyan-600"
   },
   {
+    id: "fraction-simplify",
+    title: "Fraction Simplify Quest",
+    description: "Master fraction simplification with timed challenges",
+    path: "/fraction-simplify",
+    color: "bg-gradient-to-r from-rose-500 to-purple-600"
+  },
+  {
     id: "algebra-adventure",
     title: "Algebra Adventure",
     description: "Master basic algebra with fun, colorful challenges",

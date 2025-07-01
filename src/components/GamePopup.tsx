@@ -41,6 +41,13 @@ const GamePopup: React.FC<GamePopupProps> = ({ isOpen, onClose }) => {
       gradient: "from-yellow-500 to-orange-600"
     },
     {
+      title: "Fraction Simplify",
+      description: "Simplify fractions",
+      icon: <Divide className="h-8 w-8" />,
+      path: "/fraction-simplify",
+      gradient: "from-rose-500 to-purple-600"
+    },
+    {
       title: "Algebra Adventure",
       description: "Basic algebra fun",
       icon: <Calculator className="h-8 w-8" />,
