@@ -114,6 +114,20 @@ const gradeLevels = [
 
 const generalSkills = [
   {
+    id: "math-everyday",
+    title: "Math in Everyday Life",
+    description: "Discover how we use mathematics in our daily lives through beautiful interactive cards",
+    path: "/math-everyday",
+    color: "bg-gradient-to-r from-purple-600 to-pink-600"
+  },
+  {
+    id: "math-intuition",
+    title: "Math Intuition Test",
+    description: "Test your mathematical thinking with fun yes/no questions and instant feedback",
+    path: "/math-intuition",
+    color: "bg-gradient-to-r from-purple-500 to-indigo-600"
+  },
+  {
     id: "mental-maths",
     title: "Mental Maths Challenge",
     description: "Test your mental math skills with quick calculations",

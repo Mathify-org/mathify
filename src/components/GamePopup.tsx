@@ -1,6 +1,6 @@
 
 import React from "react";
-import { X, Gamepad2, Calculator, Target, Zap, Shapes, Divide } from "lucide-react";
+import { X, Gamepad2, Calculator, Target, Zap, Shapes, Divide, Brain, BookOpen } from "lucide-react";
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -12,6 +12,20 @@ interface GamePopupProps {
 
 const GamePopup: React.FC<GamePopupProps> = ({ isOpen, onClose }) => {
   const games = [
+    {
+      title: "Math in Everyday Life",
+      description: "Beautiful learning cards",
+      icon: <BookOpen className="h-8 w-8" />,
+      path: "/math-everyday",
+      gradient: "from-purple-600 to-pink-600"
+    },
+    {
+      title: "Math Intuition Test",
+      description: "Yes/no thinking questions",
+      icon: <Brain className="h-8 w-8" />,
+      path: "/math-intuition",
+      gradient: "from-purple-500 to-indigo-600"
+    },
     {
       title: "Mental Maths",
       description: "Quick calculations",

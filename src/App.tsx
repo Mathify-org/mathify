@@ -36,6 +36,8 @@ import Profile from "./pages/Profile";
 import TimeMaster from "./pages/TimeMaster";
 import MoneyCounter from "./pages/MoneyCounter";
 import GeometryMaster from "./pages/GeometryMaster";
+import MathIntuition from "./pages/MathIntuition";
+import MathEveryday from "./pages/MathEveryday";
 
 // ScrollToTop component that will trigger on route changes
 const ScrollToTop = () => {
@@ -72,6 +74,8 @@ const App = () => (
                 <Route path="/time-master" element={<TimeMaster />} />
                 <Route path="/money-counter" element={<MoneyCounter />} />
                 <Route path="/geometry-master" element={<GeometryMaster />} />
+                <Route path="/math-intuition" element={<MathIntuition />} />
+                <Route path="/math-everyday" element={<MathEveryday />} />
                 <Route path="/arithmetic-hero" element={<ArithmeticHero />} />
                 <Route path="/target-takedown" element={<TargetTakedown />} />
                 <Route path="/algebra-adventure" element={<AlgebraAdventure />} />

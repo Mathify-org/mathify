@@ -168,50 +168,55 @@ const GeometryMaster = () => {
         break;
         
       case 'triangle':
-        dimensions.base = randomInt(range.min, range.max);
-        dimensions.height = randomInt(range.min, range.max);
         if (type === 'area') {
+          dimensions.base = randomInt(range.min, range.max);
+          dimensions.height = randomInt(range.min, range.max);
           answer = (dimensions.base * dimensions.height) / 2;
           unit = 'units²';
           formula = '½ × base × height';
         } else {
+          // For perimeter, just give three sides
           dimensions.side1 = randomInt(range.min, range.max);
           dimensions.side2 = randomInt(range.min, range.max);
-          answer = dimensions.base + dimensions.side1 + dimensions.side2;
+          dimensions.side3 = randomInt(range.min, range.max);
+          answer = dimensions.side1 + dimensions.side2 + dimensions.side3;
           unit = 'units';
           formula = 'side1 + side2 + side3';
         }
         break;
         
       case 'parallelogram':
-        dimensions.base = randomInt(range.min, range.max);
-        dimensions.height = randomInt(range.min, range.max);
         if (type === 'area') {
+          dimensions.base = randomInt(range.min, range.max);
+          dimensions.height = randomInt(range.min, range.max);
           answer = dimensions.base * dimensions.height;
           unit = 'units²';
           formula = 'base × height';
         } else {
-          dimensions.side = randomInt(range.min, range.max);
-          answer = 2 * (dimensions.base + dimensions.side);
+          dimensions.side1 = randomInt(range.min, range.max);
+          dimensions.side2 = randomInt(range.min, range.max);
+          answer = 2 * (dimensions.side1 + dimensions.side2);
           unit = 'units';
-          formula = '2 × (base + side)';
+          formula = '2 × (side1 + side2)';
         }
         break;
         
       case 'trapezoid':
-        dimensions.base1 = randomInt(range.min, range.max);
-        dimensions.base2 = randomInt(range.min, range.max);
-        dimensions.height = randomInt(range.min, range.max);
         if (type === 'area') {
+          dimensions.base1 = randomInt(range.min, range.max);
+          dimensions.base2 = randomInt(range.min, range.max);
+          dimensions.height = randomInt(range.min, range.max);
           answer = ((dimensions.base1 + dimensions.base2) * dimensions.height) / 2;
           unit = 'units²';
           formula = '½ × (base1 + base2) × height';
         } else {
           dimensions.side1 = randomInt(range.min, range.max);
           dimensions.side2 = randomInt(range.min, range.max);
-          answer = dimensions.base1 + dimensions.base2 + dimensions.side1 + dimensions.side2;
+          dimensions.side3 = randomInt(range.min, range.max);
+          dimensions.side4 = randomInt(range.min, range.max);
+          answer = dimensions.side1 + dimensions.side2 + dimensions.side3 + dimensions.side4;
           unit = 'units';
-          formula = 'base1 + base2 + side1 + side2';
+          formula = 'side1 + side2 + side3 + side4';
         }
         break;
         
