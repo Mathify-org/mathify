@@ -62,6 +62,13 @@ const GamePopup: React.FC<GamePopupProps> = ({ isOpen, onClose }) => {
       gradient: "from-green-500 to-emerald-600"
     },
     {
+      title: "Geometry Master",
+      description: "Area, perimeter & volume",
+      icon: <Target className="h-8 w-8" />,
+      path: "/geometry-master",
+      gradient: "from-indigo-500 to-purple-600"
+    },
+    {
       title: "Algebra Adventure",
       description: "Basic algebra fun",
       icon: <Calculator className="h-8 w-8" />,

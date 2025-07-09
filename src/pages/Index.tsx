@@ -163,6 +163,13 @@ const generalSkills = [
     color: "bg-gradient-to-r from-green-500 to-emerald-600"
   },
   {
+    id: "geometry-master",
+    title: "Geometry Master",
+    description: "Master area, perimeter, and volume calculations",
+    path: "/geometry-master",
+    color: "bg-gradient-to-r from-indigo-500 to-purple-600"
+  },
+  {
     id: "algebra-adventure",
     title: "Algebra Adventure",
     description: "Master basic algebra with fun, colorful challenges",
