@@ -46,7 +46,7 @@ interface GameStats {
 
 const GeometryMaster = () => {
   const [gameState, setGameState] = useState<'menu' | 'playing' | 'paused' | 'finished'>('menu');
-  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
+  const [difficulty, setDifficulty] = useState<'extraEasy' | 'easy' | 'medium' | 'hard'>('easy');
   const [includeVolume, setIncludeVolume] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [userAnswer, setUserAnswer] = useState('');
@@ -92,9 +92,15 @@ const GeometryMaster = () => {
   }, [gameState]);
 
   const generateQuestion = useCallback((): Question => {
-    const shapes = includeVolume 
-      ? ['square', 'rectangle', 'circle', 'triangle', 'parallelogram', 'trapezoid', 'hexagon', 'cube', 'sphere', 'cylinder']
-      : ['square', 'rectangle', 'circle', 'triangle', 'parallelogram', 'trapezoid', 'hexagon'];
+    let shapes: string[];
+    
+    if (difficulty === 'extraEasy') {
+      shapes = ['square', 'rectangle', 'triangle'];
+    } else {
+      shapes = includeVolume 
+        ? ['square', 'rectangle', 'circle', 'triangle', 'parallelogram', 'trapezoid', 'hexagon', 'cube', 'sphere', 'cylinder']
+        : ['square', 'rectangle', 'circle', 'triangle', 'parallelogram', 'trapezoid', 'hexagon'];
+    }
     
     const shape = shapes[Math.floor(Math.random() * shapes.length)];
     const types = shape.includes('cube') || shape.includes('sphere') || shape.includes('cylinder') 
@@ -104,6 +110,7 @@ const GeometryMaster = () => {
     
     const getDifficultyRange = () => {
       switch (difficulty) {
+        case 'extraEasy': return { min: 2, max: 6 };
         case 'easy': return { min: 2, max: 10 };
         case 'medium': return { min: 5, max: 20 };
         case 'hard': return { min: 10, max: 50 };
@@ -392,6 +399,7 @@ const GeometryMaster = () => {
                 <h2 className="text-2xl font-bold mb-4 text-indigo-700">Difficulty Level</h2>
                 <div className="space-y-3">
                   {[
+                    { level: 'extraEasy', label: 'Extra Easy', desc: 'Squares, rectangles, triangles only (2-6)', color: 'from-emerald-400 to-green-500' },
                     { level: 'easy', label: 'Easy', desc: 'Small numbers (2-10)', color: 'from-green-400 to-emerald-500' },
                     { level: 'medium', label: 'Medium', desc: 'Medium numbers (5-20)', color: 'from-yellow-400 to-orange-500' },
                     { level: 'hard', label: 'Hard', desc: 'Large numbers (10-50)', color: 'from-red-400 to-pink-500' }
@@ -422,15 +430,18 @@ const GeometryMaster = () => {
                   <Button
                     onClick={() => setIncludeVolume(!includeVolume)}
                     variant={includeVolume ? "default" : "outline"}
+                    disabled={difficulty === 'extraEasy'}
                     className={`w-full p-4 h-auto ${includeVolume 
                       ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white border-0' 
                       : 'hover:bg-gradient-to-r hover:from-purple-500 hover:to-indigo-600 hover:text-white'
-                    }`}
+                    } ${difficulty === 'extraEasy' ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <div className="flex items-center justify-between w-full">
                       <div className="text-left">
                         <div className="font-bold">Include Volume</div>
-                        <div className="text-sm opacity-90">3D shapes: cubes, spheres, cylinders</div>
+                        <div className="text-sm opacity-90">
+                          {difficulty === 'extraEasy' ? 'Not available in Extra Easy mode' : '3D shapes: cubes, spheres, cylinders'}
+                        </div>
                       </div>
                       <Box className="h-6 w-6" />
                     </div>
@@ -443,6 +454,9 @@ const GeometryMaster = () => {
                       <li>• 60 seconds per question</li>
                       <li>• Build streaks for bonus points</li>
                       <li>• Time bonus for quick answers</li>
+                      {difficulty === 'extraEasy' && (
+                        <li className="text-emerald-600 font-medium">• Perfect for beginners: basic shapes only!</li>
+                      )}
                     </ul>
                   </div>
                 </div>
