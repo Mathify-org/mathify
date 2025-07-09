@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -94,8 +93,8 @@ const GeometryMaster = () => {
 
   const generateQuestion = useCallback((): Question => {
     const shapes = includeVolume 
-      ? ['square', 'rectangle', 'circle', 'triangle', 'cube', 'sphere', 'cylinder']
-      : ['square', 'rectangle', 'circle', 'triangle', 'parallelogram', 'trapezoid'];
+      ? ['square', 'rectangle', 'circle', 'triangle', 'parallelogram', 'trapezoid', 'hexagon', 'cube', 'sphere', 'cylinder']
+      : ['square', 'rectangle', 'circle', 'triangle', 'parallelogram', 'trapezoid', 'hexagon'];
     
     const shape = shapes[Math.floor(Math.random() * shapes.length)];
     const types = shape.includes('cube') || shape.includes('sphere') || shape.includes('cylinder') 
@@ -174,6 +173,51 @@ const GeometryMaster = () => {
           answer = dimensions.base + dimensions.side1 + dimensions.side2;
           unit = 'units';
           formula = 'side1 + side2 + side3';
+        }
+        break;
+        
+      case 'parallelogram':
+        dimensions.base = randomInt(range.min, range.max);
+        dimensions.height = randomInt(range.min, range.max);
+        if (type === 'area') {
+          answer = dimensions.base * dimensions.height;
+          unit = 'units²';
+          formula = 'base × height';
+        } else {
+          dimensions.side = randomInt(range.min, range.max);
+          answer = 2 * (dimensions.base + dimensions.side);
+          unit = 'units';
+          formula = '2 × (base + side)';
+        }
+        break;
+        
+      case 'trapezoid':
+        dimensions.base1 = randomInt(range.min, range.max);
+        dimensions.base2 = randomInt(range.min, range.max);
+        dimensions.height = randomInt(range.min, range.max);
+        if (type === 'area') {
+          answer = ((dimensions.base1 + dimensions.base2) * dimensions.height) / 2;
+          unit = 'units²';
+          formula = '½ × (base1 + base2) × height';
+        } else {
+          dimensions.side1 = randomInt(range.min, range.max);
+          dimensions.side2 = randomInt(range.min, range.max);
+          answer = dimensions.base1 + dimensions.base2 + dimensions.side1 + dimensions.side2;
+          unit = 'units';
+          formula = 'base1 + base2 + side1 + side2';
+        }
+        break;
+        
+      case 'hexagon':
+        dimensions.side = randomInt(range.min, range.max);
+        if (type === 'area') {
+          answer = Math.round((3 * Math.sqrt(3) / 2) * dimensions.side * dimensions.side * 100) / 100;
+          unit = 'units²';
+          formula = '(3√3/2) × side²';
+        } else {
+          answer = 6 * dimensions.side;
+          unit = 'units';
+          formula = '6 × side';
         }
         break;
         
