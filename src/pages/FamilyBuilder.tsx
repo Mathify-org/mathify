@@ -36,7 +36,7 @@ const challenges: Challenge[] = [
   {
     id: 1,
     title: "Nuclear Family",
-    description: "Build a nuclear family with 2 parents and 2 children in proper layers",
+    description: "Build a nuclear family with 2 parents and 2 children",
     familyType: "nuclear",
     requiredMembers: ["father", "mother", "son", "daughter"],
     mathQuestion: "How many people are in this nuclear family?",
@@ -46,7 +46,7 @@ const challenges: Challenge[] = [
   {
     id: 2,
     title: "Extended Family",
-    description: "Create an extended family with grandparents, parents, and children in 3 generations",
+    description: "Create an extended family with grandparents, parents, and children",
     familyType: "extended",
     requiredMembers: ["grandfather", "grandmother", "father", "mother", "son", "daughter"],
     mathQuestion: "How many generations are represented in this family tree?",
@@ -56,7 +56,7 @@ const challenges: Challenge[] = [
   {
     id: 3,
     title: "Joint Family",
-    description: "Build a joint family with uncle, aunt, and cousins arranged in layers",
+    description: "Build a joint family with uncle, aunt, and cousins",
     familyType: "joint",
     requiredMembers: ["father", "mother", "son", "daughter", "uncle", "aunt", "cousin"],
     mathQuestion: "How many children are in this joint family?",
@@ -66,7 +66,7 @@ const challenges: Challenge[] = [
   {
     id: 4,
     title: "Single Parent Family",
-    description: "Create a single parent family with one parent and children in layers",
+    description: "Create a single parent family with one parent and children",
     familyType: "single-parent",
     requiredMembers: ["mother", "son", "daughter"],
     mathQuestion: "What's the total number of family members?",
@@ -98,7 +98,6 @@ const FamilyBuilder: React.FC = () => {
   const [challengeCompleted, setChallengeCompleted] = useState(false);
   const [actionHistory, setActionHistory] = useState<ActionHistory[]>([]);
   const [draggedMember, setDraggedMember] = useState<string | null>(null);
-  const [dropZoneActive, setDropZoneActive] = useState<number | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
@@ -119,20 +118,21 @@ const FamilyBuilder: React.FC = () => {
     setChallengeCompleted(false);
     setActionHistory([]);
     setDraggedMember(null);
-    setDropZoneActive(null);
   };
 
   const addFamilyMember = (type: FamilyMember['type']) => {
-    const generation = getGeneration(type);
-    const { x, y } = getGenerationPosition(generation);
+    // Simple random placement anywhere on canvas
+    const canvasWidth = 800;
+    const canvasHeight = 600;
+    const padding = 60;
     
     const newMember: FamilyMember = {
       id: `${type}_${Date.now()}`,
       name: memberTypes.find(m => m.type === type)?.label || type,
       type: type,
-      generation: generation,
-      x: x,
-      y: y
+      generation: getGeneration(type),
+      x: padding + Math.random() * (canvasWidth - 2 * padding),
+      y: padding + Math.random() * (canvasHeight - 2 * padding)
     };
     
     const action: ActionHistory = {
@@ -151,73 +151,12 @@ const FamilyBuilder: React.FC = () => {
     return 3;
   };
 
-  const getGenerationPosition = (generation: number) => {
-    const canvasWidth = 800;
-    const padding = 60;
-    const layerHeight = 80;
-    const layerTop = 20;
-    
-    // Calculate Y position based on generation
-    let y = layerTop + (generation - 1) * layerHeight + layerHeight / 2;
-    
-    // Find how many members are already in this generation
-    const membersInGeneration = familyMembers.filter(m => m.generation === generation);
-    const spacing = 120;
-    const totalWidth = Math.max(1, membersInGeneration.length + 1) * spacing;
-    const startX = (canvasWidth - totalWidth) / 2;
-    
-    // Position new member next to existing ones
-    const x = startX + (membersInGeneration.length) * spacing + spacing / 2;
-    
-    return { x, y };
-  };
-
-  const snapToLayer = (x: number, y: number, generation: number) => {
-    const layerHeight = 80;
-    const layerTop = 20;
-    const targetY = layerTop + (generation - 1) * layerHeight + layerHeight / 2;
-    
-    // Snap to appropriate layer if close enough
-    if (Math.abs(y - targetY) < 40) {
-      return { x, y: targetY };
-    }
-    
-    // Check if being dragged to a different layer
-    for (let gen = 1; gen <= 3; gen++) {
-      const genY = layerTop + (gen - 1) * layerHeight + layerHeight / 2;
-      if (Math.abs(y - genY) < 40) {
-        return { x, y: genY };
-      }
-    }
-    
-    return { x, y };
-  };
-
-  const getLayerFromY = (y: number): number => {
-    const layerHeight = 80;
-    const layerTop = 20;
-    
-    for (let gen = 1; gen <= 3; gen++) {
-      const genY = layerTop + (gen - 1) * layerHeight + layerHeight / 2;
-      if (Math.abs(y - genY) < 40) {
-        return gen;
-      }
-    }
-    
-    return 0; // Invalid layer
-  };
-
   const moveMember = (id: string, x: number, y: number) => {
-    const member = familyMembers.find(m => m.id === id);
-    if (!member) return;
-    
-    const snappedPosition = snapToLayer(x, y, member.generation);
-    
     const previousPosition = familyMembers.find(m => m.id === id);
     if (previousPosition) {
       const action: ActionHistory = {
         type: 'move_member',
-        data: { id, previousX: previousPosition.x, previousY: previousPosition.y, newX: snappedPosition.x, newY: snappedPosition.y },
+        data: { id, previousX: previousPosition.x, previousY: previousPosition.y, newX: x, newY: y },
         timestamp: Date.now()
       };
       setActionHistory([...actionHistory, action]);
@@ -225,7 +164,7 @@ const FamilyBuilder: React.FC = () => {
     
     setFamilyMembers(prev => 
       prev.map(member => 
-        member.id === id ? { ...member, x: snappedPosition.x, y: snappedPosition.y } : member
+        member.id === id ? { ...member, x, y } : member
       )
     );
   };
@@ -484,23 +423,8 @@ const FamilyBuilder: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="relative bg-white rounded-lg border-2 border-dashed border-purple-200 h-[600px] overflow-hidden w-full max-w-[800px]">
-                {/* Enhanced Generation Layer Guidelines with Drop Zone Feedback */}
-                <div className="absolute inset-0 pointer-events-none z-10">
-                  <div className={`absolute top-4 left-4 right-4 h-16 rounded-lg flex items-center justify-center transition-all duration-300 ${
-                    dropZoneActive === 1 ? 'bg-gradient-to-r from-purple-200 to-pink-200 border-2 border-purple-400' : 'bg-gradient-to-r from-purple-100 to-pink-100'
-                  }`}>
-                    <span className="text-sm font-semibold text-purple-600">Generation 1 (Grandparents)</span>
-                  </div>
-                  <div className={`absolute top-24 left-4 right-4 h-16 rounded-lg flex items-center justify-center transition-all duration-300 ${
-                    dropZoneActive === 2 ? 'bg-gradient-to-r from-blue-200 to-cyan-200 border-2 border-blue-400' : 'bg-gradient-to-r from-blue-100 to-cyan-100'
-                  }`}>
-                    <span className="text-sm font-semibold text-blue-600">Generation 2 (Parents, Aunts, Uncles)</span>
-                  </div>
-                  <div className={`absolute top-44 left-4 right-4 h-16 rounded-lg flex items-center justify-center transition-all duration-300 ${
-                    dropZoneActive === 3 ? 'bg-gradient-to-r from-green-200 to-teal-200 border-2 border-green-400' : 'bg-gradient-to-r from-green-100 to-teal-100'
-                  }`}>
-                    <span className="text-sm font-semibold text-green-600">Generation 3 (Children, Cousins)</span>
-                  </div>
+                <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-lg font-semibold pointer-events-none">
+                  <span>Place your family members anywhere on the canvas</span>
                 </div>
 
                 {familyMembers.map((member) => (
@@ -511,17 +435,11 @@ const FamilyBuilder: React.FC = () => {
                     onDragStart={() => {
                       setDraggedMember(member.id);
                     }}
-                    onDrag={(_, info) => {
-                      const newY = member.y + info.offset.y;
-                      const layer = getLayerFromY(newY);
-                      setDropZoneActive(layer);
-                    }}
                     onDragEnd={(_, info) => {
                       const newX = member.x + info.offset.x;
                       const newY = member.y + info.offset.y;
                       moveMember(member.id, newX, newY);
                       setDraggedMember(null);
-                      setDropZoneActive(null);
                     }}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
