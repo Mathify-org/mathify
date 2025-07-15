@@ -38,7 +38,7 @@ const challenges: Challenge[] = [
     title: "Nuclear Family",
     description: "Build a nuclear family with 2 parents and 2 children",
     familyType: "nuclear",
-    requiredMembers: ["father", "mother", "son", "daughter"],
+    requiredMembers: ["father", "mother"], // Only require parents, children can be any combination
     mathQuestion: "How many people are in this nuclear family?",
     correctAnswer: 4,
     hint: "Count all the family members you placed"
@@ -48,7 +48,7 @@ const challenges: Challenge[] = [
     title: "Extended Family",
     description: "Create an extended family with grandparents, parents, and children",
     familyType: "extended",
-    requiredMembers: ["grandfather", "grandmother", "father", "mother", "son", "daughter"],
+    requiredMembers: ["grandfather", "grandmother", "father", "mother"],
     mathQuestion: "How many generations are represented in this family tree?",
     correctAnswer: 3,
     hint: "Count from grandparents to grandchildren"
@@ -58,7 +58,7 @@ const challenges: Challenge[] = [
     title: "Joint Family",
     description: "Build a joint family with uncle, aunt, and cousins",
     familyType: "joint",
-    requiredMembers: ["father", "mother", "son", "daughter", "uncle", "aunt", "cousin"],
+    requiredMembers: ["father", "mother", "uncle", "aunt"],
     mathQuestion: "How many children are in this joint family?",
     correctAnswer: 3,
     hint: "Count sons, daughters, and cousins"
@@ -68,7 +68,7 @@ const challenges: Challenge[] = [
     title: "Single Parent Family",
     description: "Create a single parent family with one parent and children",
     familyType: "single-parent",
-    requiredMembers: ["mother", "son", "daughter"],
+    requiredMembers: ["mother"], // Only require one parent
     mathQuestion: "What's the total number of family members?",
     correctAnswer: 3,
     hint: "Count all the family members you placed"
@@ -203,7 +203,41 @@ const FamilyBuilder: React.FC = () => {
       memberTypesList.includes(required as FamilyMember['type'])
     );
     
-    if (hasAllRequired) {
+    // Additional validation for each challenge type
+    let isValid = hasAllRequired;
+    let errorMessage = "Make sure you have all required family members placed.";
+    
+    if (challenge.familyType === 'nuclear' && hasAllRequired) {
+      // Nuclear family needs exactly 2 parents + 2 children
+      const childrenCount = familyMembers.filter(m => m.type === 'son' || m.type === 'daughter').length;
+      if (childrenCount !== 2) {
+        isValid = false;
+        errorMessage = "Nuclear family needs exactly 2 children (any combination of sons/daughters).";
+      }
+    } else if (challenge.familyType === 'extended' && hasAllRequired) {
+      // Extended family needs at least 1 child
+      const childrenCount = familyMembers.filter(m => m.type === 'son' || m.type === 'daughter').length;
+      if (childrenCount === 0) {
+        isValid = false;
+        errorMessage = "Extended family needs at least one child.";
+      }
+    } else if (challenge.familyType === 'joint' && hasAllRequired) {
+      // Joint family needs at least 1 child of each type (son/daughter/cousin)
+      const hasChildren = familyMembers.some(m => m.type === 'son' || m.type === 'daughter' || m.type === 'cousin');
+      if (!hasChildren) {
+        isValid = false;
+        errorMessage = "Joint family needs at least one child (son, daughter, or cousin).";
+      }
+    } else if (challenge.familyType === 'single-parent' && hasAllRequired) {
+      // Single parent family needs at least 2 children
+      const childrenCount = familyMembers.filter(m => m.type === 'son' || m.type === 'daughter').length;
+      if (childrenCount < 2) {
+        isValid = false;
+        errorMessage = "Single parent family needs at least 2 children.";
+      }
+    }
+    
+    if (isValid) {
       setShowMathQuestion(true);
       toast({
         title: "Family Structure Complete!",
@@ -212,15 +246,37 @@ const FamilyBuilder: React.FC = () => {
     } else {
       toast({
         title: "Incomplete Family",
-        description: "Make sure you have all required family members placed.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
   };
 
+  const calculateCorrectAnswer = () => {
+    switch (challenge.familyType) {
+      case 'nuclear':
+        // Count all family members
+        return familyMembers.length;
+      case 'extended':
+        // Count generations (1: grandparents, 2: parents, 3: children)
+        const generations = new Set(familyMembers.map(m => m.generation));
+        return generations.size;
+      case 'joint':
+        // Count all children (sons, daughters, cousins)
+        return familyMembers.filter(m => m.type === 'son' || m.type === 'daughter' || m.type === 'cousin').length;
+      case 'single-parent':
+        // Count all family members
+        return familyMembers.length;
+      default:
+        return familyMembers.length;
+    }
+  };
+
   const submitAnswer = () => {
     const answer = parseInt(userAnswer);
-    if (answer === challenge.correctAnswer) {
+    const correctAnswer = calculateCorrectAnswer();
+    
+    if (answer === correctAnswer) {
       setScore(score + 100);
       setChallengeCompleted(true);
       setShowResult(true);
@@ -231,7 +287,7 @@ const FamilyBuilder: React.FC = () => {
     } else {
       toast({
         title: "Try Again",
-        description: challenge.hint,
+        description: `${challenge.hint} (Expected: ${correctAnswer})`,
         variant: "destructive",
       });
     }
