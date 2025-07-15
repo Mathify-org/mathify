@@ -13,11 +13,10 @@ interface FamilyMember {
   generation: number;
   x: number;
   y: number;
-  connected: string[];
 }
 
 interface ActionHistory {
-  type: 'add_member' | 'connect_members' | 'move_member';
+  type: 'add_member' | 'move_member';
   data: any;
   timestamp: number;
 }
@@ -28,7 +27,6 @@ interface Challenge {
   description: string;
   familyType: 'nuclear' | 'extended' | 'joint' | 'single-parent' | 'blended';
   requiredMembers: string[];
-  requiredConnections: number;
   mathQuestion: string;
   correctAnswer: number;
   hint: string;
@@ -38,21 +36,19 @@ const challenges: Challenge[] = [
   {
     id: 1,
     title: "Nuclear Family",
-    description: "Build a nuclear family with 2 parents and 2 children",
+    description: "Build a nuclear family with 2 parents and 2 children in proper layers",
     familyType: "nuclear",
     requiredMembers: ["father", "mother", "son", "daughter"],
-    requiredConnections: 6,
-    mathQuestion: "How many direct relationships are there in this family?",
-    correctAnswer: 6,
-    hint: "Count parent-child and sibling relationships"
+    mathQuestion: "How many people are in this nuclear family?",
+    correctAnswer: 4,
+    hint: "Count all the family members you placed"
   },
   {
     id: 2,
     title: "Extended Family",
-    description: "Create an extended family with grandparents, parents, and children",
+    description: "Create an extended family with grandparents, parents, and children in 3 generations",
     familyType: "extended",
     requiredMembers: ["grandfather", "grandmother", "father", "mother", "son", "daughter"],
-    requiredConnections: 10,
     mathQuestion: "How many generations are represented in this family tree?",
     correctAnswer: 3,
     hint: "Count from grandparents to grandchildren"
@@ -60,21 +56,19 @@ const challenges: Challenge[] = [
   {
     id: 3,
     title: "Joint Family",
-    description: "Build a joint family with uncle, aunt, and cousins living together",
+    description: "Build a joint family with uncle, aunt, and cousins arranged in layers",
     familyType: "joint",
     requiredMembers: ["father", "mother", "son", "daughter", "uncle", "aunt", "cousin"],
-    requiredConnections: 12,
-    mathQuestion: "How many cousin relationships exist in this family?",
-    correctAnswer: 2,
-    hint: "Children of siblings are cousins to each other"
+    mathQuestion: "How many children are in this joint family?",
+    correctAnswer: 3,
+    hint: "Count sons, daughters, and cousins"
   },
   {
     id: 4,
     title: "Single Parent Family",
-    description: "Create a single parent family with one parent and children",
+    description: "Create a single parent family with one parent and children in layers",
     familyType: "single-parent",
     requiredMembers: ["mother", "son", "daughter"],
-    requiredConnections: 3,
     mathQuestion: "What's the total number of family members?",
     correctAnswer: 3,
     hint: "Count all the family members you placed"
@@ -97,9 +91,6 @@ const FamilyBuilder: React.FC = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [currentChallenge, setCurrentChallenge] = useState(0);
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
-  const [selectedMember, setSelectedMember] = useState<string | null>(null);
-  const [connecting, setConnecting] = useState(false);
-  const [connections, setConnections] = useState<string[]>([]);
   const [score, setScore] = useState(0);
   const [showMathQuestion, setShowMathQuestion] = useState(false);
   const [userAnswer, setUserAnswer] = useState('');
@@ -120,9 +111,6 @@ const FamilyBuilder: React.FC = () => {
 
   const resetChallenge = () => {
     setFamilyMembers([]);
-    setSelectedMember(null);
-    setConnecting(false);
-    setConnections([]);
     setShowMathQuestion(false);
     setUserAnswer('');
     setShowResult(false);
@@ -145,8 +133,7 @@ const FamilyBuilder: React.FC = () => {
       type: type,
       generation: getGeneration(type),
       x: centerX + (Math.random() - 0.5) * randomOffset,
-      y: centerY + (Math.random() - 0.5) * randomOffset,
-      connected: []
+      y: centerY + (Math.random() - 0.5) * randomOffset
     };
     
     const action: ActionHistory = {
@@ -201,18 +188,6 @@ const FamilyBuilder: React.FC = () => {
           )
         );
         break;
-      case 'connect_members':
-        const connectionKey = lastAction.data.connectionKey;
-        setConnections(prev => prev.filter(conn => conn !== connectionKey));
-        setFamilyMembers(prev => 
-          prev.map(member => ({
-            ...member,
-            connected: member.connected.filter(id => 
-              id !== lastAction.data.member1Id && id !== lastAction.data.member2Id
-            )
-          }))
-        );
-        break;
     }
     
     setActionHistory(prev => prev.slice(0, -1));
@@ -222,31 +197,6 @@ const FamilyBuilder: React.FC = () => {
     });
   };
 
-  const connectMembers = (member1Id: string, member2Id: string) => {
-    const connectionKey = [member1Id, member2Id].sort().join('-');
-    if (!connections.includes(connectionKey)) {
-      const action: ActionHistory = {
-        type: 'connect_members',
-        data: { connectionKey, member1Id, member2Id },
-        timestamp: Date.now()
-      };
-      
-      setConnections([...connections, connectionKey]);
-      setFamilyMembers(prev => 
-        prev.map(member => {
-          if (member.id === member1Id) {
-            return { ...member, connected: [...member.connected, member2Id] };
-          }
-          if (member.id === member2Id) {
-            return { ...member, connected: [...member.connected, member1Id] };
-          }
-          return member;
-        })
-      );
-      
-      setActionHistory([...actionHistory, action]);
-    }
-  };
 
   const checkChallenge = () => {
     const memberTypesList = familyMembers.map(m => m.type);
@@ -254,7 +204,7 @@ const FamilyBuilder: React.FC = () => {
       memberTypesList.includes(required as FamilyMember['type'])
     );
     
-    if (hasAllRequired && connections.length >= challenge.requiredConnections) {
+    if (hasAllRequired) {
       setShowMathQuestion(true);
       toast({
         title: "Family Structure Complete!",
@@ -263,7 +213,7 @@ const FamilyBuilder: React.FC = () => {
     } else {
       toast({
         title: "Incomplete Family",
-        description: "Make sure you have all required family members and connections.",
+        description: "Make sure you have all required family members placed.",
         variant: "destructive",
       });
     }
@@ -474,34 +424,18 @@ const FamilyBuilder: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="relative bg-white rounded-lg border-2 border-dashed border-purple-200 h-[600px] overflow-hidden w-full max-w-[800px]">
-                <svg 
-                  width="100%" 
-                  height="100%" 
-                  className="absolute inset-0 pointer-events-none"
-                >
-                  {connections.map((connection, index) => {
-                    const [id1, id2] = connection.split('-');
-                    const member1 = familyMembers.find(m => m.id === id1);
-                    const member2 = familyMembers.find(m => m.id === id2);
-                    if (!member1 || !member2) return null;
-                    
-                    return (
-                      <motion.line
-                        key={index}
-                        x1={member1.x + 24}
-                        y1={member1.y + 24}
-                        x2={member2.x + 24}
-                        y2={member2.y + 24}
-                        stroke="#8b5cf6"
-                        strokeWidth="2"
-                        strokeDasharray="5,5"
-                        initial={{ pathLength: 0 }}
-                        animate={{ pathLength: 1 }}
-                        transition={{ duration: 0.5 }}
-                      />
-                    );
-                  })}
-                </svg>
+                {/* Generation Layer Guidelines */}
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute top-4 left-4 right-4 h-16 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
+                    <span className="text-sm font-semibold text-purple-600">Generation 1 (Grandparents)</span>
+                  </div>
+                  <div className="absolute top-24 left-4 right-4 h-16 bg-gradient-to-r from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center">
+                    <span className="text-sm font-semibold text-blue-600">Generation 2 (Parents, Aunts, Uncles)</span>
+                  </div>
+                  <div className="absolute top-44 left-4 right-4 h-16 bg-gradient-to-r from-green-100 to-teal-100 rounded-lg flex items-center justify-center">
+                    <span className="text-sm font-semibold text-green-600">Generation 3 (Children, Cousins)</span>
+                  </div>
+                </div>
 
                 {familyMembers.map((member) => (
                   <motion.div
@@ -517,9 +451,7 @@ const FamilyBuilder: React.FC = () => {
                     style={{ left: member.x, top: member.y }}
                   >
                     <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold border-4 ${
-                        selectedMember === member.id ? 'border-yellow-400' : 'border-white'
-                      } shadow-lg hover:shadow-xl transition-all duration-200`}
+                      className="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold border-4 border-white shadow-lg hover:shadow-xl transition-all duration-200"
                       style={{ 
                         backgroundColor: memberTypes.find(m => m.type === member.type)?.color.split('-')[1] 
                           ? `hsl(${memberTypes.find(m => m.type === member.type)?.color.includes('blue') ? '220' : 
@@ -530,16 +462,6 @@ const FamilyBuilder: React.FC = () => {
                               memberTypes.find(m => m.type === member.type)?.color.includes('orange') ? '30' :
                               memberTypes.find(m => m.type === member.type)?.color.includes('yellow') ? '50' : '240'} 60% 50%)`
                           : '#8b5cf6'
-                      }}
-                      onClick={() => {
-                        if (connecting && selectedMember && selectedMember !== member.id) {
-                          connectMembers(selectedMember, member.id);
-                          setConnecting(false);
-                          setSelectedMember(null);
-                        } else if (!connecting) {
-                          setSelectedMember(member.id);
-                          setConnecting(true);
-                        }
                       }}
                     >
                       {memberTypes.find(m => m.type === member.type)?.icon}
