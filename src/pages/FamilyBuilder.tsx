@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, Baby, Crown, Heart, Home, ArrowLeft, RotateCcw, CheckCircle, Star } from 'lucide-react';
+import { Users, Baby, Crown, Heart, Home, ArrowLeft, RotateCcw, CheckCircle, Star, Undo2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -14,6 +14,12 @@ interface FamilyMember {
   x: number;
   y: number;
   connected: string[];
+}
+
+interface ActionHistory {
+  type: 'add_member' | 'connect_members' | 'move_member';
+  data: any;
+  timestamp: number;
 }
 
 interface Challenge {
@@ -99,6 +105,7 @@ const FamilyBuilder: React.FC = () => {
   const [userAnswer, setUserAnswer] = useState('');
   const [showResult, setShowResult] = useState(false);
   const [challengeCompleted, setChallengeCompleted] = useState(false);
+  const [actionHistory, setActionHistory] = useState<ActionHistory[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
@@ -120,19 +127,36 @@ const FamilyBuilder: React.FC = () => {
     setUserAnswer('');
     setShowResult(false);
     setChallengeCompleted(false);
+    setActionHistory([]);
   };
 
   const addFamilyMember = (type: FamilyMember['type']) => {
+    // Calculate canvas center position (600px canvas width and 600px height)
+    const canvasWidth = 800;
+    const canvasHeight = 600;
+    const centerX = canvasWidth / 2;
+    const centerY = canvasHeight / 2;
+    
+    // Add some randomness around the center
+    const randomOffset = 80;
     const newMember: FamilyMember = {
       id: `${type}_${Date.now()}`,
       name: memberTypes.find(m => m.type === type)?.label || type,
       type: type,
       generation: getGeneration(type),
-      x: 200 + Math.random() * 400,
-      y: 200 + Math.random() * 200,
+      x: centerX + (Math.random() - 0.5) * randomOffset,
+      y: centerY + (Math.random() - 0.5) * randomOffset,
       connected: []
     };
+    
+    const action: ActionHistory = {
+      type: 'add_member',
+      data: { member: newMember },
+      timestamp: Date.now()
+    };
+    
     setFamilyMembers([...familyMembers, newMember]);
+    setActionHistory([...actionHistory, action]);
   };
 
   const getGeneration = (type: string): number => {
@@ -142,6 +166,16 @@ const FamilyBuilder: React.FC = () => {
   };
 
   const moveMember = (id: string, x: number, y: number) => {
+    const previousPosition = familyMembers.find(m => m.id === id);
+    if (previousPosition) {
+      const action: ActionHistory = {
+        type: 'move_member',
+        data: { id, previousX: previousPosition.x, previousY: previousPosition.y, newX: x, newY: y },
+        timestamp: Date.now()
+      };
+      setActionHistory([...actionHistory, action]);
+    }
+    
     setFamilyMembers(prev => 
       prev.map(member => 
         member.id === id ? { ...member, x, y } : member
@@ -149,9 +183,54 @@ const FamilyBuilder: React.FC = () => {
     );
   };
 
+  const undoAction = () => {
+    if (actionHistory.length === 0) return;
+    
+    const lastAction = actionHistory[actionHistory.length - 1];
+    
+    switch (lastAction.type) {
+      case 'add_member':
+        setFamilyMembers(prev => prev.filter(m => m.id !== lastAction.data.member.id));
+        break;
+      case 'move_member':
+        setFamilyMembers(prev => 
+          prev.map(member => 
+            member.id === lastAction.data.id 
+              ? { ...member, x: lastAction.data.previousX, y: lastAction.data.previousY }
+              : member
+          )
+        );
+        break;
+      case 'connect_members':
+        const connectionKey = lastAction.data.connectionKey;
+        setConnections(prev => prev.filter(conn => conn !== connectionKey));
+        setFamilyMembers(prev => 
+          prev.map(member => ({
+            ...member,
+            connected: member.connected.filter(id => 
+              id !== lastAction.data.member1Id && id !== lastAction.data.member2Id
+            )
+          }))
+        );
+        break;
+    }
+    
+    setActionHistory(prev => prev.slice(0, -1));
+    toast({
+      title: "Action Undone",
+      description: "Last action has been reversed.",
+    });
+  };
+
   const connectMembers = (member1Id: string, member2Id: string) => {
     const connectionKey = [member1Id, member2Id].sort().join('-');
     if (!connections.includes(connectionKey)) {
+      const action: ActionHistory = {
+        type: 'connect_members',
+        data: { connectionKey, member1Id, member2Id },
+        timestamp: Date.now()
+      };
+      
       setConnections([...connections, connectionKey]);
       setFamilyMembers(prev => 
         prev.map(member => {
@@ -164,6 +243,8 @@ const FamilyBuilder: React.FC = () => {
           return member;
         })
       );
+      
+      setActionHistory([...actionHistory, action]);
     }
   };
 
@@ -364,6 +445,15 @@ const FamilyBuilder: React.FC = () => {
                 <CardTitle className="text-lg">Family Tree Canvas</CardTitle>
                 <div className="flex gap-2">
                   <Button
+                    onClick={undoAction}
+                    variant="outline"
+                    size="sm"
+                    disabled={actionHistory.length === 0}
+                  >
+                    <Undo2 className="h-4 w-4 mr-1" />
+                    Undo
+                  </Button>
+                  <Button
                     onClick={resetChallenge}
                     variant="outline"
                     size="sm"
@@ -383,7 +473,7 @@ const FamilyBuilder: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="relative bg-white rounded-lg border-2 border-dashed border-purple-200 h-96 overflow-hidden">
+              <div className="relative bg-white rounded-lg border-2 border-dashed border-purple-200 h-[600px] overflow-hidden w-full max-w-[800px]">
                 <svg 
                   width="100%" 
                   height="100%" 
@@ -398,10 +488,10 @@ const FamilyBuilder: React.FC = () => {
                     return (
                       <motion.line
                         key={index}
-                        x1={member1.x + 20}
-                        y1={member1.y + 20}
-                        x2={member2.x + 20}
-                        y2={member2.y + 20}
+                        x1={member1.x + 24}
+                        y1={member1.y + 24}
+                        x2={member2.x + 24}
+                        y2={member2.y + 24}
                         stroke="#8b5cf6"
                         strokeWidth="2"
                         strokeDasharray="5,5"
