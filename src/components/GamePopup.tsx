@@ -1,6 +1,6 @@
 
 import React from "react";
-import { X, Gamepad2, Calculator, Target, Zap, Shapes, Divide, Brain, BookOpen } from "lucide-react";
+import { X, Gamepad2, Calculator, Target, Zap, Shapes, Divide, Brain, BookOpen, Users } from "lucide-react";
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -25,6 +25,13 @@ const GamePopup: React.FC<GamePopupProps> = ({ isOpen, onClose }) => {
       icon: <Brain className="h-8 w-8" />,
       path: "/math-intuition",
       gradient: "from-purple-500 to-indigo-600"
+    },
+    {
+      title: "Family Tree Builder",
+      description: "Build families & learn relationships",
+      icon: <Users className="h-8 w-8" />,
+      path: "/family-builder",
+      gradient: "from-pink-500 to-rose-600"
     },
     {
       title: "Mental Maths",
