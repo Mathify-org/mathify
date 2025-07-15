@@ -97,6 +97,8 @@ const FamilyBuilder: React.FC = () => {
   const [showResult, setShowResult] = useState(false);
   const [challengeCompleted, setChallengeCompleted] = useState(false);
   const [actionHistory, setActionHistory] = useState<ActionHistory[]>([]);
+  const [draggedMember, setDraggedMember] = useState<string | null>(null);
+  const [dropZoneActive, setDropZoneActive] = useState<number | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
@@ -116,24 +118,21 @@ const FamilyBuilder: React.FC = () => {
     setShowResult(false);
     setChallengeCompleted(false);
     setActionHistory([]);
+    setDraggedMember(null);
+    setDropZoneActive(null);
   };
 
   const addFamilyMember = (type: FamilyMember['type']) => {
-    // Calculate canvas center position (600px canvas width and 600px height)
-    const canvasWidth = 800;
-    const canvasHeight = 600;
-    const centerX = canvasWidth / 2;
-    const centerY = canvasHeight / 2;
+    const generation = getGeneration(type);
+    const { x, y } = getGenerationPosition(generation);
     
-    // Add some randomness around the center
-    const randomOffset = 80;
     const newMember: FamilyMember = {
       id: `${type}_${Date.now()}`,
       name: memberTypes.find(m => m.type === type)?.label || type,
       type: type,
-      generation: getGeneration(type),
-      x: centerX + (Math.random() - 0.5) * randomOffset,
-      y: centerY + (Math.random() - 0.5) * randomOffset
+      generation: generation,
+      x: x,
+      y: y
     };
     
     const action: ActionHistory = {
@@ -152,12 +151,73 @@ const FamilyBuilder: React.FC = () => {
     return 3;
   };
 
+  const getGenerationPosition = (generation: number) => {
+    const canvasWidth = 800;
+    const padding = 60;
+    const layerHeight = 80;
+    const layerTop = 20;
+    
+    // Calculate Y position based on generation
+    let y = layerTop + (generation - 1) * layerHeight + layerHeight / 2;
+    
+    // Find how many members are already in this generation
+    const membersInGeneration = familyMembers.filter(m => m.generation === generation);
+    const spacing = 120;
+    const totalWidth = Math.max(1, membersInGeneration.length + 1) * spacing;
+    const startX = (canvasWidth - totalWidth) / 2;
+    
+    // Position new member next to existing ones
+    const x = startX + (membersInGeneration.length) * spacing + spacing / 2;
+    
+    return { x, y };
+  };
+
+  const snapToLayer = (x: number, y: number, generation: number) => {
+    const layerHeight = 80;
+    const layerTop = 20;
+    const targetY = layerTop + (generation - 1) * layerHeight + layerHeight / 2;
+    
+    // Snap to appropriate layer if close enough
+    if (Math.abs(y - targetY) < 40) {
+      return { x, y: targetY };
+    }
+    
+    // Check if being dragged to a different layer
+    for (let gen = 1; gen <= 3; gen++) {
+      const genY = layerTop + (gen - 1) * layerHeight + layerHeight / 2;
+      if (Math.abs(y - genY) < 40) {
+        return { x, y: genY };
+      }
+    }
+    
+    return { x, y };
+  };
+
+  const getLayerFromY = (y: number): number => {
+    const layerHeight = 80;
+    const layerTop = 20;
+    
+    for (let gen = 1; gen <= 3; gen++) {
+      const genY = layerTop + (gen - 1) * layerHeight + layerHeight / 2;
+      if (Math.abs(y - genY) < 40) {
+        return gen;
+      }
+    }
+    
+    return 0; // Invalid layer
+  };
+
   const moveMember = (id: string, x: number, y: number) => {
+    const member = familyMembers.find(m => m.id === id);
+    if (!member) return;
+    
+    const snappedPosition = snapToLayer(x, y, member.generation);
+    
     const previousPosition = familyMembers.find(m => m.id === id);
     if (previousPosition) {
       const action: ActionHistory = {
         type: 'move_member',
-        data: { id, previousX: previousPosition.x, previousY: previousPosition.y, newX: x, newY: y },
+        data: { id, previousX: previousPosition.x, previousY: previousPosition.y, newX: snappedPosition.x, newY: snappedPosition.y },
         timestamp: Date.now()
       };
       setActionHistory([...actionHistory, action]);
@@ -165,7 +225,7 @@ const FamilyBuilder: React.FC = () => {
     
     setFamilyMembers(prev => 
       prev.map(member => 
-        member.id === id ? { ...member, x, y } : member
+        member.id === id ? { ...member, x: snappedPosition.x, y: snappedPosition.y } : member
       )
     );
   };
@@ -424,15 +484,21 @@ const FamilyBuilder: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="relative bg-white rounded-lg border-2 border-dashed border-purple-200 h-[600px] overflow-hidden w-full max-w-[800px]">
-                {/* Generation Layer Guidelines */}
-                <div className="absolute inset-0 pointer-events-none">
-                  <div className="absolute top-4 left-4 right-4 h-16 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
+                {/* Enhanced Generation Layer Guidelines with Drop Zone Feedback */}
+                <div className="absolute inset-0 pointer-events-none z-10">
+                  <div className={`absolute top-4 left-4 right-4 h-16 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                    dropZoneActive === 1 ? 'bg-gradient-to-r from-purple-200 to-pink-200 border-2 border-purple-400' : 'bg-gradient-to-r from-purple-100 to-pink-100'
+                  }`}>
                     <span className="text-sm font-semibold text-purple-600">Generation 1 (Grandparents)</span>
                   </div>
-                  <div className="absolute top-24 left-4 right-4 h-16 bg-gradient-to-r from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center">
+                  <div className={`absolute top-24 left-4 right-4 h-16 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                    dropZoneActive === 2 ? 'bg-gradient-to-r from-blue-200 to-cyan-200 border-2 border-blue-400' : 'bg-gradient-to-r from-blue-100 to-cyan-100'
+                  }`}>
                     <span className="text-sm font-semibold text-blue-600">Generation 2 (Parents, Aunts, Uncles)</span>
                   </div>
-                  <div className="absolute top-44 left-4 right-4 h-16 bg-gradient-to-r from-green-100 to-teal-100 rounded-lg flex items-center justify-center">
+                  <div className={`absolute top-44 left-4 right-4 h-16 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                    dropZoneActive === 3 ? 'bg-gradient-to-r from-green-200 to-teal-200 border-2 border-green-400' : 'bg-gradient-to-r from-green-100 to-teal-100'
+                  }`}>
                     <span className="text-sm font-semibold text-green-600">Generation 3 (Children, Cousins)</span>
                   </div>
                 </div>
@@ -442,16 +508,30 @@ const FamilyBuilder: React.FC = () => {
                     key={member.id}
                     drag
                     dragMomentum={false}
+                    onDragStart={() => {
+                      setDraggedMember(member.id);
+                    }}
+                    onDrag={(_, info) => {
+                      const newY = member.y + info.offset.y;
+                      const layer = getLayerFromY(newY);
+                      setDropZoneActive(layer);
+                    }}
                     onDragEnd={(_, info) => {
-                      moveMember(member.id, member.x + info.offset.x, member.y + info.offset.y);
+                      const newX = member.x + info.offset.x;
+                      const newY = member.y + info.offset.y;
+                      moveMember(member.id, newX, newY);
+                      setDraggedMember(null);
+                      setDropZoneActive(null);
                     }}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute cursor-move"
+                    className="absolute cursor-move z-20"
                     style={{ left: member.x, top: member.y }}
                   >
                     <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold border-4 border-white shadow-lg hover:shadow-xl transition-all duration-200"
+                      className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold border-4 shadow-lg hover:shadow-xl transition-all duration-200 ${
+                        draggedMember === member.id ? 'border-yellow-400 scale-110' : 'border-white'
+                      }`}
                       style={{ 
                         backgroundColor: memberTypes.find(m => m.type === member.type)?.color.split('-')[1] 
                           ? `hsl(${memberTypes.find(m => m.type === member.type)?.color.includes('blue') ? '220' : 
