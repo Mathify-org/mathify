@@ -1,355 +1,346 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { ArrowLeftRight, Calculator, BookOpen, Trophy, ArrowLeft, Check, X } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
+import { ArrowLeft, Ruler, RotateCw, CheckCircle, XCircle, Lightbulb, Trophy } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from '@/hooks/use-toast';
 
-interface Conversion {
-  from: string;
-  to: string;
-  factor: number;
-  offset?: number;
-  description: string;
-}
-
-interface Category {
+type ConversionCategory = {
   name: string;
-  conversions: Conversion[];
-  icon: string;
-  color: string;
-}
+  icon: React.ReactNode;
+  conversions: {
+    from: string;
+    to: string;
+    factor: number;
+    description: string;
+  }[];
+};
 
-const categories: Category[] = [
+const conversionCategories: ConversionCategory[] = [
   {
-    name: 'Length',
-    icon: '📏',
-    color: 'bg-blue-500',
+    name: "Length",
+    icon: <Ruler className="h-5 w-5" />,
     conversions: [
-      { from: 'meters', to: 'feet', factor: 3.28084, description: 'Meters to Feet' },
-      { from: 'kilometers', to: 'miles', factor: 0.621371, description: 'Kilometers to Miles' },
-      { from: 'inches', to: 'centimeters', factor: 2.54, description: 'Inches to Centimeters' },
-      { from: 'yards', to: 'meters', factor: 0.9144, description: 'Yards to Meters' }
+      { from: "meters", to: "feet", factor: 3.28084, description: "1 meter = 3.28 feet" },
+      { from: "kilometers", to: "miles", factor: 0.621371, description: "1 km = 0.62 miles" },
+      { from: "inches", to: "centimeters", factor: 2.54, description: "1 inch = 2.54 cm" },
+      { from: "yards", to: "meters", factor: 0.9144, description: "1 yard = 0.91 meters" }
     ]
   },
   {
-    name: 'Weight',
-    icon: '⚖️',
-    color: 'bg-green-500',
+    name: "Weight",
+    icon: <span className="text-lg">⚖️</span>,
     conversions: [
-      { from: 'kilograms', to: 'pounds', factor: 2.20462, description: 'Kilograms to Pounds' },
-      { from: 'grams', to: 'ounces', factor: 0.035274, description: 'Grams to Ounces' },
-      { from: 'tons', to: 'kilograms', factor: 1000, description: 'Tons to Kilograms' }
+      { from: "kilograms", to: "pounds", factor: 2.20462, description: "1 kg = 2.20 lbs" },
+      { from: "grams", to: "ounces", factor: 0.035274, description: "1 g = 0.035 oz" },
+      { from: "tons", to: "kilograms", factor: 1000, description: "1 ton = 1000 kg" },
+      { from: "pounds", to: "kilograms", factor: 0.453592, description: "1 lb = 0.45 kg" }
     ]
   },
   {
-    name: 'Temperature',
-    icon: '🌡️',
-    color: 'bg-red-500',
+    name: "Temperature",
+    icon: <span className="text-lg">🌡️</span>,
     conversions: [
-      { from: 'Celsius', to: 'Fahrenheit', factor: 1.8, offset: 32, description: 'Celsius to Fahrenheit' },
-      { from: 'Fahrenheit', to: 'Celsius', factor: 0.5556, offset: -17.78, description: 'Fahrenheit to Celsius' },
-      { from: 'Celsius', to: 'Kelvin', factor: 1, offset: 273.15, description: 'Celsius to Kelvin' },
-      { from: 'Kelvin', to: 'Celsius', factor: 1, offset: -273.15, description: 'Kelvin to Celsius' }
-    ]
-  },
-  {
-    name: 'Volume',
-    icon: '🥤',
-    color: 'bg-purple-500',
-    conversions: [
-      { from: 'liters', to: 'gallons', factor: 0.264172, description: 'Liters to Gallons' },
-      { from: 'milliliters', to: 'fluid ounces', factor: 0.033814, description: 'Milliliters to Fluid Ounces' },
-      { from: 'cups', to: 'milliliters', factor: 236.588, description: 'Cups to Milliliters' }
+      { from: "Celsius", to: "Fahrenheit", factor: 1.8, description: "°F = (°C × 1.8) + 32", offset: 32 },
+      { from: "Fahrenheit", to: "Celsius", factor: 0.5556, description: "°C = (°F - 32) × 0.56", offset: -32 },
+      { from: "Celsius", to: "Kelvin", factor: 1, description: "K = °C + 273.15", offset: 273.15 },
+      { from: "Kelvin", to: "Celsius", factor: 1, description: "°C = K - 273.15", offset: -273.15 }
     ]
   }
 ];
 
-const quizQuestions = [
-  { question: 'Convert 10 meters to feet', answer: 32.8084, unit: 'feet', tolerance: 0.1 },
-  { question: 'Convert 5 kilometers to miles', answer: 3.10686, unit: 'miles', tolerance: 0.1 },
-  { question: 'Convert 100 Celsius to Fahrenheit', answer: 212, unit: '°F', tolerance: 1 },
-  { question: 'Convert 2 kilograms to pounds', answer: 4.40924, unit: 'pounds', tolerance: 0.1 },
-  { question: 'Convert 500 milliliters to fluid ounces', answer: 16.907, unit: 'fl oz', tolerance: 0.5 }
+const realWorldExamples = [
+  {
+    title: "Cooking & Baking",
+    examples: [
+      "Recipe calls for 250ml but you have cups? That's about 1 cup!",
+      "Oven temperature 180°C = 356°F for perfect cookies",
+      "500g flour = about 1.1 pounds for bread making"
+    ],
+    icon: "👨‍🍳"
+  },
+  {
+    title: "Travel & Geography",
+    examples: [
+      "Speed limit 100 km/h = 62 mph on highways",
+      "Mount Everest: 8,848m = 29,029 feet tall",
+      "Marathon distance: 42.2km = 26.2 miles"
+    ],
+    icon: "✈️"
+  },
+  {
+    title: "Sports & Fitness",
+    examples: [
+      "Olympic pool: 50m = 164 feet long",
+      "Basketball player 2m tall = 6.6 feet",
+      "Running 5K = 3.1 miles distance"
+    ],
+    icon: "🏃‍♂️"
+  }
 ];
 
-const UnitConverter: React.FC = () => {
-  const [currentMode, setCurrentMode] = useState<'learn' | 'convert' | 'quiz'>('learn');
-  const [selectedCategory, setSelectedCategory] = useState<Category>(categories[0]);
-  const [selectedConversion, setSelectedConversion] = useState<Conversion>(categories[0].conversions[0]);
+const UnitConverter = () => {
+  const [mode, setMode] = useState<'learn' | 'convert' | 'quiz'>('learn');
+  const [selectedCategory, setSelectedCategory] = useState(0);
   const [inputValue, setInputValue] = useState('');
-  const [result, setResult] = useState('');
-  const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
+  const [result, setResult] = useState<string>('');
+  const [currentQuiz, setCurrentQuiz] = useState(0);
+  const [quizScore, setQuizScore] = useState(0);
   const [quizAnswer, setQuizAnswer] = useState('');
-  const [score, setScore] = useState(0);
   const [showQuizResult, setShowQuizResult] = useState(false);
-  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [quizStarted, setQuizStarted] = useState(false);
   const { toast } = useToast();
 
-  const performConversion = () => {
+  const generateQuizQuestion = () => {
+    const category = conversionCategories[Math.floor(Math.random() * conversionCategories.length)];
+    const conversion = category.conversions[Math.floor(Math.random() * category.conversions.length)];
+    const value = Math.floor(Math.random() * 100) + 1;
+    
+    return {
+      question: `Convert ${value} ${conversion.from} to ${conversion.to}`,
+      answer: conversion.offset 
+        ? value * conversion.factor + conversion.offset
+        : value * conversion.factor,
+      category: category.name,
+      value,
+      conversion
+    };
+  };
+
+  const [quizQuestion, setQuizQuestion] = useState(generateQuizQuestion());
+
+  const convert = () => {
+    const category = conversionCategories[selectedCategory];
+    const conversion = category.conversions[0]; // Using first conversion for simplicity
     const input = parseFloat(inputValue);
+    
     if (isNaN(input)) {
-      toast({
-        title: "Invalid Input",
-        description: "Please enter a valid number",
-        variant: "destructive"
-      });
+      setResult('Please enter a valid number');
       return;
     }
 
-    let convertedValue;
-    if (selectedConversion.offset) {
-      convertedValue = (input * selectedConversion.factor) + selectedConversion.offset;
-    } else {
-      convertedValue = input * selectedConversion.factor;
-    }
-
-    setResult(convertedValue.toFixed(4));
+    const converted = conversion.offset 
+      ? input * conversion.factor + conversion.offset
+      : input * conversion.factor;
+    
+    setResult(`${input} ${conversion.from} = ${converted.toFixed(2)} ${conversion.to}`);
   };
 
-  const submitQuizAnswer = () => {
+  const checkQuizAnswer = () => {
     const userAnswer = parseFloat(quizAnswer);
-    const correctAnswer = quizQuestions[currentQuizIndex].answer;
-    const tolerance = quizQuestions[currentQuizIndex].tolerance;
+    const correctAnswer = quizQuestion.answer;
+    const tolerance = Math.abs(correctAnswer * 0.05); // 5% tolerance
     
     const isCorrect = Math.abs(userAnswer - correctAnswer) <= tolerance;
     
     if (isCorrect) {
-      setScore(score + 1);
+      setQuizScore(prev => prev + 1);
       toast({
         title: "Correct! 🎉",
-        description: `Great job! The answer is ${correctAnswer}`,
+        description: `The answer is ${correctAnswer.toFixed(2)}`,
       });
     } else {
       toast({
-        title: "Try Again",
-        description: `The correct answer is ${correctAnswer}`,
+        title: "Not quite right 😊",
+        description: `The correct answer is ${correctAnswer.toFixed(2)}`,
         variant: "destructive"
       });
     }
     
     setShowQuizResult(true);
-    
     setTimeout(() => {
-      if (currentQuizIndex < quizQuestions.length - 1) {
-        setCurrentQuizIndex(currentQuizIndex + 1);
-        setQuizAnswer('');
-        setShowQuizResult(false);
-      } else {
-        setQuizCompleted(true);
-      }
+      setShowQuizResult(false);
+      setQuizAnswer('');
+      setCurrentQuiz(prev => prev + 1);
+      setQuizQuestion(generateQuizQuestion());
     }, 2000);
   };
 
-  const resetQuiz = () => {
-    setCurrentQuizIndex(0);
-    setScore(0);
-    setQuizAnswer('');
-    setShowQuizResult(false);
-    setQuizCompleted(false);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">
-            Unit Converter Master
-          </h1>
-          <p className="text-lg text-gray-600">
-            Learn, convert, and master unit conversions!
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white p-6">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Link to="/" className="hover:bg-white/20 p-2 rounded-lg transition-colors">
+                <ArrowLeft className="h-6 w-6" />
+              </Link>
+              <div>
+                <h1 className="text-2xl md:text-4xl font-bold flex items-center gap-3">
+                  <Ruler className="h-8 w-8" />
+                  Unit Converter
+                </h1>
+                <p className="text-orange-100 text-lg">Master real-world unit conversions</p>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
+      <div className="container mx-auto p-6">
         {/* Mode Selection */}
         <div className="flex justify-center mb-8">
-          <div className="bg-white rounded-xl p-2 shadow-lg">
-            <div className="flex gap-2">
-              {(['learn', 'convert', 'quiz'] as const).map((mode) => (
-                <Button
-                  key={mode}
-                  onClick={() => setCurrentMode(mode)}
-                  variant={currentMode === mode ? "default" : "ghost"}
-                  className={`px-6 py-2 rounded-lg font-semibold transition-all duration-300 ${
-                    currentMode === mode 
-                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg' 
-                      : 'text-gray-600 hover:text-indigo-600'
-                  }`}
-                >
-                  {mode === 'learn' && <BookOpen className="mr-2 h-4 w-4" />}
-                  {mode === 'convert' && <Calculator className="mr-2 h-4 w-4" />}
-                  {mode === 'quiz' && <Trophy className="mr-2 h-4 w-4" />}
-                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                </Button>
-              ))}
-            </div>
+          <div className="bg-white rounded-lg p-2 shadow-lg border-2 border-orange-200">
+            {['learn', 'convert', 'quiz'].map((m) => (
+              <Button
+                key={m}
+                variant={mode === m ? "default" : "ghost"}
+                onClick={() => setMode(m as any)}
+                className={`mx-1 capitalize ${
+                  mode === m 
+                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white' 
+                    : 'hover:bg-orange-50'
+                }`}
+              >
+                {m === 'learn' && <Lightbulb className="h-4 w-4 mr-2" />}
+                {m === 'convert' && <RotateCw className="h-4 w-4 mr-2" />}
+                {m === 'quiz' && <Trophy className="h-4 w-4 mr-2" />}
+                {m}
+              </Button>
+            ))}
           </div>
         </div>
 
         <AnimatePresence mode="wait">
-          {/* Learn Mode */}
-          {currentMode === 'learn' && (
+          {mode === 'learn' && (
             <motion.div
               key="learn"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              className="space-y-8"
             >
-              {categories.map((category, index) => (
-                <motion.div
-                  key={category.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card className="border-2 border-indigo-200 hover:border-indigo-400 transition-all duration-300 hover:shadow-xl">
-                    <CardHeader className="text-center pb-3">
-                      <div className={`w-16 h-16 ${category.color} rounded-full flex items-center justify-center mx-auto mb-3 text-2xl`}>
-                        {category.icon}
-                      </div>
-                      <CardTitle className="text-xl text-indigo-800">{category.name}</CardTitle>
+              {/* Real World Examples */}
+              <div className="grid md:grid-cols-3 gap-6">
+                {realWorldExamples.map((example, index) => (
+                  <Card key={index} className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+                    <CardHeader className="bg-gradient-to-r from-orange-400 to-amber-400 text-white rounded-t-lg">
+                      <CardTitle className="text-xl flex items-center gap-2">
+                        <span className="text-2xl">{example.icon}</span>
+                        {example.title}
+                      </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {category.conversions.map((conversion, idx) => (
-                          <div key={idx} className="bg-gray-50 rounded-lg p-3">
-                            <div className="text-sm font-medium text-gray-700 mb-1">
-                              {conversion.description}
-                            </div>
-                            <div className="flex items-center justify-between text-xs text-gray-500">
-                              <span>{conversion.from}</span>
-                              <ArrowLeftRight className="h-3 w-3" />
-                              <span>{conversion.to}</span>
-                            </div>
-                          </div>
+                    <CardContent className="p-6">
+                      <ul className="space-y-3">
+                        {example.examples.map((ex, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <div className="w-2 h-2 bg-orange-400 rounded-full mt-2 flex-shrink-0"></div>
+                            <span className="text-gray-700">{ex}</span>
+                          </li>
                         ))}
-                      </div>
+                      </ul>
                     </CardContent>
                   </Card>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
+                ))}
+              </div>
 
-          {/* Convert Mode */}
-          {currentMode === 'convert' && (
-            <motion.div
-              key="convert"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="max-w-4xl mx-auto"
-            >
-              <Card className="border-2 border-indigo-200 shadow-xl">
-                <CardHeader>
-                  <CardTitle className="text-2xl text-center text-indigo-800">
-                    Unit Converter
-                  </CardTitle>
+              {/* Conversion Categories */}
+              <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-t-lg">
+                  <CardTitle className="text-2xl">Common Conversions</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    {/* Category Selection */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Select Category
-                      </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {categories.map((category) => (
-                          <Button
-                            key={category.name}
-                            onClick={() => {
-                              setSelectedCategory(category);
-                              setSelectedConversion(category.conversions[0]);
-                              setResult('');
-                            }}
-                            variant={selectedCategory.name === category.name ? "default" : "outline"}
-                            className="h-12"
-                          >
-                            <span className="mr-2">{category.icon}</span>
-                            {category.name}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Conversion Selection */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Select Conversion
-                      </label>
-                      <div className="space-y-2">
-                        {selectedCategory.conversions.map((conversion, idx) => (
-                          <Button
-                            key={idx}
-                            onClick={() => {
-                              setSelectedConversion(conversion);
-                              setResult('');
-                            }}
-                            variant={selectedConversion === conversion ? "default" : "outline"}
-                            className="w-full justify-start h-auto p-3"
-                          >
-                            <div>
-                              <div className="font-medium">{conversion.description}</div>
-                              <div className="text-xs opacity-70">
-                                {conversion.from} → {conversion.to}
-                              </div>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {conversionCategories.map((category, index) => (
+                      <div key={index} className="space-y-4">
+                        <h3 className="text-xl font-bold flex items-center gap-2 text-gray-800">
+                          {category.icon}
+                          {category.name}
+                        </h3>
+                        <div className="space-y-2">
+                          {category.conversions.map((conv, i) => (
+                            <div key={i} className="bg-gradient-to-r from-gray-50 to-gray-100 p-3 rounded-lg">
+                              <div className="font-medium text-gray-800">{conv.description}</div>
                             </div>
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Conversion Input */}
-                  <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Enter value in {selectedConversion.from}
-                        </label>
-                        <Input
-                          type="number"
-                          value={inputValue}
-                          onChange={(e) => setInputValue(e.target.value)}
-                          placeholder="Enter value"
-                          className="text-lg"
-                        />
-                      </div>
-                      <Button
-                        onClick={performConversion}
-                        className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 px-8"
-                      >
-                        Convert
-                      </Button>
-                    </div>
-
-                    {result && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white rounded-lg p-4 border-2 border-indigo-200"
-                      >
-                        <div className="text-center">
-                          <div className="text-sm text-gray-600 mb-1">Result</div>
-                          <div className="text-2xl font-bold text-indigo-600">
-                            {result} {selectedConversion.to}
-                          </div>
+                          ))}
                         </div>
-                      </motion.div>
-                    )}
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
           )}
 
-          {/* Quiz Mode */}
-          {currentMode === 'quiz' && (
+          {mode === 'convert' && (
+            <motion.div
+              key="convert"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="max-w-2xl mx-auto"
+            >
+              <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader className="bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-t-lg">
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    <RotateCw className="h-6 w-6" />
+                    Interactive Converter
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-6">
+                  <div>
+                    <Label className="text-lg font-semibold mb-4 block">Select Category:</Label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {conversionCategories.map((category, index) => (
+                        <Button
+                          key={index}
+                          variant={selectedCategory === index ? "default" : "outline"}
+                          onClick={() => setSelectedCategory(index)}
+                          className={`p-4 h-auto ${
+                            selectedCategory === index 
+                              ? 'bg-gradient-to-r from-green-500 to-teal-600 text-white' 
+                              : 'hover:bg-green-50'
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="mb-1">{category.icon}</div>
+                            <div className="text-sm">{category.name}</div>
+                          </div>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="input" className="text-lg font-semibold mb-2 block">
+                      Enter Value:
+                    </Label>
+                    <Input
+                      id="input"
+                      type="number"
+                      placeholder="Enter number to convert"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      className="text-lg p-4 border-2 focus:border-green-500"
+                    />
+                  </div>
+
+                  <Button 
+                    onClick={convert} 
+                    className="w-full bg-gradient-to-r from-green-500 to-teal-600 text-white text-lg py-3"
+                    disabled={!inputValue}
+                  >
+                    Convert Now
+                  </Button>
+
+                  {result && (
+                    <div className="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-lg border-2 border-green-200">
+                      <div className="text-xl font-bold text-green-800 text-center">
+                        {result}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {mode === 'quiz' && (
             <motion.div
               key="quiz"
               initial={{ opacity: 0, y: 20 }}
@@ -357,83 +348,56 @@ const UnitConverter: React.FC = () => {
               exit={{ opacity: 0, y: -20 }}
               className="max-w-2xl mx-auto"
             >
-              <Card className="border-2 border-indigo-200 shadow-xl">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-2xl text-indigo-800">
-                      Conversion Quiz
-                    </CardTitle>
-                    <Badge variant="outline" className="text-indigo-600">
-                      {score}/{quizQuestions.length}
-                    </Badge>
-                  </div>
+              <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-t-lg">
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    <Trophy className="h-6 w-6" />
+                    Conversion Quiz
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                  {!quizCompleted ? (
-                    <div>
-                      <div className="mb-6">
-                        <Badge variant="outline" className="mb-4">
-                          Question {currentQuizIndex + 1} of {quizQuestions.length}
-                        </Badge>
-                        <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                          {quizQuestions[currentQuizIndex].question}
-                        </h3>
-                        <div className="flex gap-3">
-                          <Input
-                            type="number"
-                            value={quizAnswer}
-                            onChange={(e) => setQuizAnswer(e.target.value)}
-                            placeholder="Enter your answer"
-                            className="flex-1"
-                            disabled={showQuizResult}
-                          />
-                          <Button
-                            onClick={submitQuizAnswer}
-                            disabled={!quizAnswer || showQuizResult}
-                            className="bg-gradient-to-r from-indigo-600 to-purple-600"
-                          >
-                            Submit
-                          </Button>
-                        </div>
-                      </div>
+                  <div className="text-center mb-6">
+                    <div className="text-lg font-semibold text-gray-700">
+                      Question {currentQuiz + 1} • Score: {quizScore}/{currentQuiz + (showQuizResult ? 1 : 0)}
+                    </div>
+                  </div>
 
-                      {showQuizResult && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="text-center p-4 rounded-lg border"
-                        >
-                          <div className="text-lg font-semibold">
-                            {Math.abs(parseFloat(quizAnswer) - quizQuestions[currentQuizIndex].answer) <= quizQuestions[currentQuizIndex].tolerance ? (
-                              <div className="text-green-600">
-                                <Check className="inline h-5 w-5 mr-2" />
-                                Correct!
-                              </div>
-                            ) : (
-                              <div className="text-red-600">
-                                <X className="inline h-5 w-5 mr-2" />
-                                Incorrect
-                              </div>
-                            )}
-                          </div>
-                        </motion.div>
-                      )}
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg mb-6 text-center">
+                    <div className="text-xl font-bold text-gray-800 mb-4">
+                      {quizQuestion.question}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Category: {quizQuestion.category}
+                    </div>
+                  </div>
+
+                  {!showQuizResult ? (
+                    <div className="space-y-4">
+                      <Input
+                        type="number"
+                        placeholder="Enter your answer"
+                        value={quizAnswer}
+                        onChange={(e) => setQuizAnswer(e.target.value)}
+                        className="text-lg p-4 border-2 focus:border-purple-500 text-center"
+                      />
+                      <Button 
+                        onClick={checkQuizAnswer}
+                        className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white text-lg py-3"
+                        disabled={!quizAnswer}
+                      >
+                        Submit Answer
+                      </Button>
                     </div>
                   ) : (
-                    <div className="text-center">
-                      <div className="text-6xl mb-4">🏆</div>
-                      <h3 className="text-2xl font-bold text-indigo-600 mb-4">
-                        Quiz Complete!
-                      </h3>
-                      <p className="text-lg text-gray-700 mb-6">
-                        You scored {score} out of {quizQuestions.length}
-                      </p>
-                      <Button
-                        onClick={resetQuiz}
-                        className="bg-gradient-to-r from-indigo-600 to-purple-600"
-                      >
-                        Try Again
-                      </Button>
+                    <div className="text-center py-8">
+                      <div className="text-4xl mb-4">
+                        {Math.abs(parseFloat(quizAnswer) - quizQuestion.answer) <= Math.abs(quizQuestion.answer * 0.05) ? '🎉' : '😊'}
+                      </div>
+                      <div className="text-lg font-semibold">
+                        {Math.abs(parseFloat(quizAnswer) - quizQuestion.answer) <= Math.abs(quizQuestion.answer * 0.05) 
+                          ? 'Correct!' 
+                          : 'Good try!'}
+                      </div>
                     </div>
                   )}
                 </CardContent>
