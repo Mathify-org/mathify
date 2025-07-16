@@ -173,7 +173,7 @@ const Navbar = () => {
                     <Phone className="h-5 w-5 text-orange-300" />
                   </div>
                   <span className="font-medium">Contact</span>
-                </button>
+                </Link>
 
                 {/* FAQ */}
                 <Link 
