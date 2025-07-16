@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -39,6 +38,8 @@ import GeometryMaster from "./pages/GeometryMaster";
 import MathIntuition from "./pages/MathIntuition";
 import MathEveryday from "./pages/MathEveryday";
 import FamilyBuilder from "./pages/FamilyBuilder";
+import TaxCalculator from "./pages/TaxCalculator";
+import UnitConverter from "./pages/UnitConverter";
 
 // ScrollToTop component that will trigger on route changes
 const ScrollToTop = () => {
@@ -78,6 +79,8 @@ const App = () => (
                 <Route path="/math-intuition" element={<MathIntuition />} />
                 <Route path="/math-everyday" element={<MathEveryday />} />
                 <Route path="/family-builder" element={<FamilyBuilder />} />
+                <Route path="/tax-calculator" element={<TaxCalculator />} />
+                <Route path="/unit-converter" element={<UnitConverter />} />
                 <Route path="/arithmetic-hero" element={<ArithmeticHero />} />
                 <Route path="/target-takedown" element={<TargetTakedown />} />
                 <Route path="/algebra-adventure" element={<AlgebraAdventure />} />

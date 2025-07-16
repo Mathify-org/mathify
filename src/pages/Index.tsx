@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Heart, BookOpen, GamepadIcon, Zap } from "lucide-react";
+import { Heart, BookOpen, GamepadIcon, Zap, Calculator, Users, Ruler, TrendingUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -264,6 +264,33 @@ const videoCurricula = [
     path: "#",
     comingSoon: true,
     logoUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop"
+  }
+];
+
+const practicalSkills = [
+  {
+    id: "family-trees",
+    title: "Family Trees",
+    description: "Build and understand family relationships through interactive tree building",
+    path: "/family-builder",
+    icon: <Users className="h-8 w-8" />,
+    gradient: "from-emerald-500 via-teal-500 to-cyan-500"
+  },
+  {
+    id: "tax-calculator",
+    title: "Tax Calculator",
+    description: "Learn about taxes and finances with an interactive income calculator",
+    path: "/tax-calculator",
+    icon: <TrendingUp className="h-8 w-8" />,
+    gradient: "from-violet-500 via-purple-500 to-pink-500"
+  },
+  {
+    id: "unit-converter",
+    title: "Unit Converter",
+    description: "Master real-world unit conversions with interactive lessons and quizzes",
+    path: "/unit-converter",
+    icon: <Ruler className="h-8 w-8" />,
+    gradient: "from-orange-500 via-amber-500 to-yellow-500"
   }
 ];
 
@@ -569,6 +596,68 @@ const Index = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          {/* New Practical Skill-building Section */}
+          <div className="mt-12 md:mt-16">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight pb-2">
+                Practical Skill-building
+              </h3>
+              <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto">
+                Real-world skills that make learning meaningful and applicable to daily life
+              </p>
+            </div>
+
+            <Card className="overflow-hidden border-0 shadow-2xl bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 relative">
+              {/* Animated background elements */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full opacity-20 animate-bounce"></div>
+                <div className="absolute top-32 right-16 w-12 h-12 bg-gradient-to-r from-pink-400 to-rose-500 rounded-full opacity-30 animate-pulse"></div>
+                <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full opacity-25 animate-ping"></div>
+                <div className="absolute bottom-10 right-10 w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full opacity-30 animate-bounce"></div>
+                <div className="absolute top-1/2 left-1/2 w-24 h-24 bg-gradient-to-r from-purple-400 to-indigo-500 rounded-full opacity-15 animate-pulse transform -translate-x-1/2 -translate-y-1/2"></div>
+              </div>
+              
+              <CardContent className="p-8 md:p-12 relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                  {practicalSkills.map((skill, index) => (
+                    <div key={skill.id} className="group">
+                      <Link to={skill.path} className="block">
+                        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:scale-105 h-full">
+                          <div className={`w-16 h-16 bg-gradient-to-r ${skill.gradient} rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                            <div className="text-white">
+                              {skill.icon}
+                            </div>
+                          </div>
+                          
+                          <h4 className="text-xl md:text-2xl font-bold text-white mb-3 text-center group-hover:text-cyan-200 transition-colors">
+                            {skill.title}
+                          </h4>
+                          
+                          <p className="text-white/80 text-sm md:text-base text-center leading-relaxed mb-4">
+                            {skill.description}
+                          </p>
+                          
+                          <div className={`mt-4 mx-auto w-fit px-4 py-2 bg-gradient-to-r ${skill.gradient} rounded-lg text-white font-medium text-sm hover:shadow-lg transition-all duration-300 group-hover:scale-105`}>
+                            Start Learning
+                          </div>
+                        </div>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Decorative bottom section */}
+                <div className="mt-8 text-center">
+                  <div className="inline-flex items-center space-x-2 text-white/60 text-sm">
+                    <Calculator className="h-4 w-4" />
+                    <span>Build practical skills for real-world success</span>
+                    <Calculator className="h-4 w-4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
