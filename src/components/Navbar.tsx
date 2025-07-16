@@ -1,17 +1,20 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, Home, Phone, HelpCircle, Gamepad2, GraduationCap } from "lucide-react";
+import { Menu, X, User, Home, Phone, HelpCircle, Gamepad2, GraduationCap, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import GamePopup from "./GamePopup";
 import SecondaryMathsPopup from "./SecondaryMathsPopup";
+import PracticalSkillsPopup from "./PracticalSkillsPopup";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isGamePopupOpen, setIsGamePopupOpen] = useState(false);
   const [isSecondaryPopupOpen, setIsSecondaryPopupOpen] = useState(false);
+  const [isPracticalPopupOpen, setIsPracticalPopupOpen] = useState(false);
   const isMobile = useIsMobile();
   const { user, loading } = useAuth();
 
@@ -30,6 +33,11 @@ const Navbar = () => {
 
   const openSecondaryPopup = () => {
     setIsSecondaryPopupOpen(true);
+    closeMenu();
+  };
+
+  const openPracticalPopup = () => {
+    setIsPracticalPopupOpen(true);
     closeMenu();
   };
 
@@ -133,6 +141,17 @@ const Navbar = () => {
                   <span className="font-medium">Primary Games</span>
                 </button>
 
+                {/* Practical Skills */}
+                <button 
+                  onClick={openPracticalPopup}
+                  className="w-full flex items-center gap-4 text-white hover:bg-white/20 px-4 py-3 rounded-xl transition-all duration-300"
+                >
+                  <div className="p-2 bg-orange-500/30 rounded-lg">
+                    <Wrench className="h-5 w-5 text-orange-300" />
+                  </div>
+                  <span className="font-medium">Practical Skills</span>
+                </button>
+
                 {/* Secondary Maths */}
                 <button 
                   onClick={openSecondaryPopup}
@@ -154,7 +173,7 @@ const Navbar = () => {
                     <Phone className="h-5 w-5 text-orange-300" />
                   </div>
                   <span className="font-medium">Contact</span>
-                </Link>
+                </button>
 
                 {/* FAQ */}
                 <Link 
@@ -211,6 +230,10 @@ const Navbar = () => {
       <SecondaryMathsPopup 
         isOpen={isSecondaryPopupOpen} 
         onClose={() => setIsSecondaryPopupOpen(false)} 
+      />
+      <PracticalSkillsPopup 
+        isOpen={isPracticalPopupOpen} 
+        onClose={() => setIsPracticalPopupOpen(false)} 
       />
     </>
   );

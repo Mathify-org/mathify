@@ -598,11 +598,11 @@ const Index = () => {
             ))}
           </div>
 
-          {/* New Practical Skill-building Section */}
+          {/* New Practical Skill-Building Section */}
           <div className="mt-12 md:mt-16">
             <div className="text-center mb-8">
               <h3 className="text-2xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight pb-2">
-                Practical Skill-building
+                Practical Skill-Building
               </h3>
               <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto">
                 Real-world skills that make learning meaningful and applicable to daily life
@@ -610,15 +610,6 @@ const Index = () => {
             </div>
 
             <Card className="overflow-hidden border-0 shadow-2xl bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 relative">
-              {/* Animated background elements */}
-              <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full opacity-20 animate-bounce"></div>
-                <div className="absolute top-32 right-16 w-12 h-12 bg-gradient-to-r from-pink-400 to-rose-500 rounded-full opacity-30 animate-pulse"></div>
-                <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full opacity-25 animate-ping"></div>
-                <div className="absolute bottom-10 right-10 w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full opacity-30 animate-bounce"></div>
-                <div className="absolute top-1/2 left-1/2 w-24 h-24 bg-gradient-to-r from-purple-400 to-indigo-500 rounded-full opacity-15 animate-pulse transform -translate-x-1/2 -translate-y-1/2"></div>
-              </div>
-              
               <CardContent className="p-8 md:p-12 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                   {practicalSkills.map((skill, index) => (
