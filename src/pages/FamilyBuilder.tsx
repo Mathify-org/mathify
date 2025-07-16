@@ -76,15 +76,15 @@ const challenges: Challenge[] = [
 ];
 
 const memberTypes: { type: FamilyMember['type'], label: string, icon: string, color: string }[] = [
-  { type: 'father', label: 'Father', icon: '👨', color: 'bg-blue-500' },
-  { type: 'mother', label: 'Mother', icon: '👩', color: 'bg-pink-500' },
-  { type: 'son', label: 'Son', icon: '👦', color: 'bg-green-500' },
-  { type: 'daughter', label: 'Daughter', icon: '👧', color: 'bg-purple-500' },
-  { type: 'grandfather', label: 'Grandfather', icon: '👴', color: 'bg-gray-600' },
-  { type: 'grandmother', label: 'Grandmother', icon: '👵', color: 'bg-gray-500' },
-  { type: 'uncle', label: 'Uncle', icon: '👨‍🦳', color: 'bg-orange-500' },
-  { type: 'aunt', label: 'Aunt', icon: '👩‍🦳', color: 'bg-yellow-500' },
-  { type: 'cousin', label: 'Cousin', icon: '🧒', color: 'bg-indigo-500' }
+  { type: 'father', label: 'Father', icon: '👨', color: 'bg-blue-600' },
+  { type: 'mother', label: 'Mother', icon: '👩', color: 'bg-pink-600' },
+  { type: 'son', label: 'Son', icon: '👦', color: 'bg-green-600' },
+  { type: 'daughter', label: 'Daughter', icon: '👧', color: 'bg-purple-600' },
+  { type: 'grandfather', label: 'Grandfather', icon: '👴', color: 'bg-gray-700' },
+  { type: 'grandmother', label: 'Grandmother', icon: '👵', color: 'bg-gray-600' },
+  { type: 'uncle', label: 'Uncle', icon: '👨‍🦳', color: 'bg-orange-600' },
+  { type: 'aunt', label: 'Aunt', icon: '👩‍🦳', color: 'bg-yellow-600' },
+  { type: 'cousin', label: 'Cousin', icon: '🧒', color: 'bg-indigo-600' }
 ];
 
 const FamilyBuilder: React.FC = () => {
@@ -196,7 +196,6 @@ const FamilyBuilder: React.FC = () => {
     });
   };
 
-
   const checkChallenge = () => {
     const memberTypesList = familyMembers.map(m => m.type);
     const hasAllRequired = challenge.requiredMembers.every(required => 
@@ -208,7 +207,7 @@ const FamilyBuilder: React.FC = () => {
     let errorMessage = "Make sure you have all required family members placed.";
     
     if (challenge.familyType === 'nuclear' && hasAllRequired) {
-      // Nuclear family needs exactly 2 parents + 2 children
+      // Nuclear family needs exactly 2 parents + 2 children (any combination)
       const childrenCount = familyMembers.filter(m => m.type === 'son' || m.type === 'daughter').length;
       if (childrenCount !== 2) {
         isValid = false;
@@ -317,13 +316,13 @@ const FamilyBuilder: React.FC = () => {
 
   if (!gameStarted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-              Family Tree Builder
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-6 leading-tight pb-2">
+              Family Trees Builder
             </h1>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-lg text-gray-300 mb-8">
               Build beautiful family trees and learn about mathematical relationships!
             </p>
           </div>
@@ -336,28 +335,30 @@ const FamilyBuilder: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="border-2 border-purple-200 hover:border-purple-400 transition-all duration-300 hover:shadow-lg">
+                <Card className="bg-slate-800/50 border-slate-700 hover:border-purple-500 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/25 backdrop-blur-sm">
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-xl flex items-center gap-2">
-                        {getFamilyIcon(challenge.familyType)}
+                      <CardTitle className="text-xl flex items-center gap-2 text-white">
+                        <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+                          {getFamilyIcon(challenge.familyType)}
+                        </div>
                         {challenge.title}
                       </CardTitle>
-                      <Badge variant="outline" className="text-purple-600">
+                      <Badge variant="outline" className="text-purple-400 border-purple-400">
                         Level {index + 1}
                       </Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <CardDescription className="text-gray-600 mb-4">
+                    <CardDescription className="text-gray-300 mb-4">
                       {challenge.description}
                     </CardDescription>
                     <div className="space-y-2">
-                      <div className="text-sm text-gray-500">
-                        <strong>Required:</strong> {challenge.requiredMembers.join(', ')}
+                      <div className="text-sm text-gray-400">
+                        <strong className="text-purple-400">Required:</strong> {challenge.requiredMembers.join(', ')}
                       </div>
-                      <div className="text-sm text-gray-500">
-                        <strong>Math Focus:</strong> {challenge.mathQuestion}
+                      <div className="text-sm text-gray-400">
+                        <strong className="text-purple-400">Math Focus:</strong> {challenge.mathQuestion}
                       </div>
                     </div>
                   </CardContent>
@@ -370,7 +371,7 @@ const FamilyBuilder: React.FC = () => {
             <Button 
               onClick={startGame}
               size="lg"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-0"
             >
               <Baby className="mr-2 h-5 w-5" />
               Start Building Families
@@ -382,23 +383,23 @@ const FamilyBuilder: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <Button 
             variant="ghost" 
             onClick={() => setGameStarted(false)}
-            className="text-purple-600 hover:text-purple-700"
+            className="text-purple-400 hover:text-purple-300 hover:bg-slate-800/50"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Menu
           </Button>
           <div className="flex items-center gap-4">
-            <Badge variant="outline" className="text-purple-600">
+            <Badge variant="outline" className="text-purple-400 border-purple-400">
               Challenge {currentChallenge + 1} of {challenges.length}
             </Badge>
-            <div className="flex items-center gap-2 text-purple-600">
+            <div className="flex items-center gap-2 text-purple-400">
               <Star className="h-5 w-5" />
               <span className="font-semibold">{score}</span>
             </div>
@@ -406,13 +407,15 @@ const FamilyBuilder: React.FC = () => {
         </div>
 
         {/* Challenge Info */}
-        <Card className="mb-6 border-2 border-purple-200">
+        <Card className="mb-6 bg-slate-800/50 border-slate-700 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-2xl flex items-center gap-2">
-              {getFamilyIcon(challenge.familyType)}
+            <CardTitle className="text-2xl flex items-center gap-2 text-white">
+              <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+                {getFamilyIcon(challenge.familyType)}
+              </div>
               {challenge.title}
             </CardTitle>
-            <CardDescription className="text-lg">
+            <CardDescription className="text-lg text-gray-300">
               {challenge.description}
             </CardDescription>
           </CardHeader>
@@ -420,9 +423,9 @@ const FamilyBuilder: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Family Members Palette */}
-          <Card className="lg:col-span-1">
+          <Card className="lg:col-span-1 bg-slate-800/50 border-slate-700 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-lg">Family Members</CardTitle>
+              <CardTitle className="text-lg text-white">Family Members</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -430,10 +433,10 @@ const FamilyBuilder: React.FC = () => {
                   <Button
                     key={member.type}
                     onClick={() => addFamilyMember(member.type)}
-                    className="w-full justify-start gap-3 bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-purple-300"
+                    className="w-full justify-start gap-3 bg-slate-700/50 hover:bg-slate-600/50 text-gray-200 border border-slate-600 hover:border-purple-500 transition-all duration-200"
                     variant="outline"
                   >
-                    <div className={`w-8 h-8 rounded-full ${member.color} flex items-center justify-center text-white text-sm`}>
+                    <div className={`w-8 h-8 rounded-full ${member.color} flex items-center justify-center text-white text-sm shadow-lg`}>
                       {member.icon}
                     </div>
                     {member.label}
@@ -444,16 +447,17 @@ const FamilyBuilder: React.FC = () => {
           </Card>
 
           {/* Building Area */}
-          <Card className="lg:col-span-3">
+          <Card className="lg:col-span-3 bg-slate-800/50 border-slate-700 backdrop-blur-sm">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Family Tree Canvas</CardTitle>
+                <CardTitle className="text-lg text-white">Family Tree Canvas</CardTitle>
                 <div className="flex gap-2">
                   <Button
                     onClick={undoAction}
                     variant="outline"
                     size="sm"
                     disabled={actionHistory.length === 0}
+                    className="bg-slate-700/50 border-slate-600 text-gray-200 hover:bg-slate-600/50 hover:border-purple-500"
                   >
                     <Undo2 className="h-4 w-4 mr-1" />
                     Undo
@@ -462,13 +466,14 @@ const FamilyBuilder: React.FC = () => {
                     onClick={resetChallenge}
                     variant="outline"
                     size="sm"
+                    className="bg-slate-700/50 border-slate-600 text-gray-200 hover:bg-slate-600/50 hover:border-purple-500"
                   >
                     <RotateCcw className="h-4 w-4 mr-1" />
                     Reset
                   </Button>
                   <Button
                     onClick={checkChallenge}
-                    className="bg-purple-600 hover:bg-purple-700"
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-0"
                     size="sm"
                   >
                     <CheckCircle className="h-4 w-4 mr-1" />
@@ -478,8 +483,8 @@ const FamilyBuilder: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="relative bg-white rounded-lg border-2 border-dashed border-purple-200 h-[600px] overflow-hidden w-full max-w-[800px]">
-                <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-lg font-semibold pointer-events-none">
+              <div className="relative bg-slate-900/50 rounded-lg border-2 border-dashed border-slate-600 h-[600px] overflow-hidden w-full max-w-[800px] backdrop-blur-sm">
+                <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-lg font-semibold pointer-events-none">
                   <span>Place your family members anywhere on the canvas</span>
                 </div>
 
@@ -504,7 +509,7 @@ const FamilyBuilder: React.FC = () => {
                   >
                     <div
                       className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold border-4 shadow-lg hover:shadow-xl transition-all duration-200 ${
-                        draggedMember === member.id ? 'border-yellow-400 scale-110' : 'border-white'
+                        draggedMember === member.id ? 'border-yellow-400 scale-110 shadow-yellow-400/50' : 'border-white'
                       }`}
                       style={{ 
                         backgroundColor: memberTypes.find(m => m.type === member.type)?.color.split('-')[1] 
@@ -520,7 +525,7 @@ const FamilyBuilder: React.FC = () => {
                     >
                       {memberTypes.find(m => m.type === member.type)?.icon}
                     </div>
-                    <div className="text-xs text-center mt-1 font-semibold text-gray-700">
+                    <div className="text-xs text-center mt-1 font-semibold text-gray-300">
                       {member.name}
                     </div>
                   </motion.div>
@@ -537,18 +542,18 @@ const FamilyBuilder: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+              className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm"
             >
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.8, opacity: 0 }}
-                className="bg-white rounded-xl p-6 max-w-md w-full"
+                className="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full shadow-xl"
               >
-                <h3 className="text-xl font-bold mb-4 text-purple-600">
+                <h3 className="text-xl font-bold mb-4 text-purple-400">
                   Math Question
                 </h3>
-                <p className="text-gray-700 mb-6">
+                <p className="text-gray-300 mb-6">
                   {challenge.mathQuestion}
                 </p>
                 <div className="flex gap-3">
@@ -556,12 +561,12 @@ const FamilyBuilder: React.FC = () => {
                     type="number"
                     value={userAnswer}
                     onChange={(e) => setUserAnswer(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
                     placeholder="Your answer"
                   />
                   <Button
                     onClick={submitAnswer}
-                    className="bg-purple-600 hover:bg-purple-700"
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-0"
                   >
                     Submit
                   </Button>
@@ -578,33 +583,33 @@ const FamilyBuilder: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+              className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm"
             >
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.8, opacity: 0 }}
-                className="bg-white rounded-xl p-6 max-w-md w-full text-center"
+                className="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full text-center shadow-xl"
               >
                 <div className="text-6xl mb-4">🎉</div>
-                <h3 className="text-2xl font-bold mb-4 text-purple-600">
+                <h3 className="text-2xl font-bold mb-4 text-purple-400">
                   Challenge Complete!
                 </h3>
-                <p className="text-gray-700 mb-6">
+                <p className="text-gray-300 mb-6">
                   You've successfully built a {challenge.title.toLowerCase()} and solved the math problem!
                 </p>
                 <div className="flex gap-3">
                   {currentChallenge < challenges.length - 1 ? (
                     <Button
                       onClick={nextChallenge}
-                      className="flex-1 bg-purple-600 hover:bg-purple-700"
+                      className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-0"
                     >
                       Next Challenge
                     </Button>
                   ) : (
                     <Button
                       onClick={() => setGameStarted(false)}
-                      className="flex-1 bg-purple-600 hover:bg-purple-700"
+                      className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-0"
                     >
                       Back to Menu
                     </Button>
