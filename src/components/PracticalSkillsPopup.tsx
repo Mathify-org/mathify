@@ -2,7 +2,7 @@
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
-import { Users, TrendingUp, Ruler } from "lucide-react";
+import { Users, TrendingUp, Ruler, BarChart3 } from "lucide-react";
 
 interface PracticalSkillsPopupProps {
   isOpen: boolean;
@@ -34,6 +34,14 @@ const PracticalSkillsPopup = ({ isOpen, onClose }: PracticalSkillsPopupProps) =>
       path: "/unit-converter",
       icon: <Ruler className="h-8 w-8" />,
       gradient: "from-orange-500 via-amber-500 to-yellow-500"
+    },
+    {
+      id: "data-analysis",
+      title: "Data Analysis Suite",
+      description: "Create beautiful charts, graphs and data visualizations with interactive tools",
+      path: "/data-analysis",
+      icon: <BarChart3 className="h-8 w-8" />,
+      gradient: "from-blue-500 via-indigo-500 to-purple-500"
     }
   ];
 
@@ -46,7 +54,7 @@ const PracticalSkillsPopup = ({ isOpen, onClose }: PracticalSkillsPopupProps) =>
           </DialogTitle>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {practicalSkills.map((skill) => (
             <Link 
               key={skill.id} 

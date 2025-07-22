@@ -16,8 +16,10 @@ import {
   Download,
   Upload,
   Sparkles,
-  TrendingUp
+  TrendingUp,
+  ArrowLeft
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   ChartContainer,
   ChartTooltip,
@@ -62,6 +64,7 @@ const CHART_COLORS = [
 ];
 
 const DataAnalysis = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("bar");
   const [data, setData] = useState<DataPoint[]>([
     { id: "1", label: "Apples", value: 25, color: "#8884d8" },
@@ -202,6 +205,16 @@ const DataAnalysis = () => {
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
+            <div className="flex items-center justify-center mb-4">
+              <Button
+                onClick={() => navigate(-1)}
+                variant="outline"
+                className="absolute left-0 bg-white/20 border-white/30 text-white hover:bg-white/30 hover:text-white"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+            </div>
             <div className="flex items-center justify-center space-x-2 mb-6">
               <Sparkles className="h-8 w-8 text-cyan-300" />
               <Badge variant="secondary" className="bg-white/20 text-white border-white/30 px-4 py-2 text-lg">
@@ -252,26 +265,26 @@ const DataAnalysis = () => {
         <div className="container mx-auto px-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
             <div className="flex justify-center mb-8">
-              <TabsList className="grid w-full max-w-[90vw] sm:max-w-md md:max-w-2xl grid-cols-5 bg-white shadow-lg rounded-xl p-1 gap-0 overflow-hidden">
-                <TabsTrigger value="bar" className="flex flex-col items-center justify-center space-y-1 p-2 sm:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-xs min-h-[60px] sm:min-h-[70px]">
+              <TabsList className="grid w-full max-w-[95vw] sm:max-w-lg md:max-w-3xl grid-cols-5 bg-white shadow-lg rounded-xl p-2 gap-1">
+                <TabsTrigger value="bar" className="flex flex-col items-center justify-center gap-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-xs min-h-[70px]">
                   <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                  <span className="text-[10px] sm:text-xs leading-none">Bar</span>
+                  <span className="text-[9px] sm:text-xs whitespace-nowrap">Bar</span>
                 </TabsTrigger>
-                <TabsTrigger value="line" className="flex flex-col items-center justify-center space-y-1 p-2 sm:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-xs min-h-[60px] sm:min-h-[70px]">
+                <TabsTrigger value="line" className="flex flex-col items-center justify-center gap-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-xs min-h-[70px]">
                   <LineChart className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                  <span className="text-[10px] sm:text-xs leading-none">Line</span>
+                  <span className="text-[9px] sm:text-xs whitespace-nowrap">Line</span>
                 </TabsTrigger>
-                <TabsTrigger value="pie" className="flex flex-col items-center justify-center space-y-1 p-2 sm:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white text-xs min-h-[60px] sm:min-h-[70px]">
+                <TabsTrigger value="pie" className="flex flex-col items-center justify-center gap-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white text-xs min-h-[70px]">
                   <PieChart className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                  <span className="text-[10px] sm:text-xs leading-none">Pie</span>
+                  <span className="text-[9px] sm:text-xs whitespace-nowrap">Pie</span>
                 </TabsTrigger>
-                <TabsTrigger value="scatter" className="flex flex-col items-center justify-center space-y-1 p-2 sm:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs min-h-[60px] sm:min-h-[70px]">
+                <TabsTrigger value="scatter" className="flex flex-col items-center justify-center gap-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs min-h-[70px]">
                   <Dot className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                  <span className="text-[10px] sm:text-xs leading-none">Scatter</span>
+                  <span className="text-[9px] sm:text-xs whitespace-nowrap">Scatter</span>
                 </TabsTrigger>
-                <TabsTrigger value="table" className="flex flex-col items-center justify-center space-y-1 p-2 sm:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-xs min-h-[60px] sm:min-h-[70px]">
+                <TabsTrigger value="table" className="flex flex-col items-center justify-center gap-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-xs min-h-[70px]">
                   <Table2 className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                  <span className="text-[10px] sm:text-xs leading-none">Table</span>
+                  <span className="text-[9px] sm:text-xs whitespace-nowrap">Table</span>
                 </TabsTrigger>
               </TabsList>
             </div>
