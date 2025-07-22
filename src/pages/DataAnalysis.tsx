@@ -225,9 +225,9 @@ const DataAnalysis = () => {
             </div>
             <div className="flex items-center justify-center space-x-2 mb-6">
               <Sparkles className="h-8 w-8 text-cyan-300" />
-              <Badge variant="secondary" className="bg-white/20 text-white border-white/30 px-4 py-2 text-lg">
+              <span className="md:bg-white/20 md:text-white md:border-white/30 md:px-4 md:py-2 md:text-lg md:rounded text-xl font-semibold">
                 Interactive Data Suite
-              </Badge>
+              </span>
               <Sparkles className="h-8 w-8 text-cyan-300" />
             </div>
             
