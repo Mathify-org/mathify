@@ -252,32 +252,32 @@ const DataAnalysis = () => {
         <div className="container mx-auto px-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
             <div className="flex justify-center">
-              <TabsList className="grid w-full max-w-md grid-cols-5 lg:max-w-2xl lg:grid-cols-5 bg-white shadow-lg rounded-xl p-2">
-                <TabsTrigger value="bar" className="flex flex-col items-center space-y-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white">
-                  <BarChart3 className="h-5 w-5" />
-                  <span className="text-xs hidden sm:block">Bar Chart</span>
+              <TabsList className="grid w-full max-w-xs sm:max-w-md md:max-w-2xl grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 bg-white shadow-lg rounded-xl p-2 gap-1">
+                <TabsTrigger value="bar" className="flex flex-col items-center space-y-1 p-2 md:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-xs">
+                  <BarChart3 className="h-4 w-4 md:h-5 md:w-5" />
+                  <span className="hidden sm:block">Bar</span>
                 </TabsTrigger>
-                <TabsTrigger value="line" className="flex flex-col items-center space-y-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white">
-                  <LineChart className="h-5 w-5" />
-                  <span className="text-xs hidden sm:block">Line Graph</span>
+                <TabsTrigger value="line" className="flex flex-col items-center space-y-1 p-2 md:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-xs">
+                  <LineChart className="h-4 w-4 md:h-5 md:w-5" />
+                  <span className="hidden sm:block">Line</span>
                 </TabsTrigger>
-                <TabsTrigger value="pie" className="flex flex-col items-center space-y-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
-                  <PieChart className="h-5 w-5" />
-                  <span className="text-xs hidden sm:block">Pie Chart</span>
+                <TabsTrigger value="pie" className="flex flex-col items-center space-y-1 p-2 md:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white text-xs">
+                  <PieChart className="h-4 w-4 md:h-5 md:w-5" />
+                  <span className="hidden sm:block">Pie</span>
                 </TabsTrigger>
-                <TabsTrigger value="scatter" className="flex flex-col items-center space-y-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
-                  <Dot className="h-5 w-5" />
-                  <span className="text-xs hidden sm:block">Scatter Plot</span>
+                <TabsTrigger value="scatter" className="flex flex-col items-center space-y-1 p-2 md:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs">
+                  <Dot className="h-4 w-4 md:h-5 md:w-5" />
+                  <span className="hidden sm:block">Scatter</span>
                 </TabsTrigger>
-                <TabsTrigger value="table" className="flex flex-col items-center space-y-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
-                  <Table2 className="h-5 w-5" />
-                  <span className="text-xs hidden sm:block">Data Table</span>
+                <TabsTrigger value="table" className="flex flex-col items-center space-y-1 p-2 md:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-xs col-span-2 sm:col-span-1">
+                  <Table2 className="h-4 w-4 md:h-5 md:w-5" />
+                  <span className="hidden sm:block">Table</span>
                 </TabsTrigger>
               </TabsList>
             </div>
 
             {/* Bar Chart Tab */}
-            <TabsContent value="bar" className="space-y-6">
+            <TabsContent value="bar" className="space-y-6 mt-8">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                   <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-blue-50">
@@ -402,7 +402,7 @@ const DataAnalysis = () => {
             </TabsContent>
 
             {/* Line Chart Tab */}
-            <TabsContent value="line" className="space-y-6">
+            <TabsContent value="line" className="space-y-6 mt-8">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                   <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-green-50">
@@ -523,7 +523,7 @@ const DataAnalysis = () => {
             </TabsContent>
 
             {/* Pie Chart Tab */}
-            <TabsContent value="pie" className="space-y-6">
+            <TabsContent value="pie" className="space-y-6 mt-8">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                   <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-purple-50">
@@ -640,7 +640,7 @@ const DataAnalysis = () => {
             </TabsContent>
 
             {/* Scatter Plot Tab */}
-            <TabsContent value="scatter" className="space-y-6">
+            <TabsContent value="scatter" className="space-y-6 mt-8">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                   <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-orange-50">
@@ -773,87 +773,160 @@ const DataAnalysis = () => {
             </TabsContent>
 
             {/* Data Table Tab */}
-            <TabsContent value="table" className="space-y-6">
-              <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-indigo-50">
-                <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-t-lg">
-                  <CardTitle className="flex items-center space-x-2">
-                    <Table2 className="h-6 w-6" />
-                    <span>Frequency Table</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  {data.length > 0 ? (
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
-                        <thead>
-                          <tr className="bg-gradient-to-r from-indigo-100 to-purple-100">
-                            <th className="border border-gray-300 p-3 text-left font-semibold">Label</th>
-                            <th className="border border-gray-300 p-3 text-left font-semibold">Value</th>
-                            <th className="border border-gray-300 p-3 text-left font-semibold">Percentage</th>
-                            <th className="border border-gray-300 p-3 text-left font-semibold">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {data.map((point, index) => {
-                            const total = data.reduce((sum, p) => sum + p.value, 0);
-                            const percentage = total > 0 ? ((point.value / total) * 100).toFixed(1) : "0";
-                            return (
-                              <tr key={point.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                                <td className="border border-gray-300 p-3">
-                                  <Input
-                                    value={point.label}
-                                    onChange={(e) => updateDataPoint(point.id, 'label', e.target.value)}
-                                    className="border-0 bg-transparent"
-                                  />
-                                </td>
-                                <td className="border border-gray-300 p-3">
-                                  <Input
-                                    type="number"
-                                    value={point.value}
-                                    onChange={(e) => updateDataPoint(point.id, 'value', e.target.value)}
-                                    className="border-0 bg-transparent"
-                                  />
-                                </td>
-                                <td className="border border-gray-300 p-3 text-center">
-                                  <Badge variant="secondary" className="bg-indigo-100 text-indigo-700">
-                                    {percentage}%
-                                  </Badge>
-                                </td>
-                                <td className="border border-gray-300 p-3 text-center">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => removeDataPoint(point.id)}
-                                    className="text-red-600 border-red-200 hover:bg-red-50"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </td>
+            <TabsContent value="table" className="space-y-6 mt-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-indigo-50">
+                    <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Table2 className="h-6 w-6" />
+                        <span>Frequency Table</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      {data.length > 0 ? (
+                        <div className="overflow-x-auto">
+                          <table className="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
+                            <thead>
+                              <tr className="bg-gradient-to-r from-indigo-100 to-purple-100">
+                                <th className="border border-gray-300 p-3 text-left font-semibold">Label</th>
+                                <th className="border border-gray-300 p-3 text-left font-semibold">Value</th>
+                                <th className="border border-gray-300 p-3 text-left font-semibold">Percentage</th>
+                                <th className="border border-gray-300 p-3 text-left font-semibold">Actions</th>
                               </tr>
-                            );
-                          })}
-                          <tr className="bg-gradient-to-r from-indigo-200 to-purple-200 font-semibold">
-                            <td className="border border-gray-300 p-3">Total</td>
-                            <td className="border border-gray-300 p-3">
-                              {data.reduce((sum, p) => sum + p.value, 0)}
-                            </td>
-                            <td className="border border-gray-300 p-3 text-center">100%</td>
-                            <td className="border border-gray-300 p-3"></td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <div className="h-60 flex items-center justify-center text-gray-500">
-                      <div className="text-center">
-                        <Table2 className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                        <p className="text-lg">No data to display</p>
-                        <p className="text-sm">Add some data points to see your frequency table!</p>
+                            </thead>
+                            <tbody>
+                              {data.map((point, index) => {
+                                const total = data.reduce((sum, p) => sum + p.value, 0);
+                                const percentage = total > 0 ? ((point.value / total) * 100).toFixed(1) : "0";
+                                return (
+                                  <tr key={point.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                                    <td className="border border-gray-300 p-3">
+                                      <Input
+                                        value={point.label}
+                                        onChange={(e) => updateDataPoint(point.id, 'label', e.target.value)}
+                                        className="border-0 bg-transparent"
+                                      />
+                                    </td>
+                                    <td className="border border-gray-300 p-3">
+                                      <Input
+                                        type="number"
+                                        value={point.value}
+                                        onChange={(e) => updateDataPoint(point.id, 'value', e.target.value)}
+                                        className="border-0 bg-transparent"
+                                      />
+                                    </td>
+                                    <td className="border border-gray-300 p-3 text-center">
+                                      <Badge variant="secondary" className="bg-indigo-100 text-indigo-700">
+                                        {percentage}%
+                                      </Badge>
+                                    </td>
+                                    <td className="border border-gray-300 p-3 text-center">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => removeDataPoint(point.id)}
+                                        className="text-red-600 border-red-200 hover:bg-red-50"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                              <tr className="bg-gradient-to-r from-indigo-200 to-purple-200 font-semibold">
+                                <td className="border border-gray-300 p-3">Total</td>
+                                <td className="border border-gray-300 p-3">
+                                  {data.reduce((sum, p) => sum + p.value, 0)}
+                                </td>
+                                <td className="border border-gray-300 p-3 text-center">100%</td>
+                                <td className="border border-gray-300 p-3"></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="h-60 flex items-center justify-center text-gray-500">
+                          <div className="text-center">
+                            <Table2 className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                            <p className="text-lg">No data to display</p>
+                            <p className="text-sm">Add some data points to see your frequency table!</p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Control Panel for Table */}
+                <div className="space-y-4">
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-slate-50">
+                    <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Plus className="h-5 w-5" />
+                        <span>Add Data</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 space-y-4">
+                      <div>
+                        <Label htmlFor="table-label">Label</Label>
+                        <Input
+                          id="table-label"
+                          value={newLabel}
+                          onChange={(e) => setNewLabel(e.target.value)}
+                          placeholder="Enter label"
+                          className="mt-1"
+                        />
                       </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                      <div>
+                        <Label htmlFor="table-value">Value</Label>
+                        <Input
+                          id="table-value"
+                          type="number"
+                          value={newValue}
+                          onChange={(e) => setNewValue(e.target.value)}
+                          placeholder="Enter value"
+                          className="mt-1"
+                        />
+                      </div>
+                      <Button 
+                        onClick={addDataPoint}
+                        className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Point
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-slate-50">
+                    <CardHeader className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Sparkles className="h-5 w-5" />
+                        <span>Quick Actions</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 space-y-3">
+                      <Button 
+                        onClick={generateSampleData}
+                        variant="outline"
+                        className="w-full border-emerald-200 hover:bg-emerald-50"
+                      >
+                        <TrendingUp className="h-4 w-4 mr-2" />
+                        Sample Data
+                      </Button>
+                      <Button 
+                        onClick={clearAllData}
+                        variant="outline"
+                        className="w-full border-red-200 hover:bg-red-50 text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Clear All
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
         </div>
