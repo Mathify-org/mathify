@@ -652,6 +652,135 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Data Analysis Suite Section */}
+      <section className="py-10 md:py-16 bg-gradient-to-b from-emerald-50 to-cyan-50 relative overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8 md:mb-12">
+            <h3 className="text-2xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent leading-tight pb-2">
+              Data Analysis Suite
+            </h3>
+            <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">
+              Create stunning visualizations, explore data patterns, and master statistics through interactive charts and graphs
+            </p>
+          </div>
+
+          <div className="max-w-6xl mx-auto">
+            <Link to="/data-analysis" className="block group">
+              <Card className="overflow-hidden border-0 shadow-2xl bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 hover:shadow-3xl transition-all duration-500 transform hover:scale-[1.02]">
+                <CardContent className="p-8 md:p-12 relative">
+                  {/* Background Pattern */}
+                  <div className="absolute inset-0 opacity-10">
+                    <div className="absolute top-8 left-8 w-16 h-16">
+                      <svg viewBox="0 0 100 100" className="w-full h-full text-white">
+                        <rect x="20" y="60" width="15" height="30" fill="currentColor" />
+                        <rect x="40" y="40" width="15" height="50" fill="currentColor" />
+                        <rect x="60" y="20" width="15" height="70" fill="currentColor" />
+                      </svg>
+                    </div>
+                    <div className="absolute top-8 right-16 w-16 h-16">
+                      <svg viewBox="0 0 100 100" className="w-full h-full text-white">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="4" />
+                        <path d="M50 10 A40 40 0 0 1 90 50 Z" fill="currentColor" />
+                        <path d="M90 50 A40 40 0 0 0 70 85 Z" fill="currentColor" opacity="0.7" />
+                      </svg>
+                    </div>
+                    <div className="absolute bottom-8 left-16 w-12 h-12">
+                      <svg viewBox="0 0 100 100" className="w-full h-full text-white">
+                        <polyline points="10,80 30,60 50,70 70,40 90,50" fill="none" stroke="currentColor" strokeWidth="4" />
+                        <circle cx="30" cy="60" r="3" fill="currentColor" />
+                        <circle cx="50" cy="70" r="3" fill="currentColor" />
+                        <circle cx="70" cy="40" r="3" fill="currentColor" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="relative z-10 text-white">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                      <div className="text-center lg:text-left">
+                        <h4 className="text-2xl md:text-3xl font-bold mb-4 group-hover:text-cyan-200 transition-colors">
+                          Interactive Data Visualization
+                        </h4>
+                        <p className="text-lg md:text-xl text-white/90 mb-6 leading-relaxed">
+                          Discover the power of data through beautiful, interactive charts and graphs. Create bar charts, line graphs, pie charts, scatter plots, and frequency tables with ease.
+                        </p>
+                        
+                        <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-cyan-300 rounded-full"></div>
+                            <span>Bar Charts</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-cyan-300 rounded-full"></div>
+                            <span>Line Graphs</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-cyan-300 rounded-full"></div>
+                            <span>Pie Charts</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-cyan-300 rounded-full"></div>
+                            <span>Scatter Plots</span>
+                          </div>
+                        </div>
+
+                        <div className="inline-flex items-center space-x-2 bg-white/20 rounded-full px-6 py-3 group-hover:bg-white/30 transition-all duration-300">
+                          <span className="font-semibold">Explore Data Analysis</span>
+                          <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                          </svg>
+                        </div>
+                      </div>
+
+                      <div className="relative">
+                        <div className="bg-white/20 backdrop-blur-lg rounded-2xl p-6 border border-white/30 group-hover:bg-white/30 transition-all duration-300">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-white/10 rounded-lg p-4 text-center">
+                              <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-lg mx-auto mb-2 flex items-center justify-center">
+                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                              </div>
+                              <span className="text-xs">Charts</span>
+                            </div>
+                            <div className="bg-white/10 rounded-lg p-4 text-center">
+                              <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-lg mx-auto mb-2 flex items-center justify-center">
+                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                                </svg>
+                              </div>
+                              <span className="text-xs">Pie Charts</span>
+                            </div>
+                            <div className="bg-white/10 rounded-lg p-4 text-center">
+                              <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-400 rounded-lg mx-auto mb-2 flex items-center justify-center">
+                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                                </svg>
+                              </div>
+                              <span className="text-xs">Line Graphs</span>
+                            </div>
+                            <div className="bg-white/10 rounded-lg p-4 text-center">
+                              <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-red-400 rounded-lg mx-auto mb-2 flex items-center justify-center">
+                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2m-6 4h6" />
+                                </svg>
+                              </div>
+                              <span className="text-xs">Tables</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </div>
+      </section>
       
       <section className="py-10 md:py-16 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white">
         <div className="container mx-auto px-4 text-center">
