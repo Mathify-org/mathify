@@ -1,315 +1,961 @@
-import React, { useState, useRef } from "react";
-import { ArrowLeft, Download, Plus, Trash2, BarChart3, LineChart, PieChart } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { 
+  BarChart3, 
+  LineChart, 
+  PieChart, 
+  Dot, 
+  Table2, 
+  Plus, 
+  Trash2,
+  Download,
+  Upload,
+  Sparkles,
+  TrendingUp,
+  ArrowLeft
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from "@/components/ui/chart";
 import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
   LineChart as RechartsLineChart,
   Line,
   PieChart as RechartsPieChart,
   Cell,
-  Legend
+  Pie,
+  ScatterChart,
+  Scatter,
 } from "recharts";
+import { toast } from "sonner";
+
+interface DataPoint {
+  id: string;
+  label: string;
+  value: number;
+  color?: string;
+}
+
+interface ScatterDataPoint {
+  id: string;
+  x: number;
+  y: number;
+  label?: string;
+}
+
+const CHART_COLORS = [
+  "#8884d8", "#82ca9d", "#ffc658", "#ff7c7c", "#8dd1e1", 
+  "#d084d0", "#ffb347", "#87ceeb", "#dda0dd", "#98fb98"
+];
 
 const DataAnalysis = () => {
   const navigate = useNavigate();
-  const [data, setData] = useState([
-    { name: "January", value: 400 },
-    { name: "February", value: 300 },
-    { name: "March", value: 600 },
-    { name: "April", value: 800 },
-    { name: "May", value: 500 },
+  const [activeTab, setActiveTab] = useState("bar");
+  const [data, setData] = useState<DataPoint[]>([
+    { id: "1", label: "Apples", value: 25, color: "#8884d8" },
+    { id: "2", label: "Bananas", value: 35, color: "#82ca9d" },
+    { id: "3", label: "Oranges", value: 20, color: "#ffc658" },
+    { id: "4", label: "Grapes", value: 30, color: "#ff7c7c" }
   ]);
   
-  const [chartType, setChartType] = useState("bar");
-  const [newDataPoint, setNewDataPoint] = useState({ name: "", value: "" });
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [scatterData, setScatterData] = useState<ScatterDataPoint[]>([
+    { id: "1", x: 10, y: 20, label: "Point 1" },
+    { id: "2", x: 25, y: 45, label: "Point 2" },
+    { id: "3", x: 40, y: 30, label: "Point 3" },
+    { id: "4", x: 60, y: 55, label: "Point 4" }
+  ]);
 
-  const addDataPoint = () => {
-    if (newDataPoint.name && newDataPoint.value) {
-      setData([...data, { name: newDataPoint.name, value: parseFloat(newDataPoint.value) }]);
-      setNewDataPoint({ name: "", value: "" });
-    } else {
-      toast.error("Please fill in both name and value for the new data point.");
+  const [newLabel, setNewLabel] = useState("");
+  const [newValue, setNewValue] = useState("");
+  const [newX, setNewX] = useState("");
+  const [newY, setNewY] = useState("");
+
+  const addDataPoint = useCallback(() => {
+    if (!newLabel.trim() || !newValue.trim()) {
+      toast.error("Please enter both label and value!");
+      return;
     }
-  };
 
-  const removeDataPoint = (index: number) => {
-    const newData = [...data];
-    newData.splice(index, 1);
-    setData(newData);
-  };
+    const value = parseFloat(newValue);
+    if (isNaN(value)) {
+      toast.error("Please enter a valid number!");
+      return;
+    }
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const jsonData = JSON.parse(e.target?.result as string);
-          if (Array.isArray(jsonData)) {
-            setData(jsonData.map(item => ({
-              name: item.name || "",
-              value: parseFloat(item.value) || 0
-            })));
-            toast.success("Data successfully imported from JSON file!");
-          } else {
-            toast.error("Invalid JSON format. Please provide an array of data points.");
-          }
-        } catch (error) {
-          toast.error("Error parsing JSON file. Please ensure the file is valid.");
+    const newPoint: DataPoint = {
+      id: Date.now().toString(),
+      label: newLabel.trim(),
+      value,
+      color: CHART_COLORS[data.length % CHART_COLORS.length]
+    };
+
+    setData(prev => [...prev, newPoint]);
+    setNewLabel("");
+    setNewValue("");
+    toast.success("Data point added successfully!");
+  }, [newLabel, newValue, data.length]);
+
+  const addScatterPoint = useCallback(() => {
+    if (!newX.trim() || !newY.trim()) {
+      toast.error("Please enter both X and Y values!");
+      return;
+    }
+
+    const x = parseFloat(newX);
+    const y = parseFloat(newY);
+    
+    if (isNaN(x) || isNaN(y)) {
+      toast.error("Please enter valid numbers!");
+      return;
+    }
+
+    const newPoint: ScatterDataPoint = {
+      id: Date.now().toString(),
+      x,
+      y,
+      label: `Point ${scatterData.length + 1}`
+    };
+
+    setScatterData(prev => [...prev, newPoint]);
+    setNewX("");
+    setNewY("");
+    toast.success("Scatter point added successfully!");
+  }, [newX, newY, scatterData.length]);
+
+  const removeDataPoint = useCallback((id: string) => {
+    setData(prev => prev.filter(point => point.id !== id));
+    toast.success("Data point removed!");
+  }, []);
+
+  const removeScatterPoint = useCallback((id: string) => {
+    setScatterData(prev => prev.filter(point => point.id !== id));
+    toast.success("Scatter point removed!");
+  }, []);
+
+  const updateDataPoint = useCallback((id: string, field: 'label' | 'value', newVal: string) => {
+    setData(prev => prev.map(point => {
+      if (point.id === id) {
+        if (field === 'value') {
+          const value = parseFloat(newVal);
+          return isNaN(value) ? point : { ...point, value };
         }
-      };
-      reader.readAsText(file);
-    }
+        return { ...point, [field]: newVal };
+      }
+      return point;
+    }));
+  }, []);
+
+  const generateSampleData = useCallback(() => {
+    const sampleLabels = ["Math", "Science", "English", "History", "Art"];
+    const newData = sampleLabels.map((label, index) => ({
+      id: (index + 1).toString(),
+      label,
+      value: Math.floor(Math.random() * 100) + 10,
+      color: CHART_COLORS[index % CHART_COLORS.length]
+    }));
+    setData(newData);
+    toast.success("Sample data generated!");
+  }, []);
+
+  const clearAllData = useCallback(() => {
+    setData([]);
+    toast.success("All data cleared!");
+  }, []);
+
+  const barChartConfig = {
+    value: {
+      label: "Value",
+      color: "hsl(var(--chart-1))",
+    },
   };
 
-  const exportData = () => {
-    const jsonString = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonString], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "data.json";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success("Data exported to JSON file!");
-  };
-
-  const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#8dd1e1'];
-
-  const renderChart = () => {
-    switch (chartType) {
-      case "bar":
-        return (
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value" fill="#8884d8" />
-            </BarChart>
-          </ResponsiveContainer>
-        );
-      case "line":
-        return (
-          <ResponsiveContainer width="100%" height={400}>
-            <RechartsLineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="value" stroke="#82ca9d" />
-            </RechartsLineChart>
-          </ResponsiveContainer>
-        );
-      case "pie":
-        return (
-          <ResponsiveContainer width="100%" height={400}>
-            <RechartsPieChart>
-              <Pie
-                data={data}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={150}
-                fill="#8884d8"
-                label
-              >
-                {
-                  data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                  ))
-                }
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </RechartsPieChart>
-          </ResponsiveContainer>
-        );
-      default:
-        return <p>Select a chart type to visualize data.</p>;
-    }
-  };
+  const chartTabs = [
+    { id: "bar", label: "Bar Chart", icon: BarChart3, color: "from-blue-500 to-cyan-500" },
+    { id: "line", label: "Line Chart", icon: LineChart, color: "from-green-500 to-emerald-500" },
+    { id: "pie", label: "Pie Chart", icon: PieChart, color: "from-purple-500 to-pink-500" },
+    { id: "scatter", label: "Scatter Plot", icon: Dot, color: "from-orange-500 to-red-500" },
+    { id: "table", label: "Data Table", icon: Table2, color: "from-indigo-500 to-purple-500" }
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header with back button - moved higher on mobile */}
-        <div className="flex items-center gap-4 mt-2 md:mt-6">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={() => navigate(-1)}
-            className="bg-white hover:bg-gray-50"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-              Data Analysis Suite
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Create beautiful charts and analyze your data
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Hero Section */}
+      <section className="py-12 md:py-20 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-8 left-8 w-24 h-24">
+            <BarChart3 className="w-full h-full" />
+          </div>
+          <div className="absolute top-16 right-16 w-20 h-20">
+            <PieChart className="w-full h-full" />
+          </div>
+          <div className="absolute bottom-8 left-16 w-16 h-16">
+            <LineChart className="w-full h-full" />
+          </div>
+          <div className="absolute bottom-16 right-8 w-18 h-18">
+            <Dot className="w-full h-full" />
           </div>
         </div>
-
-        {/* Chart Type Toggle */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl text-gray-800">Chart Type</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="flex items-center justify-center mb-4">
               <Button
-                variant={chartType === "bar" ? "default" : "outline"}
-                onClick={() => setChartType("bar")}
-                className="flex items-center gap-2"
-              >
-                <BarChart3 className="h-4 w-4" />
-                Bar Chart
-              </Button>
-              <Button
-                variant={chartType === "line" ? "default" : "outline"}
-                onClick={() => setChartType("line")}
-                className="flex items-center gap-2"
-              >
-                <LineChart className="h-4 w-4" />
-                Line Chart
-              </Button>
-              <Button
-                variant={chartType === "pie" ? "default" : "outline"}
-                onClick={() => setChartType("pie")}
-                className="flex items-center gap-2"
-              >
-                <PieChart className="h-4 w-4" />
-                Pie Chart
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Data Input */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl text-gray-800">Data Input</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                type="text"
-                placeholder="Data Point Name"
-                value={newDataPoint.name}
-                onChange={(e) => setNewDataPoint({ ...newDataPoint, name: e.target.value })}
-              />
-              <Input
-                type="number"
-                placeholder="Data Point Value"
-                value={newDataPoint.value}
-                onChange={(e) => setNewDataPoint({ ...newDataPoint, value: e.target.value })}
-              />
-            </div>
-            <Button onClick={addDataPoint} className="w-full bg-green-500 text-white hover:bg-green-600">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Data Point
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Chart Display */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl text-gray-800">Chart</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {renderChart()}
-          </CardContent>
-        </Card>
-
-        {/* Data Management */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl text-gray-800">Data Management</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead>
-                  <tr>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                      Value
-                    </th>
-                    <th className="px-6 py-3 bg-gray-50"></th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {data.map((item, index) => (
-                    <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.value}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => removeDataPoint(index)}
-                          className="text-red-500 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <Button
+                onClick={() => navigate(-1)}
                 variant="outline"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 bg-white hover:bg-gray-50"
+                className="absolute left-0 bg-white/20 border-white/30 text-white hover:bg-white/30 hover:text-white"
               >
-                <Download className="h-4 w-4" />
-                Import Data (JSON)
-              </Button>
-              <Button
-                onClick={exportData}
-                className="flex items-center gap-2 bg-blue-500 text-white hover:bg-blue-600"
-              >
-                <Download className="h-4 w-4" />
-                Export Data (JSON)
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
               </Button>
             </div>
-            <Input
-              type="file"
-              accept=".json"
-              onChange={handleFileUpload}
-              className="hidden"
-              ref={fileInputRef}
-            />
-          </CardContent>
-        </Card>
-      </div>
+            <div className="flex items-center justify-center space-x-2 mb-6">
+              <Sparkles className="h-8 w-8 text-cyan-300" />
+              <Badge variant="secondary" className="bg-white/20 text-white border-white/30 px-4 py-2 text-lg">
+                Interactive Data Suite
+              </Badge>
+              <Sparkles className="h-8 w-8 text-cyan-300" />
+            </div>
+            
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+              Data Analysis
+              <span className="bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent block">
+                Made Beautiful
+              </span>
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
+              Create stunning visualizations, explore data patterns, and master statistics through interactive charts and graphs
+            </p>
+            
+            <div className="flex flex-wrap justify-center gap-4 text-sm">
+              <div className="flex items-center space-x-2 bg-white/20 rounded-full px-4 py-2">
+                <BarChart3 className="h-4 w-4" />
+                <span>Bar Charts</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-white/20 rounded-full px-4 py-2">
+                <LineChart className="h-4 w-4" />
+                <span>Line Graphs</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-white/20 rounded-full px-4 py-2">
+                <PieChart className="h-4 w-4" />
+                <span>Pie Charts</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-white/20 rounded-full px-4 py-2">
+                <Dot className="h-4 w-4" />
+                <span>Scatter Plots</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-white/20 rounded-full px-4 py-2">
+                <Table2 className="h-4 w-4" />
+                <span>Data Tables</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <section className="py-8 md:py-12">
+        <div className="container mx-auto px-4">
+          {/* Custom Chart Type Toggle */}
+          <div className="flex justify-center mb-12">
+            <div className="bg-white rounded-2xl shadow-2xl p-3 border-2 border-gray-100">
+              <div className="flex flex-wrap justify-center gap-3">
+                {chartTabs.map((tab) => {
+                  const IconComponent = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`
+                        flex flex-col items-center justify-center p-4 rounded-xl transition-all duration-300 min-w-[120px] h-[100px]
+                        ${activeTab === tab.id 
+                          ? `bg-gradient-to-r ${tab.color} text-white shadow-lg transform scale-105` 
+                          : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+                        }
+                      `}
+                    >
+                      <IconComponent className="h-6 w-6 mb-2" />
+                      <span className="text-sm font-medium text-center leading-tight">
+                        {tab.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+            {/* Bar Chart Tab */}
+            <TabsContent value="bar" className="space-y-6 mt-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-blue-50">
+                    <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <BarChart3 className="h-6 w-6" />
+                        <span>Interactive Bar Chart</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      {data.length > 0 ? (
+                        <ChartContainer config={barChartConfig} className="h-80 w-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                              <XAxis 
+                                dataKey="label" 
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#64748b' }}
+                              />
+                              <YAxis 
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#64748b' }}
+                              />
+                              <ChartTooltip content={<ChartTooltipContent />} />
+                              <Bar 
+                                dataKey="value" 
+                                radius={[4, 4, 0, 0]}
+                                fill="url(#barGradient)"
+                              />
+                              <defs>
+                                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.3}/>
+                                </linearGradient>
+                              </defs>
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </ChartContainer>
+                      ) : (
+                        <div className="h-80 flex items-center justify-center text-gray-500">
+                          <div className="text-center">
+                            <BarChart3 className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                            <p className="text-lg">No data to display</p>
+                            <p className="text-sm">Add some data points to see your chart!</p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Control Panel */}
+                <div className="space-y-4">
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-slate-50">
+                    <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Plus className="h-5 w-5" />
+                        <span>Add Data</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 space-y-4">
+                      <div>
+                        <Label htmlFor="label">Label</Label>
+                        <Input
+                          id="label"
+                          value={newLabel}
+                          onChange={(e) => setNewLabel(e.target.value)}
+                          placeholder="Enter label"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="value">Value</Label>
+                        <Input
+                          id="value"
+                          type="number"
+                          value={newValue}
+                          onChange={(e) => setNewValue(e.target.value)}
+                          placeholder="Enter value"
+                          className="mt-1"
+                        />
+                      </div>
+                      <Button 
+                        onClick={addDataPoint}
+                        className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Point
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-slate-50">
+                    <CardHeader className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Sparkles className="h-5 w-5" />
+                        <span>Quick Actions</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 space-y-3">
+                      <Button 
+                        onClick={generateSampleData}
+                        variant="outline"
+                        className="w-full border-emerald-200 hover:bg-emerald-50"
+                      >
+                        <TrendingUp className="h-4 w-4 mr-2" />
+                        Sample Data
+                      </Button>
+                      <Button 
+                        onClick={clearAllData}
+                        variant="outline"
+                        className="w-full border-red-200 hover:bg-red-50 text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Clear All
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Line Chart Tab */}
+            <TabsContent value="line" className="space-y-6 mt-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-green-50">
+                    <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <LineChart className="h-6 w-6" />
+                        <span>Interactive Line Graph</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      {data.length > 0 ? (
+                        <ChartContainer config={barChartConfig} className="h-80 w-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <RechartsLineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                              <XAxis 
+                                dataKey="label" 
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#64748b' }}
+                              />
+                              <YAxis 
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#64748b' }}
+                              />
+                              <ChartTooltip content={<ChartTooltipContent />} />
+                              <Line 
+                                type="monotone" 
+                                dataKey="value" 
+                                stroke="#10b981"
+                                strokeWidth={3}
+                                dot={{ fill: '#059669', strokeWidth: 2, r: 6 }}
+                                activeDot={{ r: 8, fill: '#064e3b' }}
+                              />
+                            </RechartsLineChart>
+                          </ResponsiveContainer>
+                        </ChartContainer>
+                      ) : (
+                        <div className="h-80 flex items-center justify-center text-gray-500">
+                          <div className="text-center">
+                            <LineChart className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                            <p className="text-lg">No data to display</p>
+                            <p className="text-sm">Add some data points to see your line graph!</p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="space-y-4">
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-slate-50">
+                    <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Plus className="h-5 w-5" />
+                        <span>Add Data</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 space-y-4">
+                      <div>
+                        <Label htmlFor="line-label">Label</Label>
+                        <Input
+                          id="line-label"
+                          value={newLabel}
+                          onChange={(e) => setNewLabel(e.target.value)}
+                          placeholder="Enter label"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="line-value">Value</Label>
+                        <Input
+                          id="line-value"
+                          type="number"
+                          value={newValue}
+                          onChange={(e) => setNewValue(e.target.value)}
+                          placeholder="Enter value"
+                          className="mt-1"
+                        />
+                      </div>
+                      <Button 
+                        onClick={addDataPoint}
+                        className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Point
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-slate-50">
+                    <CardHeader className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Sparkles className="h-5 w-5" />
+                        <span>Quick Actions</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 space-y-3">
+                      <Button 
+                        onClick={generateSampleData}
+                        variant="outline"
+                        className="w-full border-emerald-200 hover:bg-emerald-50"
+                      >
+                        <TrendingUp className="h-4 w-4 mr-2" />
+                        Sample Data
+                      </Button>
+                      <Button 
+                        onClick={clearAllData}
+                        variant="outline"
+                        className="w-full border-red-200 hover:bg-red-50 text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Clear All
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Pie Chart Tab */}
+            <TabsContent value="pie" className="space-y-6 mt-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-purple-50">
+                    <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <PieChart className="h-6 w-6" />
+                        <span>Interactive Pie Chart</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      {data.length > 0 ? (
+                        <ChartContainer config={barChartConfig} className="h-80 w-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <RechartsPieChart>
+                              <Pie
+                                data={data}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={({ label, percent }) => `${label} ${(percent * 100).toFixed(0)}%`}
+                                outerRadius={100}
+                                fill="#8884d8"
+                                dataKey="value"
+                              >
+                                {data.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                                ))}
+                              </Pie>
+                              <ChartTooltip content={<ChartTooltipContent />} />
+                            </RechartsPieChart>
+                          </ResponsiveContainer>
+                        </ChartContainer>
+                      ) : (
+                        <div className="h-80 flex items-center justify-center text-gray-500">
+                          <div className="text-center">
+                            <PieChart className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                            <p className="text-lg">No data to display</p>
+                            <p className="text-sm">Add some data points to see your pie chart!</p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="space-y-4">
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-slate-50">
+                    <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Plus className="h-5 w-5" />
+                        <span>Add Data</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 space-y-4">
+                      <div>
+                        <Label htmlFor="pie-label">Label</Label>
+                        <Input
+                          id="pie-label"
+                          value={newLabel}
+                          onChange={(e) => setNewLabel(e.target.value)}
+                          placeholder="Enter label"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="pie-value">Value</Label>
+                        <Input
+                          id="pie-value"
+                          type="number"
+                          value={newValue}
+                          onChange={(e) => setNewValue(e.target.value)}
+                          placeholder="Enter value"
+                          className="mt-1"
+                        />
+                      </div>
+                      <Button 
+                        onClick={addDataPoint}
+                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Point
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-slate-50">
+                    <CardHeader className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Sparkles className="h-5 w-5" />
+                        <span>Quick Actions</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 space-y-3">
+                      <Button 
+                        onClick={generateSampleData}
+                        variant="outline"
+                        className="w-full border-emerald-200 hover:bg-emerald-50"
+                      >
+                        <TrendingUp className="h-4 w-4 mr-2" />
+                        Sample Data
+                      </Button>
+                      <Button 
+                        onClick={clearAllData}
+                        variant="outline"
+                        className="w-full border-red-200 hover:bg-red-50 text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Clear All
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Scatter Plot Tab */}
+            <TabsContent value="scatter" className="space-y-6 mt-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-orange-50">
+                    <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Dot className="h-6 w-6" />
+                        <span>Interactive Scatter Plot</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      {scatterData.length > 0 ? (
+                        <ChartContainer config={barChartConfig} className="h-80 w-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <ScatterChart margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                              <XAxis 
+                                type="number" 
+                                dataKey="x" 
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#64748b' }}
+                              />
+                              <YAxis 
+                                type="number" 
+                                dataKey="y" 
+                                tick={{ fontSize: 12 }}
+                                axisLine={{ stroke: '#64748b' }}
+                              />
+                              <ChartTooltip content={<ChartTooltipContent />} />
+                              <Scatter 
+                                data={scatterData} 
+                                fill="#f97316"
+                              />
+                            </ScatterChart>
+                          </ResponsiveContainer>
+                        </ChartContainer>
+                      ) : (
+                        <div className="h-80 flex items-center justify-center text-gray-500">
+                          <div className="text-center">
+                            <Dot className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                            <p className="text-lg">No data to display</p>
+                            <p className="text-sm">Add some data points to see your scatter plot!</p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="space-y-4">
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-slate-50">
+                    <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Plus className="h-5 w-5" />
+                        <span>Add Data</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 space-y-4">
+                      <div>
+                        <Label htmlFor="scatter-x">X Value</Label>
+                        <Input
+                          id="scatter-x"
+                          type="number"
+                          value={newX}
+                          onChange={(e) => setNewX(e.target.value)}
+                          placeholder="Enter X value"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="scatter-y">Y Value</Label>
+                        <Input
+                          id="scatter-y"
+                          type="number"
+                          value={newY}
+                          onChange={(e) => setNewY(e.target.value)}
+                          placeholder="Enter Y value"
+                          className="mt-1"
+                        />
+                      </div>
+                      <Button 
+                        onClick={addScatterPoint}
+                        className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Point
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-slate-50">
+                    <CardHeader className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Sparkles className="h-5 w-5" />
+                        <span>Quick Actions</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 space-y-3">
+                      <Button 
+                        onClick={() => {
+                          const newScatterData = Array.from({ length: 8 }, (_, i) => ({
+                            id: (i + 1).toString(),
+                            x: Math.floor(Math.random() * 100),
+                            y: Math.floor(Math.random() * 100),
+                            label: `Point ${i + 1}`
+                          }));
+                          setScatterData(newScatterData);
+                          toast.success("Sample scatter data generated!");
+                        }}
+                        variant="outline"
+                        className="w-full border-emerald-200 hover:bg-emerald-50"
+                      >
+                        <TrendingUp className="h-4 w-4 mr-2" />
+                        Sample Data
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          setScatterData([]);
+                          toast.success("All scatter data cleared!");
+                        }}
+                        variant="outline"
+                        className="w-full border-red-200 hover:bg-red-50 text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Clear All
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Data Table Tab */}
+            <TabsContent value="table" className="space-y-6 mt-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-indigo-50">
+                    <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Table2 className="h-6 w-6" />
+                        <span>Frequency Table</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      {data.length > 0 ? (
+                        <div className="overflow-x-auto">
+                          <table className="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
+                            <thead>
+                              <tr className="bg-gradient-to-r from-indigo-100 to-purple-100">
+                                <th className="border border-gray-300 p-3 text-left font-semibold">Label</th>
+                                <th className="border border-gray-300 p-3 text-left font-semibold">Value</th>
+                                <th className="border border-gray-300 p-3 text-left font-semibold">Percentage</th>
+                                <th className="border border-gray-300 p-3 text-left font-semibold">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {data.map((point, index) => {
+                                const total = data.reduce((sum, p) => sum + p.value, 0);
+                                const percentage = total > 0 ? ((point.value / total) * 100).toFixed(1) : "0";
+                                return (
+                                  <tr key={point.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                                    <td className="border border-gray-300 p-3">
+                                      <Input
+                                        value={point.label}
+                                        onChange={(e) => updateDataPoint(point.id, 'label', e.target.value)}
+                                        className="border-0 bg-transparent"
+                                      />
+                                    </td>
+                                    <td className="border border-gray-300 p-3">
+                                      <Input
+                                        type="number"
+                                        value={point.value}
+                                        onChange={(e) => updateDataPoint(point.id, 'value', e.target.value)}
+                                        className="border-0 bg-transparent"
+                                      />
+                                    </td>
+                                    <td className="border border-gray-300 p-3 text-center">
+                                      <Badge variant="secondary" className="bg-indigo-100 text-indigo-700">
+                                        {percentage}%
+                                      </Badge>
+                                    </td>
+                                    <td className="border border-gray-300 p-3 text-center">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => removeDataPoint(point.id)}
+                                        className="text-red-600 border-red-200 hover:bg-red-50"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                              <tr className="bg-gradient-to-r from-indigo-200 to-purple-200 font-semibold">
+                                <td className="border border-gray-300 p-3">Total</td>
+                                <td className="border border-gray-300 p-3">
+                                  {data.reduce((sum, p) => sum + p.value, 0)}
+                                </td>
+                                <td className="border border-gray-300 p-3 text-center">100%</td>
+                                <td className="border border-gray-300 p-3"></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="h-60 flex items-center justify-center text-gray-500">
+                          <div className="text-center">
+                            <Table2 className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                            <p className="text-lg">No data to display</p>
+                            <p className="text-sm">Add some data points to see your frequency table!</p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Control Panel for Table */}
+                <div className="space-y-4">
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-slate-50">
+                    <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Plus className="h-5 w-5" />
+                        <span>Add Data</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 space-y-4">
+                      <div>
+                        <Label htmlFor="table-label">Label</Label>
+                        <Input
+                          id="table-label"
+                          value={newLabel}
+                          onChange={(e) => setNewLabel(e.target.value)}
+                          placeholder="Enter label"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="table-value">Value</Label>
+                        <Input
+                          id="table-value"
+                          type="number"
+                          value={newValue}
+                          onChange={(e) => setNewValue(e.target.value)}
+                          placeholder="Enter value"
+                          className="mt-1"
+                        />
+                      </div>
+                      <Button 
+                        onClick={addDataPoint}
+                        className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Point
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-slate-50">
+                    <CardHeader className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-t-lg">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Sparkles className="h-5 w-5" />
+                        <span>Quick Actions</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 space-y-3">
+                      <Button 
+                        onClick={generateSampleData}
+                        variant="outline"
+                        className="w-full border-emerald-200 hover:bg-emerald-50"
+                      >
+                        <TrendingUp className="h-4 w-4 mr-2" />
+                        Sample Data
+                      </Button>
+                      <Button 
+                        onClick={clearAllData}
+                        variant="outline"
+                        className="w-full border-red-200 hover:bg-red-50 text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Clear All
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </section>
     </div>
   );
 };
