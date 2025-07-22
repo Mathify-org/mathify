@@ -184,6 +184,14 @@ const DataAnalysis = () => {
     },
   };
 
+  const chartTabs = [
+    { id: "bar", label: "Bar Chart", icon: BarChart3, color: "from-blue-500 to-cyan-500" },
+    { id: "line", label: "Line Chart", icon: LineChart, color: "from-green-500 to-emerald-500" },
+    { id: "pie", label: "Pie Chart", icon: PieChart, color: "from-purple-500 to-pink-500" },
+    { id: "scatter", label: "Scatter Plot", icon: Dot, color: "from-orange-500 to-red-500" },
+    { id: "table", label: "Data Table", icon: Table2, color: "from-indigo-500 to-purple-500" }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Hero Section */}
@@ -263,32 +271,36 @@ const DataAnalysis = () => {
       {/* Main Content */}
       <section className="py-8 md:py-12">
         <div className="container mx-auto px-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-            <div className="flex justify-center mb-8">
-              <TabsList className="grid w-full max-w-[95vw] sm:max-w-lg md:max-w-3xl grid-cols-5 bg-white shadow-lg rounded-xl p-2 gap-1">
-                <TabsTrigger value="bar" className="flex flex-col items-center justify-center gap-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-xs min-h-[70px]">
-                  <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                  <span className="text-[9px] sm:text-xs whitespace-nowrap">Bar</span>
-                </TabsTrigger>
-                <TabsTrigger value="line" className="flex flex-col items-center justify-center gap-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-xs min-h-[70px]">
-                  <LineChart className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                  <span className="text-[9px] sm:text-xs whitespace-nowrap">Line</span>
-                </TabsTrigger>
-                <TabsTrigger value="pie" className="flex flex-col items-center justify-center gap-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white text-xs min-h-[70px]">
-                  <PieChart className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                  <span className="text-[9px] sm:text-xs whitespace-nowrap">Pie</span>
-                </TabsTrigger>
-                <TabsTrigger value="scatter" className="flex flex-col items-center justify-center gap-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs min-h-[70px]">
-                  <Dot className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                  <span className="text-[9px] sm:text-xs whitespace-nowrap">Scatter</span>
-                </TabsTrigger>
-                <TabsTrigger value="table" className="flex flex-col items-center justify-center gap-1 p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-xs min-h-[70px]">
-                  <Table2 className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                  <span className="text-[9px] sm:text-xs whitespace-nowrap">Table</span>
-                </TabsTrigger>
-              </TabsList>
+          {/* Custom Chart Type Toggle */}
+          <div className="flex justify-center mb-12">
+            <div className="bg-white rounded-2xl shadow-2xl p-3 border-2 border-gray-100">
+              <div className="flex flex-wrap justify-center gap-3">
+                {chartTabs.map((tab) => {
+                  const IconComponent = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`
+                        flex flex-col items-center justify-center p-4 rounded-xl transition-all duration-300 min-w-[120px] h-[100px]
+                        ${activeTab === tab.id 
+                          ? `bg-gradient-to-r ${tab.color} text-white shadow-lg transform scale-105` 
+                          : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+                        }
+                      `}
+                    >
+                      <IconComponent className="h-6 w-6 mb-2" />
+                      <span className="text-sm font-medium text-center leading-tight">
+                        {tab.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
+          </div>
 
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
             {/* Bar Chart Tab */}
             <TabsContent value="bar" className="space-y-6 mt-8">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
