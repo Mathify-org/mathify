@@ -251,27 +251,27 @@ const DataAnalysis = () => {
       <section className="py-8 md:py-12">
         <div className="container mx-auto px-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-            <div className="flex justify-center">
-              <TabsList className="grid w-full max-w-xs sm:max-w-md md:max-w-2xl grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 bg-white shadow-lg rounded-xl p-2 gap-1">
-                <TabsTrigger value="bar" className="flex flex-col items-center space-y-1 p-2 md:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-xs">
-                  <BarChart3 className="h-4 w-4 md:h-5 md:w-5" />
-                  <span className="hidden sm:block">Bar</span>
+            <div className="flex justify-center mb-8">
+              <TabsList className="grid w-full max-w-[90vw] sm:max-w-md md:max-w-2xl grid-cols-5 bg-white shadow-lg rounded-xl p-1 gap-0 overflow-hidden">
+                <TabsTrigger value="bar" className="flex flex-col items-center justify-center space-y-1 p-2 sm:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-xs min-h-[60px] sm:min-h-[70px]">
+                  <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs leading-none">Bar</span>
                 </TabsTrigger>
-                <TabsTrigger value="line" className="flex flex-col items-center space-y-1 p-2 md:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-xs">
-                  <LineChart className="h-4 w-4 md:h-5 md:w-5" />
-                  <span className="hidden sm:block">Line</span>
+                <TabsTrigger value="line" className="flex flex-col items-center justify-center space-y-1 p-2 sm:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-xs min-h-[60px] sm:min-h-[70px]">
+                  <LineChart className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs leading-none">Line</span>
                 </TabsTrigger>
-                <TabsTrigger value="pie" className="flex flex-col items-center space-y-1 p-2 md:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white text-xs">
-                  <PieChart className="h-4 w-4 md:h-5 md:w-5" />
-                  <span className="hidden sm:block">Pie</span>
+                <TabsTrigger value="pie" className="flex flex-col items-center justify-center space-y-1 p-2 sm:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white text-xs min-h-[60px] sm:min-h-[70px]">
+                  <PieChart className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs leading-none">Pie</span>
                 </TabsTrigger>
-                <TabsTrigger value="scatter" className="flex flex-col items-center space-y-1 p-2 md:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs">
-                  <Dot className="h-4 w-4 md:h-5 md:w-5" />
-                  <span className="hidden sm:block">Scatter</span>
+                <TabsTrigger value="scatter" className="flex flex-col items-center justify-center space-y-1 p-2 sm:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs min-h-[60px] sm:min-h-[70px]">
+                  <Dot className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs leading-none">Scatter</span>
                 </TabsTrigger>
-                <TabsTrigger value="table" className="flex flex-col items-center space-y-1 p-2 md:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-xs col-span-2 sm:col-span-1">
-                  <Table2 className="h-4 w-4 md:h-5 md:w-5" />
-                  <span className="hidden sm:block">Table</span>
+                <TabsTrigger value="table" className="flex flex-col items-center justify-center space-y-1 p-2 sm:p-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-xs min-h-[60px] sm:min-h-[70px]">
+                  <Table2 className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs leading-none">Table</span>
                 </TabsTrigger>
               </TabsList>
             </div>
