@@ -152,10 +152,10 @@ const Navbar = () => {
                   <span className="font-medium">Practical Skills</span>
                 </button>
 
-                {/* Data Analysis Suite */}
+                {/* Data Analysis Suite - now separate top-level item */}
                 <Link 
                   to="/data-analysis"
-                  className="flex items-center gap-4 text-white hover:bg-white/20 px-4 py-3 rounded-xl transition-all duration-300 ml-6"
+                  className="flex items-center gap-4 text-white hover:bg-white/20 px-4 py-3 rounded-xl transition-all duration-300"
                   onClick={closeMenu}
                 >
                   <div className="p-2 bg-blue-500/30 rounded-lg">
