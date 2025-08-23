@@ -187,7 +187,7 @@ const useProgressManager = () => {
   return { gameData, updateProgress, resetProgress };
 };
 
-const ShapeExplorer = () => {
+const ShapeAdventure = () => {
   const [activeView, setActiveView] = useState<'map' | 'challenge'>('map');
   const [activeIsland, setActiveIsland] = useState<string | null>(null);
   const [activeChallenge, setActiveChallenge] = useState<string | null>(null);
@@ -370,4 +370,4 @@ const ShapeExplorer = () => {
   );
 };
 
-export default ShapeExplorer;
+export default ShapeAdventure;

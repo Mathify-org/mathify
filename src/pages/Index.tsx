@@ -196,6 +196,27 @@ const generalSkills = [
     description: "Hit number targets by combining tiles strategically",
     path: "/target-takedown",
     color: "bg-gradient-to-r from-pink-500 to-pink-600"
+  },
+  {
+    id: "shape-adventure",
+    title: "Shape Adventure",
+    description: "Embark on an amazing journey through geometric wonders",
+    path: "/shape-adventure",
+    color: "bg-gradient-to-r from-purple-500 to-pink-500"
+  },
+  {
+    id: "pattern-builder",
+    title: "Pattern Builder",
+    description: "Master the art of patterns with geometric sequences",
+    path: "/pattern-builder",
+    color: "bg-gradient-to-r from-indigo-500 to-purple-500"
+  },
+  {
+    id: "geometry-puzzle",
+    title: "Geometry Puzzle",
+    description: "Build amazing creations with geometric puzzle pieces",
+    path: "/geometry-puzzle",
+    color: "bg-gradient-to-r from-cyan-500 to-teal-500"
   }
 ];
 

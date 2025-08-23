@@ -1,6 +1,6 @@
 
 import React from "react";
-import { X, Gamepad2, Calculator, Target, Zap, Shapes, Divide, Brain, BookOpen, Users } from "lucide-react";
+import { X, Gamepad2, Calculator, Target, Zap, Shapes, Divide, Brain, BookOpen, Users, Hexagon, Grid3X3, Puzzle } from "lucide-react";
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -102,6 +102,27 @@ const GamePopup: React.FC<GamePopupProps> = ({ isOpen, onClose }) => {
       icon: <Gamepad2 className="h-8 w-8" />,
       path: "/target-takedown",
       gradient: "from-cyan-500 to-blue-600"
+    },
+    {
+      title: "Shape Adventure",
+      description: "Explore geometric wonders",
+      icon: <Shapes className="h-8 w-8" />,
+      path: "/shape-adventure",
+      gradient: "from-purple-500 to-pink-500"
+    },
+    {
+      title: "Pattern Builder",
+      description: "Create beautiful patterns",
+      icon: <Grid3X3 className="h-8 w-8" />,
+      path: "/pattern-builder",
+      gradient: "from-indigo-500 to-purple-500"
+    },
+    {
+      title: "Geometry Puzzle",
+      description: "Build amazing shapes",
+      icon: <Puzzle className="h-8 w-8" />,
+      path: "/geometry-puzzle",
+      gradient: "from-cyan-500 to-teal-500"
     }
   ];
 
