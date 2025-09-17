@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Ruler, RotateCw, CheckCircle, XCircle, Lightbulb, Trophy } from 'lucide-react';
+import { ArrowLeft, Ruler, RotateCw, CheckCircle, XCircle, Lightbulb, Trophy, Target, Zap, Star, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
@@ -83,8 +83,42 @@ const realWorldExamples = [
   }
 ];
 
+// Metric conversion data for the interactive game
+const metricGameData = {
+  length: {
+    name: "Length",
+    icon: "📏",
+    color: "from-blue-500 to-cyan-500",
+    units: [
+      { name: "mm", fullName: "millimeters", factor: 1, visual: "•", color: "bg-blue-200" },
+      { name: "cm", fullName: "centimeters", factor: 10, visual: "▬", color: "bg-blue-300" },
+      { name: "m", fullName: "meters", factor: 1000, visual: "█", color: "bg-blue-400" },
+      { name: "km", fullName: "kilometers", factor: 1000000, visual: "■", color: "bg-blue-500" }
+    ]
+  },
+  weight: {
+    name: "Weight", 
+    icon: "⚖️",
+    color: "from-green-500 to-emerald-500",
+    units: [
+      { name: "mg", fullName: "milligrams", factor: 1, visual: "•", color: "bg-green-200" },
+      { name: "g", fullName: "grams", factor: 1000, visual: "▬", color: "bg-green-300" },
+      { name: "kg", fullName: "kilograms", factor: 1000000, visual: "█", color: "bg-green-400" }
+    ]
+  },
+  capacity: {
+    name: "Capacity",
+    icon: "🥤", 
+    color: "from-purple-500 to-violet-500",
+    units: [
+      { name: "ml", fullName: "milliliters", factor: 1, visual: "💧", color: "bg-purple-200" },
+      { name: "l", fullName: "liters", factor: 1000, visual: "🧴", color: "bg-purple-400" }
+    ]
+  }
+};
+
 const UnitConverter = () => {
-  const [mode, setMode] = useState<'learn' | 'convert' | 'quiz'>('learn');
+  const [mode, setMode] = useState<'learn' | 'convert' | 'quiz' | 'metric-game'>('learn');
   const [selectedCategory, setSelectedCategory] = useState(0);
   const [inputValue, setInputValue] = useState('');
   const [result, setResult] = useState<string>('');
@@ -93,6 +127,18 @@ const UnitConverter = () => {
   const [quizAnswer, setQuizAnswer] = useState('');
   const [showQuizResult, setShowQuizResult] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
+  
+  // Metric game state
+  const [gameCategory, setGameCategory] = useState<keyof typeof metricGameData>('length');
+  const [gameLevel, setGameLevel] = useState(1);
+  const [gameScore, setGameScore] = useState(0);
+  const [currentChallenge, setCurrentChallenge] = useState<any>(null);
+  const [gameInput, setGameInput] = useState('');
+  const [gameStreaks, setGameStreaks] = useState(0);
+  const [showGameResult, setShowGameResult] = useState(false);
+  const [draggedValue, setDraggedValue] = useState<number | null>(null);
+  const [dropZoneActive, setDropZoneActive] = useState<string | null>(null);
+  
   const { toast } = useToast();
 
   const generateQuizQuestion = () => {
@@ -160,6 +206,104 @@ const UnitConverter = () => {
     }, 2000);
   };
 
+  // Generate metric game challenge
+  const generateMetricChallenge = () => {
+    const category = metricGameData[gameCategory];
+    const fromUnit = category.units[Math.floor(Math.random() * category.units.length)];
+    const toUnit = category.units[Math.floor(Math.random() * category.units.length)];
+    
+    if (fromUnit.name === toUnit.name) {
+      return generateMetricChallenge(); // Regenerate if same unit
+    }
+    
+    const baseValue = Math.floor(Math.random() * 100) + 1;
+    const correctAnswer = (baseValue * fromUnit.factor) / toUnit.factor;
+    
+    return {
+      question: `Convert ${baseValue} ${fromUnit.name} to ${toUnit.name}`,
+      fromValue: baseValue,
+      fromUnit,
+      toUnit,
+      correctAnswer,
+      category: category.name
+    };
+  };
+
+  // Initialize first challenge
+  useEffect(() => {
+    if (mode === 'metric-game' && !currentChallenge) {
+      setCurrentChallenge(generateMetricChallenge());
+    }
+  }, [mode, gameCategory]);
+
+  // Check metric game answer
+  const checkMetricAnswer = () => {
+    if (!currentChallenge) return;
+    
+    const userAnswer = parseFloat(gameInput);
+    const tolerance = Math.abs(currentChallenge.correctAnswer * 0.02); // 2% tolerance
+    const isCorrect = Math.abs(userAnswer - currentChallenge.correctAnswer) <= tolerance;
+    
+    if (isCorrect) {
+      const points = Math.max(100 - (gameLevel * 5), 50);
+      setGameScore(prev => prev + points);
+      setGameStreaks(prev => prev + 1);
+      
+      toast({
+        title: "🎉 Perfect!",
+        description: `+${points} points! Streak: ${gameStreaks + 1}`,
+      });
+      
+      // Level up every 5 correct answers
+      if ((gameScore + points) > gameLevel * 500) {
+        setGameLevel(prev => prev + 1);
+        toast({
+          title: "🚀 Level Up!",
+          description: `Welcome to Level ${gameLevel + 1}!`,
+        });
+      }
+    } else {
+      setGameStreaks(0);
+      toast({
+        title: "🎯 Close!",
+        description: `Answer: ${currentChallenge.correctAnswer.toFixed(2)} ${currentChallenge.toUnit.name}`,
+        variant: "destructive"
+      });
+    }
+    
+    setShowGameResult(true);
+    setTimeout(() => {
+      setShowGameResult(false);
+      setGameInput('');
+      setCurrentChallenge(generateMetricChallenge());
+    }, 1500);
+  };
+
+  // Handle drag and drop for visual conversions
+  const handleDragStart = (value: number) => {
+    setDraggedValue(value);
+  };
+
+  const handleDragOver = (e: React.DragEvent, unitName: string) => {
+    e.preventDefault();
+    setDropZoneActive(unitName);
+  };
+
+  const handleDragLeave = () => {
+    setDropZoneActive(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetUnit: any) => {
+    e.preventDefault();
+    setDropZoneActive(null);
+    
+    if (draggedValue && currentChallenge) {
+      const convertedValue = (draggedValue * currentChallenge.fromUnit.factor) / targetUnit.factor;
+      setGameInput(convertedValue.toString());
+    }
+    setDraggedValue(null);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
       {/* Header */}
@@ -186,7 +330,7 @@ const UnitConverter = () => {
         {/* Mode Selection */}
         <div className="flex justify-center mb-8">
           <div className="bg-white rounded-lg p-2 shadow-lg border-2 border-orange-200">
-            {['learn', 'convert', 'quiz'].map((m) => (
+            {['learn', 'convert', 'quiz', 'metric-game'].map((m) => (
               <Button
                 key={m}
                 variant={mode === m ? "default" : "ghost"}
@@ -200,7 +344,8 @@ const UnitConverter = () => {
                 {m === 'learn' && <Lightbulb className="h-4 w-4 mr-2" />}
                 {m === 'convert' && <RotateCw className="h-4 w-4 mr-2" />}
                 {m === 'quiz' && <Trophy className="h-4 w-4 mr-2" />}
-                {m}
+                {m === 'metric-game' && <Target className="h-4 w-4 mr-2" />}
+                {m === 'metric-game' ? 'Metric Challenge' : m}
               </Button>
             ))}
           </div>
@@ -400,6 +545,212 @@ const UnitConverter = () => {
                       </div>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {mode === 'metric-game' && (
+            <motion.div
+              key="metric-game"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="max-w-4xl mx-auto space-y-6"
+            >
+              {/* Game Header */}
+              <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm overflow-hidden">
+                <div className={`bg-gradient-to-r ${metricGameData[gameCategory].color} text-white p-6`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <span className="text-4xl">{metricGameData[gameCategory].icon}</span>
+                      <div>
+                        <h2 className="text-2xl font-bold">Metric Challenge</h2>
+                        <p className="text-white/90">{metricGameData[gameCategory].name} Conversions</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-3xl font-bold">{gameScore}</div>
+                      <div className="text-white/90">Points</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <Star className="h-5 w-5" />
+                        <span>Level {gameLevel}</span>
+                      </div>
+                      {gameStreaks > 0 && (
+                        <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full">
+                          <Zap className="h-4 w-4" />
+                          <span>{gameStreaks} streak!</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Category Selection */}
+              <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-3 gap-4">
+                    {Object.entries(metricGameData).map(([key, category]) => (
+                      <Button
+                        key={key}
+                        variant={gameCategory === key ? "default" : "outline"}
+                        onClick={() => {
+                          setGameCategory(key as keyof typeof metricGameData);
+                          setCurrentChallenge(null); // Will regenerate in useEffect
+                        }}
+                        className={`h-20 ${
+                          gameCategory === key 
+                            ? `bg-gradient-to-r ${category.color} text-white` 
+                            : 'hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className="text-center">
+                          <div className="text-2xl mb-1">{category.icon}</div>
+                          <div className="font-semibold">{category.name}</div>
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Game Challenge */}
+              {currentChallenge && (
+                <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+                  <CardContent className="p-8">
+                    <div className="text-center mb-8">
+                      <h3 className="text-3xl font-bold text-gray-800 mb-4">
+                        {currentChallenge.question}
+                      </h3>
+                      <div className="text-lg text-gray-600">
+                        Drag the value or type your answer
+                      </div>
+                    </div>
+
+                    {/* Visual Conversion Area */}
+                    <div className="grid grid-cols-2 gap-8 mb-8">
+                      {/* From Unit */}
+                      <div className="text-center">
+                        <div className="text-lg font-semibold mb-4">From:</div>
+                        <motion.div
+                          className={`${currentChallenge.fromUnit.color} p-6 rounded-xl shadow-lg cursor-move`}
+                          draggable
+                          onDragStart={() => handleDragStart(currentChallenge.fromValue)}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <div className="text-4xl mb-2">{currentChallenge.fromUnit.visual}</div>
+                          <div className="text-2xl font-bold">
+                            {currentChallenge.fromValue} {currentChallenge.fromUnit.name}
+                          </div>
+                          <div className="text-sm text-gray-600 mt-1">
+                            {currentChallenge.fromUnit.fullName}
+                          </div>
+                        </motion.div>
+                      </div>
+
+                      {/* To Unit */}
+                      <div className="text-center">
+                        <div className="text-lg font-semibold mb-4">To:</div>
+                        <motion.div
+                          className={`${currentChallenge.toUnit.color} p-6 rounded-xl shadow-lg border-4 ${
+                            dropZoneActive === currentChallenge.toUnit.name 
+                              ? 'border-yellow-400 border-dashed' 
+                              : 'border-transparent'
+                          }`}
+                          onDragOver={(e) => handleDragOver(e, currentChallenge.toUnit.name)}
+                          onDragLeave={handleDragLeave}
+                          onDrop={(e) => handleDrop(e, currentChallenge.toUnit)}
+                          whileHover={{ scale: 1.02 }}
+                        >
+                          <div className="text-4xl mb-2">{currentChallenge.toUnit.visual}</div>
+                          <div className="text-lg font-semibold">
+                            ? {currentChallenge.toUnit.name}
+                          </div>
+                          <div className="text-sm text-gray-600 mt-1">
+                            {currentChallenge.toUnit.fullName}
+                          </div>
+                        </motion.div>
+                      </div>
+                    </div>
+
+                    {/* Answer Input */}
+                    {!showGameResult ? (
+                      <div className="space-y-4">
+                        <div className="flex justify-center gap-4">
+                          <Input
+                            type="number"
+                            placeholder="Your answer"
+                            value={gameInput}
+                            onChange={(e) => setGameInput(e.target.value)}
+                            className="text-2xl p-4 border-2 focus:border-blue-500 text-center max-w-xs"
+                          />
+                          <div className="flex items-center text-xl font-semibold text-gray-700">
+                            {currentChallenge.toUnit.name}
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-center">
+                          <Button 
+                            onClick={checkMetricAnswer}
+                            className={`bg-gradient-to-r ${metricGameData[gameCategory].color} text-white text-lg px-8 py-3`}
+                            disabled={!gameInput}
+                          >
+                            <CheckCircle className="h-5 w-5 mr-2" />
+                            Check Answer
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <motion.div 
+                          className="text-6xl mb-4"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 200 }}
+                        >
+                          {Math.abs(parseFloat(gameInput) - currentChallenge.correctAnswer) <= Math.abs(currentChallenge.correctAnswer * 0.02) ? '🎉' : '🎯'}
+                        </motion.div>
+                        <div className="text-2xl font-bold">
+                          {Math.abs(parseFloat(gameInput) - currentChallenge.correctAnswer) <= Math.abs(currentChallenge.correctAnswer * 0.02) 
+                            ? 'Perfect!' 
+                            : 'Keep trying!'}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Unit Reference Guide */}
+              <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Award className="h-5 w-5" />
+                    Quick Reference - {metricGameData[gameCategory].name}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {metricGameData[gameCategory].units.map((unit, index) => (
+                      <div key={unit.name} className={`${unit.color} p-4 rounded-lg text-center`}>
+                        <div className="text-2xl mb-1">{unit.visual}</div>
+                        <div className="font-bold">{unit.name}</div>
+                        <div className="text-xs text-gray-600">{unit.fullName}</div>
+                        {index > 0 && (
+                          <div className="text-xs mt-1 text-gray-700">
+                            ×{unit.factor / metricGameData[gameCategory].units[index-1].factor}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
