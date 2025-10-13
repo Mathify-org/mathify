@@ -43,6 +43,7 @@ interface Question {
 const FractionSimplify = () => {
   const [gameState, setGameState] = useState<GameState>('menu');
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
+  const [advancedSubMode, setAdvancedSubMode] = useState<'all' | 'convert' | 'compare' | 'wordproblem'>('all');
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -53,6 +54,7 @@ const FractionSimplify = () => {
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
+  const [showSubModeSelector, setShowSubModeSelector] = useState(false);
 
   const totalQuestions = 10;
 
@@ -78,7 +80,7 @@ const FractionSimplify = () => {
   // Generate questions based on difficulty and type
   const generateQuestion = (): Question => {
     const questionTypes: QuestionType[] = difficulty === 'advanced' 
-      ? ['convert', 'compare', 'wordproblem']
+      ? (advancedSubMode === 'all' ? ['convert', 'compare', 'wordproblem'] : [advancedSubMode])
       : ['simplify', 'add', 'subtract', 'multiply'];
     const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
     
@@ -385,6 +387,12 @@ const FractionSimplify = () => {
 
   // Start game
   const startGame = (selectedDifficulty: Difficulty) => {
+    if (selectedDifficulty === 'advanced') {
+      setDifficulty(selectedDifficulty);
+      setShowSubModeSelector(true);
+      return;
+    }
+    
     setDifficulty(selectedDifficulty);
     setGameState('playing');
     setScore(0);
@@ -393,6 +401,24 @@ const FractionSimplify = () => {
     setTimeLeft(60);
     setTotalTimeLeft(180);
     setCurrentQuestion(generateQuestion());
+    setUserNumerator('');
+    setUserDenominator('');
+    setFeedback(null);
+  };
+  
+  const startAdvancedGame = (subMode: 'all' | 'convert' | 'compare' | 'wordproblem') => {
+    setAdvancedSubMode(subMode);
+    setGameState('playing');
+    setScore(0);
+    setQuestionIndex(0);
+    setStreak(0);
+    setTimeLeft(60);
+    setTotalTimeLeft(180);
+    setShowSubModeSelector(false);
+    // Need to set difficulty first, then generate
+    setTimeout(() => {
+      setCurrentQuestion(generateQuestion());
+    }, 0);
     setUserNumerator('');
     setUserDenominator('');
     setFeedback(null);
@@ -738,7 +764,7 @@ const FractionSimplify = () => {
         </div>
 
         {/* Menu State */}
-        {gameState === 'menu' && (
+        {gameState === 'menu' && !showSubModeSelector && (
           <div className="space-y-8">
             <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
               <CardContent className="p-8">
@@ -782,6 +808,88 @@ const FractionSimplify = () => {
                     <p>• 10 questions per game</p>
                     <p>• Build streaks for bonus points</p>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+        
+        {/* Advanced Sub-Mode Selector */}
+        {showSubModeSelector && (
+          <div className="space-y-8">
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+              <CardContent className="p-8">
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-2">Advanced Mode</h2>
+                  <p className="text-gray-600">Choose your challenge type</p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+                  <Card className="overflow-hidden hover:scale-105 transition-transform cursor-pointer border-0 shadow-lg">
+                    <div className="h-3 bg-gradient-to-r from-purple-400 to-indigo-400"></div>
+                    <CardContent className="p-6">
+                      <h3 className="text-xl font-bold mb-2">🔄 All Types</h3>
+                      <p className="text-gray-600 mb-4 text-sm">Mix of conversions, comparisons, and word problems</p>
+                      <Button 
+                        onClick={() => startAdvancedGame('all')}
+                        className="w-full bg-gradient-to-r from-purple-400 to-indigo-400 hover:scale-105 transition-transform text-white font-bold py-3"
+                      >
+                        Start Mixed
+                      </Button>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="overflow-hidden hover:scale-105 transition-transform cursor-pointer border-0 shadow-lg">
+                    <div className="h-3 bg-gradient-to-r from-blue-400 to-cyan-400"></div>
+                    <CardContent className="p-6">
+                      <h3 className="text-xl font-bold mb-2">🔢 Conversions</h3>
+                      <p className="text-gray-600 mb-4 text-sm">Proper, improper & mixed fractions only</p>
+                      <Button 
+                        onClick={() => startAdvancedGame('convert')}
+                        className="w-full bg-gradient-to-r from-blue-400 to-cyan-400 hover:scale-105 transition-transform text-white font-bold py-3"
+                      >
+                        Start Conversions
+                      </Button>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="overflow-hidden hover:scale-105 transition-transform cursor-pointer border-0 shadow-lg">
+                    <div className="h-3 bg-gradient-to-r from-green-400 to-teal-400"></div>
+                    <CardContent className="p-6">
+                      <h3 className="text-xl font-bold mb-2">⚖️ Comparisons</h3>
+                      <p className="text-gray-600 mb-4 text-sm">Compare like and unlike fractions</p>
+                      <Button 
+                        onClick={() => startAdvancedGame('compare')}
+                        className="w-full bg-gradient-to-r from-green-400 to-teal-400 hover:scale-105 transition-transform text-white font-bold py-3"
+                      >
+                        Start Comparisons
+                      </Button>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="overflow-hidden hover:scale-105 transition-transform cursor-pointer border-0 shadow-lg">
+                    <div className="h-3 bg-gradient-to-r from-orange-400 to-pink-400"></div>
+                    <CardContent className="p-6">
+                      <h3 className="text-xl font-bold mb-2">📖 Word Problems</h3>
+                      <p className="text-gray-600 mb-4 text-sm">Real-world fraction challenges</p>
+                      <Button 
+                        onClick={() => startAdvancedGame('wordproblem')}
+                        className="w-full bg-gradient-to-r from-orange-400 to-pink-400 hover:scale-105 transition-transform text-white font-bold py-3"
+                      >
+                        Start Word Problems
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                <div className="text-center mt-6">
+                  <Button
+                    onClick={() => { setShowSubModeSelector(false); setDifficulty('easy'); }}
+                    variant="outline"
+                    className="text-gray-600 hover:text-gray-800"
+                  >
+                    ← Back to Difficulty Selection
+                  </Button>
                 </div>
               </CardContent>
             </Card>
