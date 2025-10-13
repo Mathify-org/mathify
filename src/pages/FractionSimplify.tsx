@@ -51,6 +51,7 @@ const FractionSimplify = () => {
   const [totalTimeLeft, setTotalTimeLeft] = useState(180); // 3 minutes
   const [userNumerator, setUserNumerator] = useState('');
   const [userDenominator, setUserDenominator] = useState('');
+  const [userWhole, setUserWhole] = useState('');
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
@@ -403,6 +404,7 @@ const FractionSimplify = () => {
     setCurrentQuestion(generateQuestion());
     setUserNumerator('');
     setUserDenominator('');
+    setUserWhole('');
     setFeedback(null);
   };
   
@@ -421,6 +423,7 @@ const FractionSimplify = () => {
     }, 0);
     setUserNumerator('');
     setUserDenominator('');
+    setUserWhole('');
     setFeedback(null);
   };
 
@@ -497,9 +500,11 @@ const FractionSimplify = () => {
     
     if (currentQuestion.type === 'convert') {
       if (currentQuestion.conversionType === 'improper-to-mixed') {
-        // userNumerator = whole, userDenominator = num, userWholeNumber = den (we'll use a third input)
-        isCorrect = userNum === currentQuestion.mixedWhole && 
-                   userDen === currentQuestion.mixedNum;
+        // userWhole = whole number, userNumerator = numerator, userDenominator = denominator
+        const userWholeNum = parseInt(userWhole);
+        isCorrect = userWholeNum === currentQuestion.mixedWhole && 
+                   userNum === currentQuestion.mixedNum &&
+                   userDen === currentQuestion.mixedDen;
       } else if (currentQuestion.conversionType === 'mixed-to-improper') {
         isCorrect = userNum === currentQuestion.numerator && 
                    userDen === currentQuestion.denominator;
@@ -556,6 +561,7 @@ const FractionSimplify = () => {
       setCurrentQuestion(generateQuestion());
       setUserNumerator('');
       setUserDenominator('');
+      setUserWhole('');
       setFeedback(null);
       setTimeLeft(60);
     }
@@ -747,9 +753,22 @@ const FractionSimplify = () => {
     
     if (currentQuestion.type === 'simplify') {
       return `${currentQuestion.simplifiedNumerator}/${currentQuestion.simplifiedDenominator}`;
+    } else if (currentQuestion.type === 'convert') {
+      if (currentQuestion.conversionType === 'improper-to-mixed') {
+        return `${currentQuestion.mixedWhole} ${currentQuestion.mixedNum}/${currentQuestion.mixedDen}`;
+      } else if (currentQuestion.conversionType === 'mixed-to-improper') {
+        return `${currentQuestion.numerator}/${currentQuestion.denominator}`;
+      } else if (currentQuestion.conversionType === 'proper-identify') {
+        return currentQuestion.comparisonAnswer || '';
+      }
+    } else if (currentQuestion.type === 'compare') {
+      return currentQuestion.comparisonAnswer || '';
+    } else if (currentQuestion.type === 'wordproblem') {
+      return currentQuestion.wordProblemChoices?.[currentQuestion.wordProblemAnswer || 0] || '';
     } else {
       return `${currentQuestion.resultNum}/${currentQuestion.resultDen}`;
     }
+    return '';
   };
 
   return (
@@ -983,6 +1002,53 @@ const FractionSimplify = () => {
                       </Button>
                     ))}
                   </div>
+                ) : currentQuestion.type === 'convert' && currentQuestion.conversionType === 'improper-to-mixed' ? (
+                  <>
+                    <div className="flex items-center justify-center gap-4 mb-6">
+                      <div className="flex flex-col items-center">
+                        <label className="text-sm text-gray-600 mb-1">Whole</label>
+                        <input
+                          type="number"
+                          value={userWhole}
+                          onChange={(e) => setUserWhole(e.target.value)}
+                          className="w-20 h-16 text-2xl font-bold text-center border-2 border-indigo-300 rounded-lg focus:border-indigo-500 focus:outline-none"
+                          placeholder="?"
+                          disabled={feedback !== null}
+                        />
+                      </div>
+                      <div className="flex flex-col items-center gap-2">
+                        <label className="text-sm text-gray-600 mb-1">Fraction</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            value={userNumerator}
+                            onChange={(e) => setUserNumerator(e.target.value)}
+                            className="w-16 h-14 text-xl font-bold text-center border-2 border-indigo-300 rounded-lg focus:border-indigo-500 focus:outline-none"
+                            placeholder="?"
+                            disabled={feedback !== null}
+                          />
+                          <div className="text-3xl font-bold text-gray-400">/</div>
+                          <input
+                            type="number"
+                            value={userDenominator}
+                            onChange={(e) => setUserDenominator(e.target.value)}
+                            className="w-16 h-14 text-xl font-bold text-center border-2 border-indigo-300 rounded-lg focus:border-indigo-500 focus:outline-none"
+                            placeholder="?"
+                            disabled={feedback !== null}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Submit Button */}
+                    <Button
+                      onClick={() => checkAnswer()}
+                      disabled={!userWhole || !userNumerator || !userDenominator || feedback !== null}
+                      className="bg-gradient-to-r from-indigo-500 to-blue-500 hover:scale-105 transition-transform text-white font-bold px-8 py-3 text-lg"
+                    >
+                      Check Answer
+                    </Button>
+                  </>
                 ) : (
                   <>
                     <div className="flex items-center justify-center gap-4 mb-6">
