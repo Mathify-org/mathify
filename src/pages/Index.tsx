@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Heart, BookOpen, GamepadIcon, Zap, Calculator, Users, Ruler, TrendingUp } from "lucide-react";
+import { Heart, BookOpen, GamepadIcon, Zap, Calculator, Users, Ruler, TrendingUp, Gauge } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -291,6 +291,33 @@ const practicalSkills = [
     path: "/unit-converter",
     icon: <Ruler className="h-8 w-8" />,
     gradient: "from-orange-500 via-amber-500 to-yellow-500"
+  }
+];
+
+const miniPhysics = [
+  {
+    id: "newtons-laws",
+    title: "Newton's Three Laws",
+    description: "Master the fundamental principles of motion and force through interactive questions",
+    path: "/newtons-laws",
+    icon: <Zap className="h-8 w-8" />,
+    gradient: "from-blue-500 via-purple-500 to-pink-500"
+  },
+  {
+    id: "push-pull-forces",
+    title: "Push & Pull Forces",
+    description: "Explore the fundamental forces that move our world with visual demonstrations",
+    path: "/push-pull-forces",
+    icon: <Zap className="h-8 w-8" />,
+    gradient: "from-orange-500 via-pink-500 to-purple-500"
+  },
+  {
+    id: "motion-mastery",
+    title: "Motion Mastery",
+    description: "Master speed, distance, and time calculations with the motion formula triangle",
+    path: "/motion-mastery",
+    icon: <Gauge className="h-8 w-8" />,
+    gradient: "from-cyan-500 via-blue-500 to-indigo-500"
   }
 ];
 
@@ -645,6 +672,58 @@ const Index = () => {
                     <Calculator className="h-4 w-4" />
                     <span>Build practical skills for real-world success</span>
                     <Calculator className="h-4 w-4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Mini-Physics Section */}
+          <div className="mt-12 md:mt-16">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight pb-2">
+                Mini-Physics
+              </h3>
+              <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto">
+                Explore essential physics principles through interactive, beautifully designed games
+              </p>
+            </div>
+
+            <Card className="overflow-hidden border-0 shadow-2xl bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 relative">
+              <CardContent className="p-8 md:p-12 relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                  {miniPhysics.map((game) => (
+                    <div key={game.id} className="group">
+                      <Link to={game.path} className="block">
+                        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:scale-105 h-full">
+                          <div className={`w-16 h-16 bg-gradient-to-r ${game.gradient} rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                            <div className="text-white">
+                              {game.icon}
+                            </div>
+                          </div>
+                          
+                          <h4 className="text-xl md:text-2xl font-bold text-white mb-3 text-center group-hover:text-blue-200 transition-colors">
+                            {game.title}
+                          </h4>
+                          
+                          <p className="text-white/80 text-sm md:text-base text-center leading-relaxed mb-4">
+                            {game.description}
+                          </p>
+                          
+                          <div className={`mt-4 mx-auto w-fit px-4 py-2 bg-gradient-to-r ${game.gradient} rounded-lg text-white font-medium text-sm hover:shadow-lg transition-all duration-300 group-hover:scale-105`}>
+                            Play Game
+                          </div>
+                        </div>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-8 text-center">
+                  <div className="inline-flex items-center space-x-2 text-white/60 text-sm">
+                    <Zap className="h-4 w-4" />
+                    <span>Master physics fundamentals through interactive learning</span>
+                    <Zap className="h-4 w-4" />
                   </div>
                 </div>
               </CardContent>

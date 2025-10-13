@@ -41,6 +41,9 @@ import FamilyBuilder from "./pages/FamilyBuilder";
 import TaxCalculator from "./pages/TaxCalculator";
 import UnitConverter from "./pages/UnitConverter";
 import DataAnalysis from "./pages/DataAnalysis";
+import NewtonsLaws from "./pages/NewtonsLaws";
+import PushPullForces from "./pages/PushPullForces";
+import MotionMastery from "./pages/MotionMastery";
 
 // ScrollToTop component that will trigger on route changes
 const ScrollToTop = () => {
@@ -83,6 +86,9 @@ const App = () => (
                 <Route path="/tax-calculator" element={<TaxCalculator />} />
                 <Route path="/unit-converter" element={<UnitConverter />} />
                 <Route path="/data-analysis" element={<DataAnalysis />} />
+                <Route path="/newtons-laws" element={<NewtonsLaws />} />
+                <Route path="/push-pull-forces" element={<PushPullForces />} />
+                <Route path="/motion-mastery" element={<MotionMastery />} />
                 <Route path="/arithmetic-hero" element={<ArithmeticHero />} />
                 <Route path="/target-takedown" element={<TargetTakedown />} />
                 <Route path="/algebra-adventure" element={<AlgebraAdventure />} />
