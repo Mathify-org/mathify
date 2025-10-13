@@ -6,9 +6,9 @@ import { Trophy, Star, Clock, CheckCircle, XCircle, RotateCcw, Home } from 'luci
 import { Link } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 
-type Difficulty = 'easy' | 'medium' | 'hard';
+type Difficulty = 'easy' | 'medium' | 'hard' | 'advanced';
 type GameState = 'menu' | 'playing' | 'finished';
-type QuestionType = 'simplify' | 'add' | 'subtract' | 'multiply';
+type QuestionType = 'simplify' | 'add' | 'subtract' | 'multiply' | 'convert' | 'compare' | 'wordproblem';
 
 interface Question {
   type: QuestionType;
@@ -25,6 +25,19 @@ interface Question {
   resultNum?: number;
   resultDen?: number;
   operation?: '+' | '-' | '×';
+  // For conversions
+  wholeNumber?: number;
+  mixedWhole?: number;
+  mixedNum?: number;
+  mixedDen?: number;
+  conversionType?: 'improper-to-mixed' | 'mixed-to-improper' | 'proper-identify';
+  // For comparisons
+  comparisonOp?: '<' | '>' | '=';
+  comparisonAnswer?: string;
+  // For word problems
+  wordProblem?: string;
+  wordProblemChoices?: string[];
+  wordProblemAnswer?: number;
 }
 
 const FractionSimplify = () => {
@@ -64,7 +77,9 @@ const FractionSimplify = () => {
 
   // Generate questions based on difficulty and type
   const generateQuestion = (): Question => {
-    const questionTypes: QuestionType[] = ['simplify', 'add', 'subtract', 'multiply'];
+    const questionTypes: QuestionType[] = difficulty === 'advanced' 
+      ? ['convert', 'compare', 'wordproblem']
+      : ['simplify', 'add', 'subtract', 'multiply'];
     const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
     
     if (questionType === 'simplify') {
@@ -137,6 +152,156 @@ const FractionSimplify = () => {
         operation: '×',
         resultNum: simplified.numerator,
         resultDen: simplified.denominator
+      };
+    } else if (questionType === 'convert') {
+      // Conversion questions
+      const conversionTypes: ('improper-to-mixed' | 'mixed-to-improper' | 'proper-identify')[] = 
+        ['improper-to-mixed', 'mixed-to-improper', 'proper-identify'];
+      const convType = conversionTypes[Math.floor(Math.random() * conversionTypes.length)];
+      
+      if (convType === 'improper-to-mixed') {
+        // Generate improper fraction
+        const wholeNum = Math.floor(Math.random() * 5) + 1;
+        const mixedNum = Math.floor(Math.random() * 8) + 1;
+        const mixedDen = Math.floor(Math.random() * 8) + 2;
+        const improperNum = wholeNum * mixedDen + mixedNum;
+        
+        return {
+          type: 'convert',
+          conversionType: 'improper-to-mixed',
+          numerator: improperNum,
+          denominator: mixedDen,
+          mixedWhole: wholeNum,
+          mixedNum: mixedNum,
+          mixedDen: mixedDen
+        };
+      } else if (convType === 'mixed-to-improper') {
+        // Generate mixed number
+        const wholeNum = Math.floor(Math.random() * 5) + 1;
+        const mixedNum = Math.floor(Math.random() * 8) + 1;
+        const mixedDen = Math.floor(Math.random() * 8) + 2;
+        const improperNum = wholeNum * mixedDen + mixedNum;
+        
+        return {
+          type: 'convert',
+          conversionType: 'mixed-to-improper',
+          mixedWhole: wholeNum,
+          mixedNum: mixedNum,
+          mixedDen: mixedDen,
+          numerator: improperNum,
+          denominator: mixedDen
+        };
+      } else {
+        // Identify proper/improper
+        const isProper = Math.random() > 0.5;
+        const num = Math.floor(Math.random() * 12) + 1;
+        const den = isProper ? num + Math.floor(Math.random() * 8) + 1 : Math.floor(Math.random() * num) + 1;
+        
+        return {
+          type: 'convert',
+          conversionType: 'proper-identify',
+          numerator: num,
+          denominator: den,
+          comparisonAnswer: isProper ? 'proper' : 'improper'
+        };
+      }
+    } else if (questionType === 'compare') {
+      // Comparison questions
+      const useSameDen = Math.random() > 0.5;
+      let f1Num: number, f1Den: number, f2Num: number, f2Den: number;
+      
+      if (useSameDen) {
+        // Same denominators - compare numerators
+        const den = Math.floor(Math.random() * 10) + 2;
+        f1Num = Math.floor(Math.random() * 15) + 1;
+        f2Num = Math.floor(Math.random() * 15) + 1;
+        f1Den = den;
+        f2Den = den;
+      } else {
+        // Different denominators
+        f1Num = Math.floor(Math.random() * 12) + 1;
+        f1Den = Math.floor(Math.random() * 12) + 2;
+        f2Num = Math.floor(Math.random() * 12) + 1;
+        f2Den = Math.floor(Math.random() * 12) + 2;
+      }
+      
+      const val1 = f1Num / f1Den;
+      const val2 = f2Num / f2Den;
+      let compOp: '<' | '>' | '=' = '=';
+      
+      if (Math.abs(val1 - val2) < 0.001) compOp = '=';
+      else if (val1 < val2) compOp = '<';
+      else compOp = '>';
+      
+      return {
+        type: 'compare',
+        fraction1Num: f1Num,
+        fraction1Den: f1Den,
+        fraction2Num: f2Num,
+        fraction2Den: f2Den,
+        comparisonOp: compOp,
+        comparisonAnswer: compOp
+      };
+    } else if (questionType === 'wordproblem') {
+      // Word problems
+      const problems = [
+        {
+          text: "Sarah ate 2/5 of a pizza. Her brother ate 1/5 of the same pizza. What fraction of the pizza did they eat together?",
+          choices: ["3/5", "2/5", "3/10", "1/5"],
+          answer: 0,
+          resultNum: 3,
+          resultDen: 5
+        },
+        {
+          text: "A recipe calls for 3/4 cup of sugar. If you want to make half the recipe, how much sugar do you need?",
+          choices: ["3/8", "1/2", "1/4", "3/2"],
+          answer: 0,
+          resultNum: 3,
+          resultDen: 8
+        },
+        {
+          text: "John ran 5/8 of a mile. Maria ran 3/4 of a mile. Who ran farther?",
+          choices: ["John", "Maria", "Same distance", "Can't tell"],
+          answer: 1,
+          resultNum: 3,
+          resultDen: 4
+        },
+        {
+          text: "A water bottle is 2/3 full. After drinking some water, it's now 1/3 full. What fraction of the bottle did you drink?",
+          choices: ["1/3", "1/2", "2/3", "1/6"],
+          answer: 0,
+          resultNum: 1,
+          resultDen: 3
+        },
+        {
+          text: "A garden is divided into 8 equal sections. If 5 sections have flowers, what fraction of the garden has flowers?",
+          choices: ["5/8", "3/8", "5/3", "8/5"],
+          answer: 0,
+          resultNum: 5,
+          resultDen: 8
+        },
+        {
+          text: "Tom has 7/2 cups of flour. How many whole cups is that?",
+          choices: ["2", "3", "3 and 1/2", "4"],
+          answer: 1,
+          mixedWhole: 3,
+          mixedNum: 1,
+          mixedDen: 2
+        }
+      ];
+      
+      const problem = problems[Math.floor(Math.random() * problems.length)];
+      
+      return {
+        type: 'wordproblem',
+        wordProblem: problem.text,
+        wordProblemChoices: problem.choices,
+        wordProblemAnswer: problem.answer,
+        resultNum: problem.resultNum,
+        resultDen: problem.resultDen,
+        mixedWhole: problem.mixedWhole,
+        mixedNum: problem.mixedNum,
+        mixedDen: problem.mixedDen
       };
     } else {
       // Addition or subtraction
@@ -213,6 +378,9 @@ const FractionSimplify = () => {
         resultDen: simplified.denominator
       };
     }
+    
+    // Fallback for any other cases
+    return generateQuestion();
   };
 
   // Start game
@@ -230,14 +398,69 @@ const FractionSimplify = () => {
     setFeedback(null);
   };
 
-  // Check answer - Updated to accept any equivalent fraction
-  const checkAnswer = () => {
+  // Check answer - Updated to accept any equivalent fraction and advanced modes
+  const checkAnswer = (choiceIndex?: number, comparisonChoice?: string) => {
+    if (currentQuestion?.type === 'wordproblem' && choiceIndex !== undefined) {
+      const isCorrect = choiceIndex === currentQuestion.wordProblemAnswer;
+      
+      if (isCorrect) {
+        setScore(score + 1);
+        setStreak(streak + 1);
+        setBestStreak(Math.max(bestStreak, streak + 1));
+        setFeedback('correct');
+        confetti({ particleCount: 30, spread: 60, origin: { y: 0.6 } });
+      } else {
+        setStreak(0);
+        setFeedback('incorrect');
+      }
+      
+      setTimeout(nextQuestion, 1500);
+      return;
+    }
+    
+    if (currentQuestion?.type === 'compare' && comparisonChoice) {
+      const isCorrect = comparisonChoice === currentQuestion.comparisonAnswer;
+      
+      if (isCorrect) {
+        setScore(score + 1);
+        setStreak(streak + 1);
+        setBestStreak(Math.max(bestStreak, streak + 1));
+        setFeedback('correct');
+        confetti({ particleCount: 30, spread: 60, origin: { y: 0.6 } });
+      } else {
+        setStreak(0);
+        setFeedback('incorrect');
+      }
+      
+      setTimeout(nextQuestion, 1500);
+      return;
+    }
+    
+    if (currentQuestion?.type === 'convert' && currentQuestion.conversionType === 'proper-identify') {
+      const isCorrect = userNumerator === currentQuestion.comparisonAnswer;
+      
+      if (isCorrect) {
+        setScore(score + 1);
+        setStreak(streak + 1);
+        setBestStreak(Math.max(bestStreak, streak + 1));
+        setFeedback('correct');
+        confetti({ particleCount: 30, spread: 60, origin: { y: 0.6 } });
+      } else {
+        setStreak(0);
+        setFeedback('incorrect');
+      }
+      
+      setUserNumerator('');
+      setTimeout(nextQuestion, 1500);
+      return;
+    }
+    
     if (!currentQuestion || !userNumerator || !userDenominator) return;
 
     const userNum = parseInt(userNumerator);
     const userDen = parseInt(userDenominator);
     
-    if (userDen === 0) {
+    if (userDen === 0 && currentQuestion.type !== 'convert') {
       setStreak(0);
       setFeedback('incorrect');
       setTimeout(nextQuestion, 1500);
@@ -246,7 +469,16 @@ const FractionSimplify = () => {
     
     let isCorrect = false;
     
-    if (currentQuestion.type === 'simplify') {
+    if (currentQuestion.type === 'convert') {
+      if (currentQuestion.conversionType === 'improper-to-mixed') {
+        // userNumerator = whole, userDenominator = num, userWholeNumber = den (we'll use a third input)
+        isCorrect = userNum === currentQuestion.mixedWhole && 
+                   userDen === currentQuestion.mixedNum;
+      } else if (currentQuestion.conversionType === 'mixed-to-improper') {
+        isCorrect = userNum === currentQuestion.numerator && 
+                   userDen === currentQuestion.denominator;
+      }
+    } else if (currentQuestion.type === 'simplify') {
       // Accept any equivalent fraction, not just simplified
       const expectedNum = currentQuestion.simplifiedNumerator!;
       const expectedDen = currentQuestion.simplifiedDenominator!;
@@ -336,6 +568,7 @@ const FractionSimplify = () => {
       case 'easy': return 'from-green-400 to-emerald-500';
       case 'medium': return 'from-yellow-400 to-orange-500';
       case 'hard': return 'from-red-400 to-pink-500';
+      case 'advanced': return 'from-purple-500 via-indigo-500 to-blue-500';
     }
   };
 
@@ -350,7 +583,90 @@ const FractionSimplify = () => {
   const renderQuestion = () => {
     if (!currentQuestion) return null;
     
-    if (currentQuestion.type === 'simplify') {
+    if (currentQuestion.type === 'convert') {
+      if (currentQuestion.conversionType === 'improper-to-mixed') {
+        return (
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-8 text-gray-800">Convert this improper fraction to a mixed number:</h2>
+            <div className="inline-block">
+              <div className="text-6xl font-bold text-indigo-600 border-b-4 border-indigo-600 px-4 pb-2">
+                {currentQuestion.numerator}
+              </div>
+              <div className="text-6xl font-bold text-indigo-600 px-4 pt-2">
+                {currentQuestion.denominator}
+              </div>
+            </div>
+            <p className="text-gray-600 mt-6">Enter as: whole number, then numerator, then denominator</p>
+          </div>
+        );
+      } else if (currentQuestion.conversionType === 'mixed-to-improper') {
+        return (
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-8 text-gray-800">Convert this mixed number to an improper fraction:</h2>
+            <div className="flex items-center justify-center gap-4">
+              <div className="text-6xl font-bold text-indigo-600">{currentQuestion.mixedWhole}</div>
+              <div className="inline-block">
+                <div className="text-4xl font-bold text-indigo-600 border-b-4 border-indigo-600 px-3 pb-1">
+                  {currentQuestion.mixedNum}
+                </div>
+                <div className="text-4xl font-bold text-indigo-600 px-3 pt-1">
+                  {currentQuestion.mixedDen}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      } else {
+        return (
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-8 text-gray-800">Is this a proper or improper fraction?</h2>
+            <div className="inline-block">
+              <div className="text-6xl font-bold text-indigo-600 border-b-4 border-indigo-600 px-4 pb-2">
+                {currentQuestion.numerator}
+              </div>
+              <div className="text-6xl font-bold text-indigo-600 px-4 pt-2">
+                {currentQuestion.denominator}
+              </div>
+            </div>
+          </div>
+        );
+      }
+    } else if (currentQuestion.type === 'compare') {
+      return (
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-8 text-gray-800">Compare these fractions:</h2>
+          <div className="flex items-center justify-center gap-6">
+            <div className="inline-block">
+              <div className="text-5xl font-bold text-indigo-600 border-b-4 border-indigo-600 px-3 pb-1">
+                {currentQuestion.fraction1Num}
+              </div>
+              <div className="text-5xl font-bold text-indigo-600 px-3 pt-1">
+                {currentQuestion.fraction1Den}
+              </div>
+            </div>
+            <div className="text-5xl font-bold text-gray-400">?</div>
+            <div className="inline-block">
+              <div className="text-5xl font-bold text-indigo-600 border-b-4 border-indigo-600 px-3 pb-1">
+                {currentQuestion.fraction2Num}
+              </div>
+              <div className="text-5xl font-bold text-indigo-600 px-3 pt-1">
+                {currentQuestion.fraction2Den}
+              </div>
+            </div>
+          </div>
+          <p className="text-gray-600 mt-6">Choose: &lt;, &gt;, or =</p>
+        </div>
+      );
+    } else if (currentQuestion.type === 'wordproblem') {
+      return (
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-8 text-gray-800">Solve this word problem:</h2>
+          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-2xl mb-6 border-2 border-indigo-200">
+            <p className="text-lg text-gray-800 leading-relaxed">{currentQuestion.wordProblem}</p>
+          </div>
+        </div>
+      );
+    } else if (currentQuestion.type === 'simplify') {
       return (
         <div className="mb-8">
           <h2 className="text-xl font-bold mb-8 text-gray-800">Simplify this fraction:</h2>
@@ -427,16 +743,17 @@ const FractionSimplify = () => {
             <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
               <CardContent className="p-8">
                 <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Choose Your Challenge</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {(['easy', 'medium', 'hard'] as Difficulty[]).map((diff) => (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  {(['easy', 'medium', 'hard', 'advanced'] as Difficulty[]).map((diff) => (
                     <Card key={diff} className="overflow-hidden hover:scale-105 transition-transform cursor-pointer border-0 shadow-lg">
                       <div className={`h-3 bg-gradient-to-r ${getDifficultyColor(diff)}`}></div>
                       <CardContent className="p-6 text-center">
                         <h3 className="text-xl font-bold mb-2 capitalize">{diff}</h3>
-                        <p className="text-gray-600 mb-4">
+                        <p className="text-gray-600 mb-4 text-sm">
                           {diff === 'easy' && 'Simple fractions with same denominators'}
                           {diff === 'medium' && 'Medium fractions with different denominators'}
                           {diff === 'hard' && 'Complex fractions and operations'}
+                          {diff === 'advanced' && 'Conversions, comparisons & word problems'}
                         </p>
                         <Button 
                           onClick={() => startGame(diff)}
@@ -518,35 +835,78 @@ const FractionSimplify = () => {
               <CardContent className="p-8 text-center">
                 {renderQuestion()}
 
-                {/* Answer Inputs */}
-                <div className="flex items-center justify-center gap-4 mb-6">
-                  <input
-                    type="number"
-                    value={userNumerator}
-                    onChange={(e) => setUserNumerator(e.target.value)}
-                    className="w-20 h-16 text-2xl font-bold text-center border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none"
-                    placeholder="?"
-                    disabled={feedback !== null}
-                  />
-                  <div className="text-4xl font-bold text-gray-400">/</div>
-                  <input
-                    type="number"
-                    value={userDenominator}
-                    onChange={(e) => setUserDenominator(e.target.value)}
-                    className="w-20 h-16 text-2xl font-bold text-center border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none"
-                    placeholder="?"
-                    disabled={feedback !== null}
-                  />
-                </div>
+                {/* Answer Inputs based on question type */}
+                {currentQuestion.type === 'wordproblem' ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto mb-6">
+                    {currentQuestion.wordProblemChoices?.map((choice, idx) => (
+                      <Button
+                        key={idx}
+                        onClick={() => checkAnswer(idx)}
+                        disabled={feedback !== null}
+                        className="bg-gradient-to-r from-indigo-400 to-purple-400 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-6 text-lg transition-all hover:scale-105"
+                      >
+                        {choice}
+                      </Button>
+                    ))}
+                  </div>
+                ) : currentQuestion.type === 'compare' ? (
+                  <div className="flex items-center justify-center gap-6 mb-6">
+                    {['<', '=', '>'].map((op) => (
+                      <Button
+                        key={op}
+                        onClick={() => checkAnswer(undefined, op)}
+                        disabled={feedback !== null}
+                        className="bg-gradient-to-r from-indigo-400 to-purple-400 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-8 px-12 text-4xl transition-all hover:scale-110"
+                      >
+                        {op}
+                      </Button>
+                    ))}
+                  </div>
+                ) : currentQuestion.type === 'convert' && currentQuestion.conversionType === 'proper-identify' ? (
+                  <div className="flex items-center justify-center gap-6 mb-6">
+                    {['proper', 'improper'].map((type) => (
+                      <Button
+                        key={type}
+                        onClick={() => { setUserNumerator(type); checkAnswer(); }}
+                        disabled={feedback !== null}
+                        className="bg-gradient-to-r from-indigo-400 to-purple-400 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-6 px-10 text-lg capitalize transition-all hover:scale-110"
+                      >
+                        {type}
+                      </Button>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-center gap-4 mb-6">
+                      <input
+                        type="number"
+                        value={userNumerator}
+                        onChange={(e) => setUserNumerator(e.target.value)}
+                        className="w-20 h-16 text-2xl font-bold text-center border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                        placeholder="?"
+                        disabled={feedback !== null}
+                      />
+                      <div className="text-4xl font-bold text-gray-400">/</div>
+                      <input
+                        type="number"
+                        value={userDenominator}
+                        onChange={(e) => setUserDenominator(e.target.value)}
+                        className="w-20 h-16 text-2xl font-bold text-center border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                        placeholder="?"
+                        disabled={feedback !== null}
+                      />
+                    </div>
 
-                {/* Submit Button */}
-                <Button
-                  onClick={checkAnswer}
-                  disabled={!userNumerator || !userDenominator || feedback !== null}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:scale-105 transition-transform text-white font-bold px-8 py-3 text-lg"
-                >
-                  Check Answer
-                </Button>
+                    {/* Submit Button */}
+                    <Button
+                      onClick={() => checkAnswer()}
+                      disabled={!userNumerator || !userDenominator || feedback !== null}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:scale-105 transition-transform text-white font-bold px-8 py-3 text-lg"
+                    >
+                      Check Answer
+                    </Button>
+                  </>
+                )}
 
                 {/* Feedback */}
                 {feedback && (
