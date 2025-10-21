@@ -44,6 +44,7 @@ import DataAnalysis from "./pages/DataAnalysis";
 import NewtonsLaws from "./pages/NewtonsLaws";
 import PushPullForces from "./pages/PushPullForces";
 import MotionMastery from "./pages/MotionMastery";
+import MemorizingNumbers from "./pages/MemorizingNumbers";
 
 // ScrollToTop component that will trigger on route changes
 const ScrollToTop = () => {
@@ -89,6 +90,7 @@ const App = () => (
                 <Route path="/newtons-laws" element={<NewtonsLaws />} />
                 <Route path="/push-pull-forces" element={<PushPullForces />} />
                 <Route path="/motion-mastery" element={<MotionMastery />} />
+                <Route path="/memorizing-numbers" element={<MemorizingNumbers />} />
                 <Route path="/arithmetic-hero" element={<ArithmeticHero />} />
                 <Route path="/target-takedown" element={<TargetTakedown />} />
                 <Route path="/algebra-adventure" element={<AlgebraAdventure />} />

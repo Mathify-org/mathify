@@ -196,6 +196,13 @@ const generalSkills = [
     description: "Hit number targets by combining tiles strategically",
     path: "/target-takedown",
     color: "bg-gradient-to-r from-pink-500 to-pink-600"
+  },
+  {
+    id: "memorizing-numbers",
+    title: "Pi Memory Challenge",
+    description: "Test your memory by memorizing digits of π progressively",
+    path: "/memorizing-numbers",
+    color: "bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-600"
   }
 ];
 
