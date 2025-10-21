@@ -13,18 +13,18 @@ const PHI_DIGITS = "1.6180339887498948482045868343656381177203091798057";
 const MemorizingPhi = () => {
   const { toast } = useToast();
   const [gameState, setGameState] = useState<"menu" | "memorize" | "input" | "correct" | "gameover">("menu");
-  const [currentLevel, setCurrentLevel] = useState(4);
+  const [currentLevel, setCurrentLevel] = useState(3);
   const [userInput, setUserInput] = useState("");
   const [showDigits, setShowDigits] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const [flashTime, setFlashTime] = useState(3000);
-  const [highScore, setHighScore] = useState(4);
+  const [highScore, setHighScore] = useState(3);
   const [streak, setStreak] = useState(0);
 
   useEffect(() => {
     const saved = localStorage.getItem("phiMemoryHighScore");
     if (saved) setHighScore(parseInt(saved));
-    else setHighScore(4);
+    else setHighScore(3);
   }, []);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const MemorizingPhi = () => {
   }, [gameState, countdown, flashTime]);
 
   const startGame = () => {
-    setCurrentLevel(4);
+    setCurrentLevel(3);
     setStreak(0);
     setGameState("memorize");
     setCountdown(3);
@@ -114,7 +114,7 @@ const MemorizingPhi = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-500 rounded-3xl mb-4 shadow-lg">
             <Brain className="h-10 w-10 text-white" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-amber-600 via-yellow-600 to-orange-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-3 pb-1 bg-gradient-to-r from-amber-600 via-yellow-600 to-orange-600 bg-clip-text text-transparent">
             Golden Ratio (φ) Challenge
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">

@@ -13,18 +13,18 @@ const PI_DIGITS = "3.1415926535897932384626433832795028841971693993751";
 const MemorizingNumbers = () => {
   const { toast } = useToast();
   const [gameState, setGameState] = useState<"menu" | "memorize" | "input" | "correct" | "gameover">("menu");
-  const [currentLevel, setCurrentLevel] = useState(4);
+  const [currentLevel, setCurrentLevel] = useState(3);
   const [userInput, setUserInput] = useState("");
   const [showDigits, setShowDigits] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const [flashTime, setFlashTime] = useState(3000);
-  const [highScore, setHighScore] = useState(4);
+  const [highScore, setHighScore] = useState(3);
   const [streak, setStreak] = useState(0);
 
   useEffect(() => {
     const saved = localStorage.getItem("piMemoryHighScore");
     if (saved) setHighScore(parseInt(saved));
-    else setHighScore(4); // Default starting level
+    else setHighScore(3);
   }, []);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const MemorizingNumbers = () => {
   }, [gameState, countdown, flashTime]);
 
   const startGame = () => {
-    setCurrentLevel(4); // Start with 4 characters (3.1)
+    setCurrentLevel(3);
     setStreak(0);
     setGameState("memorize");
     setCountdown(3);
@@ -71,7 +71,7 @@ const MemorizingNumbers = () => {
       
       toast({
         title: "Perfect! 🎉",
-        description: `You remembered ${currentLevel} digits correctly!`,
+        description: `You remembered ${currentLevel} characters correctly!`,
       });
       
       // Update high score
@@ -80,7 +80,7 @@ const MemorizingNumbers = () => {
         localStorage.setItem("piMemoryHighScore", currentLevel.toString());
         toast({
           title: "New High Score! 🏆",
-          description: `You've set a new record: ${currentLevel} digits!`,
+          description: `You've set a new record: ${currentLevel} characters!`,
           variant: "default",
         });
       }
@@ -116,7 +116,7 @@ const MemorizingNumbers = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl mb-4 shadow-lg">
             <Brain className="h-10 w-10 text-white" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-3 pb-1 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent">
             Pi Memory Challenge
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
@@ -208,7 +208,7 @@ const MemorizingNumbers = () => {
                     <div className="text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 animate-pulse">
                       {countdown}
                     </div>
-                    <p className="text-slate-600 mt-4">Get ready to memorize {currentLevel} digits...</p>
+                    <p className="text-slate-600 mt-4">Get ready to memorize {currentLevel} characters...</p>
                   </div>
                 ) : showDigits ? (
                   <div className="py-12 space-y-4">
@@ -234,7 +234,7 @@ const MemorizingNumbers = () => {
               <div className="text-center space-y-6">
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <EyeOff className="h-6 w-6 text-slate-600" />
-                  <p className="text-lg font-semibold text-slate-700">Enter {currentLevel} digits of π</p>
+                  <p className="text-lg font-semibold text-slate-700">Enter {currentLevel} characters of π</p>
                 </div>
                 
                 <div className="max-w-md mx-auto">
@@ -263,7 +263,7 @@ const MemorizingNumbers = () => {
                       indicatorClassName="bg-gradient-to-r from-green-500 to-emerald-500"
                     />
                     <p className="text-sm text-slate-600 mt-2">
-                      {userInput.length} / {currentLevel} digits
+                      {userInput.length} / {currentLevel} characters
                     </p>
                   </div>
                 </div>
@@ -285,7 +285,7 @@ const MemorizingNumbers = () => {
                 <div className="text-6xl mb-4">🎉</div>
                 <h3 className="text-3xl font-bold text-green-600 mb-4">Perfect!</h3>
                 <p className="text-xl text-slate-700">
-                  You remembered <span className="font-bold text-purple-600">{currentLevel}</span> digits correctly!
+                  You remembered <span className="font-bold text-purple-600">{currentLevel}</span> characters correctly!
                 </p>
                 <p className="text-slate-600 mt-2">Preparing level {currentLevel + 1}...</p>
               </div>
@@ -300,7 +300,7 @@ const MemorizingNumbers = () => {
                 <div className="grid grid-cols-2 gap-4 max-w-md mx-auto mb-6">
                   <div className="bg-purple-100 rounded-xl p-4">
                     <div className="text-3xl font-bold text-purple-600">{currentLevel - 1}</div>
-                    <div className="text-sm text-slate-600">Digits Memorized</div>
+                    <div className="text-sm text-slate-600">Characters Memorized</div>
                   </div>
                   <div className="bg-pink-100 rounded-xl p-4">
                     <div className="text-3xl font-bold text-pink-600">{streak}</div>

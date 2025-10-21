@@ -13,18 +13,18 @@ const E_DIGITS = "2.7182818284590452353602874713526624977572470936999";
 const MemorizingEuler = () => {
   const { toast } = useToast();
   const [gameState, setGameState] = useState<"menu" | "memorize" | "input" | "correct" | "gameover">("menu");
-  const [currentLevel, setCurrentLevel] = useState(4);
+  const [currentLevel, setCurrentLevel] = useState(3);
   const [userInput, setUserInput] = useState("");
   const [showDigits, setShowDigits] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const [flashTime, setFlashTime] = useState(3000);
-  const [highScore, setHighScore] = useState(4);
+  const [highScore, setHighScore] = useState(3);
   const [streak, setStreak] = useState(0);
 
   useEffect(() => {
     const saved = localStorage.getItem("eulerMemoryHighScore");
     if (saved) setHighScore(parseInt(saved));
-    else setHighScore(4);
+    else setHighScore(3);
   }, []);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const MemorizingEuler = () => {
   }, [gameState, countdown, flashTime]);
 
   const startGame = () => {
-    setCurrentLevel(4);
+    setCurrentLevel(3);
     setStreak(0);
     setGameState("memorize");
     setCountdown(3);
@@ -114,7 +114,7 @@ const MemorizingEuler = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-3xl mb-4 shadow-lg">
             <Brain className="h-10 w-10 text-white" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-3 pb-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
             Euler's Number (e) Challenge
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
