@@ -199,10 +199,24 @@ const generalSkills = [
   },
   {
     id: "memorizing-numbers",
-    title: "Pi Memory Challenge",
+    title: "Memorizing Pi (π)",
     description: "Test your memory by memorizing digits of π progressively",
     path: "/memorizing-numbers",
     color: "bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-600"
+  },
+  {
+    id: "memorizing-euler",
+    title: "Memorizing Euler's (e)",
+    description: "Challenge yourself with Euler's number memory game",
+    path: "/memorizing-euler",
+    color: "bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600"
+  },
+  {
+    id: "memorizing-phi",
+    title: "Memorizing Phi (φ)",
+    description: "Learn the Golden Ratio digits by heart",
+    path: "/memorizing-phi",
+    color: "bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-600"
   }
 ];
 

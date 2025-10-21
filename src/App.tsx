@@ -45,6 +45,8 @@ import NewtonsLaws from "./pages/NewtonsLaws";
 import PushPullForces from "./pages/PushPullForces";
 import MotionMastery from "./pages/MotionMastery";
 import MemorizingNumbers from "./pages/MemorizingNumbers";
+import MemorizingEuler from "./pages/MemorizingEuler";
+import MemorizingPhi from "./pages/MemorizingPhi";
 
 // ScrollToTop component that will trigger on route changes
 const ScrollToTop = () => {
@@ -90,7 +92,9 @@ const App = () => (
                 <Route path="/newtons-laws" element={<NewtonsLaws />} />
                 <Route path="/push-pull-forces" element={<PushPullForces />} />
                 <Route path="/motion-mastery" element={<MotionMastery />} />
-                <Route path="/memorizing-numbers" element={<MemorizingNumbers />} />
+          <Route path="/memorizing-numbers" element={<MemorizingNumbers />} />
+          <Route path="/memorizing-euler" element={<MemorizingEuler />} />
+          <Route path="/memorizing-phi" element={<MemorizingPhi />} />
                 <Route path="/arithmetic-hero" element={<ArithmeticHero />} />
                 <Route path="/target-takedown" element={<TargetTakedown />} />
                 <Route path="/algebra-adventure" element={<AlgebraAdventure />} />

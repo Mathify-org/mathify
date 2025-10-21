@@ -7,10 +7,10 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import confetti from "canvas-confetti";
 
-// First 50 digits of Pi for the game (including decimal point)
-const PI_DIGITS = "3.1415926535897932384626433832795028841971693993751";
+// First 50 digits of Euler's number (e) for the game (including decimal point)
+const E_DIGITS = "2.7182818284590452353602874713526624977572470936999";
 
-const MemorizingNumbers = () => {
+const MemorizingEuler = () => {
   const { toast } = useToast();
   const [gameState, setGameState] = useState<"menu" | "memorize" | "input" | "correct" | "gameover">("menu");
   const [currentLevel, setCurrentLevel] = useState(4);
@@ -22,9 +22,9 @@ const MemorizingNumbers = () => {
   const [streak, setStreak] = useState(0);
 
   useEffect(() => {
-    const saved = localStorage.getItem("piMemoryHighScore");
+    const saved = localStorage.getItem("eulerMemoryHighScore");
     if (saved) setHighScore(parseInt(saved));
-    else setHighScore(4); // Default starting level
+    else setHighScore(4);
   }, []);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const MemorizingNumbers = () => {
   }, [gameState, countdown, flashTime]);
 
   const startGame = () => {
-    setCurrentLevel(4); // Start with 4 characters (3.1)
+    setCurrentLevel(4);
     setStreak(0);
     setGameState("memorize");
     setCountdown(3);
@@ -50,7 +50,7 @@ const MemorizingNumbers = () => {
   };
 
   const getCurrentDigits = () => {
-    return PI_DIGITS.substring(0, currentLevel);
+    return E_DIGITS.substring(0, currentLevel);
   };
 
   const checkAnswer = () => {
@@ -60,7 +60,6 @@ const MemorizingNumbers = () => {
       setStreak(streak + 1);
       setGameState("correct");
       
-      // Confetti for milestones
       if (currentLevel >= 10) {
         confetti({
           particleCount: 100,
@@ -71,16 +70,15 @@ const MemorizingNumbers = () => {
       
       toast({
         title: "Perfect! 🎉",
-        description: `You remembered ${currentLevel} digits correctly!`,
+        description: `You remembered ${currentLevel} characters correctly!`,
       });
       
-      // Update high score
       if (currentLevel > highScore) {
         setHighScore(currentLevel);
-        localStorage.setItem("piMemoryHighScore", currentLevel.toString());
+        localStorage.setItem("eulerMemoryHighScore", currentLevel.toString());
         toast({
           title: "New High Score! 🏆",
-          description: `You've set a new record: ${currentLevel} digits!`,
+          description: `You've set a new record: ${currentLevel} characters!`,
           variant: "default",
         });
       }
@@ -90,13 +88,13 @@ const MemorizingNumbers = () => {
         setUserInput("");
         setGameState("memorize");
         setCountdown(3);
-        setFlashTime(Math.max(1500, flashTime - 100)); // Gradually reduce flash time
+        setFlashTime(Math.max(1500, flashTime - 100));
       }, 2000);
     } else {
       setGameState("gameover");
       toast({
         title: "Game Over!",
-        description: `You reached ${currentLevel - 1} digits with a streak of ${streak}!`,
+        description: `You reached ${currentLevel - 1} characters with a streak of ${streak}!`,
         variant: "destructive",
       });
     }
@@ -109,18 +107,18 @@ const MemorizingNumbers = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 py-8 px-4">
       <div className="container mx-auto max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl mb-4 shadow-lg">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-3xl mb-4 shadow-lg">
             <Brain className="h-10 w-10 text-white" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent">
-            Pi Memory Challenge
+          <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+            Euler's Number (e) Challenge
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Test your memory by memorizing digits of π! Start with "3.1" and progress as far as you can.
+            Test your memory by memorizing digits of e! Start with "2.7" and progress as far as you can.
           </p>
         </div>
 
@@ -134,7 +132,7 @@ const MemorizingNumbers = () => {
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-br from-purple-500 to-pink-500 border-0 shadow-lg">
+          <Card className="bg-gradient-to-br from-emerald-500 to-teal-500 border-0 shadow-lg">
             <CardContent className="p-4 text-center text-white">
               <Brain className="h-6 w-6 mx-auto mb-1" />
               <div className="text-2xl font-bold">{currentLevel}</div>
@@ -142,7 +140,7 @@ const MemorizingNumbers = () => {
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-br from-orange-500 to-pink-500 border-0 shadow-lg">
+          <Card className="bg-gradient-to-br from-teal-500 to-cyan-500 border-0 shadow-lg">
             <CardContent className="p-4 text-center text-white">
               <Zap className="h-6 w-6 mx-auto mb-1" />
               <div className="text-2xl font-bold">{streak}</div>
@@ -168,23 +166,23 @@ const MemorizingNumbers = () => {
             {/* Menu State */}
             {gameState === "menu" && (
               <div className="text-center space-y-6">
-                <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-8">
+                <div className="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-2xl p-8">
                   <h3 className="text-xl font-bold mb-4 text-slate-800">How to Play</h3>
                   <div className="space-y-3 text-left max-w-md mx-auto text-slate-700">
                     <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">1</div>
-                      <p>You'll see digits of π flash on screen</p>
+                      <div className="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">1</div>
+                      <p>You'll see digits of e (Euler's number) flash on screen</p>
                     </div>
                     <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">2</div>
+                      <div className="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">2</div>
                       <p>Memorize them quickly before they disappear</p>
                     </div>
                     <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">3</div>
-                      <p>Type the digits in the correct order</p>
+                      <div className="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">3</div>
+                      <p>Type the digits in the correct order (include the decimal!)</p>
                     </div>
                     <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">4</div>
+                      <div className="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">4</div>
                       <p>Progress to longer sequences as you succeed!</p>
                     </div>
                   </div>
@@ -193,7 +191,7 @@ const MemorizingNumbers = () => {
                 <Button 
                   onClick={startGame}
                   size="lg"
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-12 py-6 text-xl rounded-xl shadow-lg"
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-12 py-6 text-xl rounded-xl shadow-lg"
                 >
                   Start Challenge
                 </Button>
@@ -205,24 +203,24 @@ const MemorizingNumbers = () => {
               <div className="text-center space-y-6">
                 {countdown > 0 ? (
                   <div className="py-12">
-                    <div className="text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 animate-pulse">
+                    <div className="text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600 animate-pulse">
                       {countdown}
                     </div>
-                    <p className="text-slate-600 mt-4">Get ready to memorize {currentLevel} digits...</p>
+                    <p className="text-slate-600 mt-4">Get ready to memorize {currentLevel} characters...</p>
                   </div>
                 ) : showDigits ? (
                   <div className="py-12 space-y-4">
                     <div className="flex items-center justify-center gap-2 mb-4">
-                      <Eye className="h-6 w-6 text-purple-600 animate-pulse" />
-                      <p className="text-lg font-semibold text-purple-600">Memorize Now!</p>
+                      <Eye className="h-6 w-6 text-emerald-600 animate-pulse" />
+                      <p className="text-lg font-semibold text-emerald-600">Memorize Now!</p>
                     </div>
-                    <div className="text-6xl md:text-8xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 animate-pulse">
+                    <div className="text-6xl md:text-8xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 animate-pulse">
                       {getCurrentDigits()}
                     </div>
                     <Progress 
                       value={(flashTime - (Date.now() % flashTime)) / flashTime * 100} 
                       className="h-2"
-                      indicatorClassName="bg-gradient-to-r from-purple-600 to-pink-600"
+                      indicatorClassName="bg-gradient-to-r from-emerald-600 to-teal-600"
                     />
                   </div>
                 ) : null}
@@ -234,7 +232,7 @@ const MemorizingNumbers = () => {
               <div className="text-center space-y-6">
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <EyeOff className="h-6 w-6 text-slate-600" />
-                  <p className="text-lg font-semibold text-slate-700">Enter {currentLevel} digits of π</p>
+                  <p className="text-lg font-semibold text-slate-700">Enter {currentLevel} characters of e</p>
                 </div>
                 
                 <div className="max-w-md mx-auto">
@@ -243,7 +241,6 @@ const MemorizingNumbers = () => {
                     value={userInput}
                     onChange={(e) => {
                       const value = e.target.value.replace(/[^\d.]/g, "");
-                      // Ensure only one decimal point
                       const decimalCount = (value.match(/\./g) || []).length;
                       if (value.length <= currentLevel && decimalCount <= 1) {
                         setUserInput(value);
@@ -251,7 +248,7 @@ const MemorizingNumbers = () => {
                     }}
                     onKeyPress={handleKeyPress}
                     placeholder="Type the digits (include decimal)..."
-                    className="text-4xl md:text-5xl text-center font-bold tracking-wider h-20 border-4 border-purple-200 focus:border-purple-500"
+                    className="text-4xl md:text-5xl text-center font-bold tracking-wider h-20 border-4 border-emerald-200 focus:border-emerald-500"
                     maxLength={currentLevel}
                     autoFocus
                   />
@@ -263,7 +260,7 @@ const MemorizingNumbers = () => {
                       indicatorClassName="bg-gradient-to-r from-green-500 to-emerald-500"
                     />
                     <p className="text-sm text-slate-600 mt-2">
-                      {userInput.length} / {currentLevel} digits
+                      {userInput.length} / {currentLevel} characters
                     </p>
                   </div>
                 </div>
@@ -272,7 +269,7 @@ const MemorizingNumbers = () => {
                   onClick={checkAnswer}
                   disabled={userInput.length !== currentLevel}
                   size="lg"
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-12 py-6 text-xl rounded-xl shadow-lg disabled:opacity-50"
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-12 py-6 text-xl rounded-xl shadow-lg disabled:opacity-50"
                 >
                   Check Answer
                 </Button>
@@ -285,7 +282,7 @@ const MemorizingNumbers = () => {
                 <div className="text-6xl mb-4">🎉</div>
                 <h3 className="text-3xl font-bold text-green-600 mb-4">Perfect!</h3>
                 <p className="text-xl text-slate-700">
-                  You remembered <span className="font-bold text-purple-600">{currentLevel}</span> digits correctly!
+                  You remembered <span className="font-bold text-emerald-600">{currentLevel}</span> characters correctly!
                 </p>
                 <p className="text-slate-600 mt-2">Preparing level {currentLevel + 1}...</p>
               </div>
@@ -298,19 +295,19 @@ const MemorizingNumbers = () => {
                 <h3 className="text-3xl font-bold text-slate-800 mb-4">Final Score</h3>
                 
                 <div className="grid grid-cols-2 gap-4 max-w-md mx-auto mb-6">
-                  <div className="bg-purple-100 rounded-xl p-4">
-                    <div className="text-3xl font-bold text-purple-600">{currentLevel - 1}</div>
-                    <div className="text-sm text-slate-600">Digits Memorized</div>
+                  <div className="bg-emerald-100 rounded-xl p-4">
+                    <div className="text-3xl font-bold text-emerald-600">{currentLevel - 1}</div>
+                    <div className="text-sm text-slate-600">Characters Memorized</div>
                   </div>
-                  <div className="bg-pink-100 rounded-xl p-4">
-                    <div className="text-3xl font-bold text-pink-600">{streak}</div>
+                  <div className="bg-teal-100 rounded-xl p-4">
+                    <div className="text-3xl font-bold text-teal-600">{streak}</div>
                     <div className="text-sm text-slate-600">Perfect Streak</div>
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl p-6 max-w-md mx-auto">
+                <div className="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-xl p-6 max-w-md mx-auto">
                   <p className="text-slate-700 mb-2">The correct answer was:</p>
-                  <div className="text-3xl font-bold text-purple-600 tracking-wider">
+                  <div className="text-3xl font-bold text-emerald-600 tracking-wider">
                     {getCurrentDigits()}
                   </div>
                 </div>
@@ -325,7 +322,7 @@ const MemorizingNumbers = () => {
                 <Button
                   onClick={startGame}
                   size="lg"
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-12 py-6 text-xl rounded-xl shadow-lg"
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-12 py-6 text-xl rounded-xl shadow-lg"
                 >
                   Try Again
                 </Button>
@@ -343,14 +340,14 @@ const MemorizingNumbers = () => {
           </CardContent>
         </Card>
 
-        {/* Pi Facts */}
+        {/* Euler's Number Facts */}
         <div className="mt-8 text-center">
-          <Card className="bg-gradient-to-r from-indigo-100 to-purple-100 border-0">
+          <Card className="bg-gradient-to-r from-emerald-100 to-teal-100 border-0">
             <CardContent className="p-6">
               <h3 className="font-bold text-lg mb-2 text-slate-800">Did You Know?</h3>
               <p className="text-slate-700">
-                π (Pi) is an infinite decimal! People have memorized over 70,000 digits. 
-                The current world record is held by Rajveer Meena who recited 70,000 digits in 2015!
+                e (Euler's number) is the base of natural logarithms and is approximately equal to 2.71828. 
+                It appears naturally in many areas of mathematics, especially in calculus and exponential growth!
               </p>
             </CardContent>
           </Card>
@@ -360,4 +357,4 @@ const MemorizingNumbers = () => {
   );
 };
 
-export default MemorizingNumbers;
+export default MemorizingEuler;
