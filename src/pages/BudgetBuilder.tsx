@@ -2,10 +2,37 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Wallet, PiggyBank, ShoppingCart, Gamepad2, Book, Heart, Star, Trophy, Sparkles, Check, X, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Wallet, PiggyBank, ShoppingCart, Gamepad2, Book, Heart, Star, Trophy, Sparkles, Check, X, RefreshCw, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+interface Currency {
+  code: string;
+  symbol: string;
+  name: string;
+  flag: string;
+}
+
+const currencies: Currency[] = [
+  { code: 'GBP', symbol: '£', name: 'British Pound', flag: '🇬🇧' },
+  { code: 'USD', symbol: '$', name: 'US Dollar', flag: '🇺🇸' },
+  { code: 'EUR', symbol: '€', name: 'Euro', flag: '🇪🇺' },
+  { code: 'INR', symbol: '₹', name: 'Indian Rupee', flag: '🇮🇳' },
+  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar', flag: '🇦🇺' },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar', flag: '🇨🇦' },
+  { code: 'JPY', symbol: '¥', name: 'Japanese Yen', flag: '🇯🇵' },
+  { code: 'CNY', symbol: '¥', name: 'Chinese Yuan', flag: '🇨🇳' },
+  { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham', flag: '🇦🇪' },
+  { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar', flag: '🇸🇬' },
+];
 
 interface Category {
   id: string;
@@ -17,15 +44,15 @@ interface Category {
   maxPercent: number;
 }
 
-interface Challenge {
+interface ChallengeTemplate {
   id: number;
   title: string;
-  description: string;
+  descriptionTemplate: string;
   totalBudget: number;
   categories: string[];
   goal: string;
   targetAllocations: { [key: string]: { min: number; max: number } };
-  hint: string;
+  hintTemplate: string;
 }
 
 const allCategories: Category[] = [
@@ -36,56 +63,56 @@ const allCategories: Category[] = [
   { id: 'charity', name: 'Charity', icon: <Heart className="h-6 w-6" />, color: 'from-red-400 to-pink-500', description: 'Helping others in need', minPercent: 0, maxPercent: 20 },
 ];
 
-const challenges: Challenge[] = [
+const challengeTemplates: ChallengeTemplate[] = [
   {
     id: 1,
     title: "Beginner Budget",
-    description: "You received £20 for your birthday! Create a simple budget.",
+    descriptionTemplate: "You received {symbol}20 for your birthday! Create a simple budget.",
     totalBudget: 20,
     categories: ['savings', 'fun'],
     goal: "Save at least 25% and have some fun!",
     targetAllocations: { savings: { min: 25, max: 100 }, fun: { min: 0, max: 75 } },
-    hint: "Try putting £5 or more into savings first!"
+    hintTemplate: "Try putting {symbol}5 or more into savings first!"
   },
   {
     id: 2,
     title: "Weekly Allowance",
-    description: "You get £10 weekly allowance. Plan wisely!",
+    descriptionTemplate: "You get {symbol}10 weekly allowance. Plan wisely!",
     totalBudget: 10,
     categories: ['savings', 'needs', 'fun'],
     goal: "Save at least 20%, cover needs, and have fun!",
     targetAllocations: { savings: { min: 20, max: 50 }, needs: { min: 30, max: 50 }, fun: { min: 10, max: 40 } },
-    hint: "Balance is key - don't spend everything on fun!"
+    hintTemplate: "Balance is key - don't spend everything on fun!"
   },
   {
     id: 3,
     title: "Holiday Money",
-    description: "You saved £50 from holiday gifts. Budget it all!",
+    descriptionTemplate: "You saved {symbol}50 from holiday gifts. Budget it all!",
     totalBudget: 50,
     categories: ['savings', 'needs', 'fun', 'education'],
     goal: "Save 30%+, learn something new, and enjoy!",
     targetAllocations: { savings: { min: 30, max: 60 }, needs: { min: 10, max: 30 }, fun: { min: 10, max: 30 }, education: { min: 10, max: 30 } },
-    hint: "Education investments pay off in the long run!"
+    hintTemplate: "Education investments pay off in the long run!"
   },
   {
     id: 4,
     title: "Generous Heart",
-    description: "You earned £30 helping neighbours. Share the love!",
+    descriptionTemplate: "You earned {symbol}30 helping neighbours. Share the love!",
     totalBudget: 30,
     categories: ['savings', 'fun', 'charity'],
     goal: "Save 20%+, give 10%+ to charity, enjoy the rest!",
     targetAllocations: { savings: { min: 20, max: 50 }, fun: { min: 20, max: 50 }, charity: { min: 10, max: 30 } },
-    hint: "Giving feels as good as receiving!"
+    hintTemplate: "Giving feels as good as receiving!"
   },
   {
     id: 5,
     title: "Master Budgeter",
-    description: "You have £100 to manage. Show your skills!",
+    descriptionTemplate: "You have {symbol}100 to manage. Show your skills!",
     totalBudget: 100,
     categories: ['savings', 'needs', 'fun', 'education', 'charity'],
     goal: "Balance all 5 categories wisely!",
     targetAllocations: { savings: { min: 20, max: 40 }, needs: { min: 25, max: 40 }, fun: { min: 10, max: 25 }, education: { min: 10, max: 20 }, charity: { min: 5, max: 15 } },
-    hint: "A master budgeter thinks about ALL their priorities!"
+    hintTemplate: "A master budgeter thinks about ALL their priorities!"
   }
 ];
 
@@ -98,8 +125,16 @@ const BudgetBuilder = () => {
   const [isCorrect, setIsCorrect] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
   const [completedChallenges, setCompletedChallenges] = useState<number[]>([]);
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>(currencies[0]);
 
-  const challenge = challenges[currentChallenge];
+  const getChallengeWithCurrency = (template: ChallengeTemplate) => ({
+    ...template,
+    description: template.descriptionTemplate.replace(/{symbol}/g, selectedCurrency.symbol),
+    hint: template.hintTemplate.replace(/{symbol}/g, selectedCurrency.symbol),
+  });
+
+  const challengeTemplate = challengeTemplates[currentChallenge];
+  const challenge = challengeTemplate ? getChallengeWithCurrency(challengeTemplate) : null;
   const activeCategories = allCategories.filter(c => challenge?.categories.includes(c.id));
 
   useEffect(() => {
@@ -110,12 +145,13 @@ const BudgetBuilder = () => {
       });
       setAllocations(initialAllocations);
     }
-  }, [currentChallenge, gameStarted]);
+  }, [currentChallenge, gameStarted, selectedCurrency]);
 
   const totalAllocated = Object.values(allocations).reduce((sum, val) => sum + val, 0);
   const remaining = (challenge?.totalBudget || 0) - totalAllocated;
 
   const adjustAllocation = (categoryId: string, change: number) => {
+    if (!challenge) return;
     const newValue = Math.max(0, Math.min(challenge.totalBudget, (allocations[categoryId] || 0) + change));
     const newTotal = totalAllocated - (allocations[categoryId] || 0) + newValue;
     
@@ -125,6 +161,7 @@ const BudgetBuilder = () => {
   };
 
   const setAllocationPercent = (categoryId: string, percent: number) => {
+    if (!challenge) return;
     const value = Math.round((percent / 100) * challenge.totalBudget);
     const newTotal = totalAllocated - (allocations[categoryId] || 0) + value;
     
@@ -134,7 +171,7 @@ const BudgetBuilder = () => {
   };
 
   const checkBudget = () => {
-    if (remaining !== 0) return;
+    if (!challenge || remaining !== 0) return;
 
     let correct = true;
     let earnedPoints = 0;
@@ -151,7 +188,7 @@ const BudgetBuilder = () => {
     });
 
     if (correct) {
-      earnedPoints += 50; // Bonus for completing correctly
+      earnedPoints += 50;
       confetti({
         particleCount: 100,
         spread: 70,
@@ -170,13 +207,14 @@ const BudgetBuilder = () => {
   };
 
   const nextChallenge = () => {
-    if (currentChallenge < challenges.length - 1) {
+    if (currentChallenge < challengeTemplates.length - 1) {
       setCurrentChallenge(prev => prev + 1);
       setShowResult(false);
     }
   };
 
   const resetChallenge = () => {
+    if (!challenge) return;
     const initialAllocations: { [key: string]: number } = {};
     challenge.categories.forEach(cat => {
       initialAllocations[cat] = 0;
@@ -231,7 +269,7 @@ const BudgetBuilder = () => {
               Complete challenges to become a master budgeter!
             </p>
 
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 max-w-3xl mx-auto mb-8 md:mb-12 px-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 max-w-3xl mx-auto mb-8 md:mb-10 px-4">
               {allCategories.map((cat) => (
                 <div key={cat.id} className="text-center">
                   <div className={`w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br ${cat.color} rounded-xl mx-auto mb-2 flex items-center justify-center text-white shadow-lg`}>
@@ -240,6 +278,39 @@ const BudgetBuilder = () => {
                   <span className="text-xs md:text-sm font-medium text-gray-700">{cat.name}</span>
                 </div>
               ))}
+            </div>
+
+            {/* Currency Selector */}
+            <div className="max-w-xs mx-auto mb-8 md:mb-10 px-4">
+              <label className="block text-sm font-medium text-gray-600 mb-2">Select your currency</label>
+              <Select
+                value={selectedCurrency.code}
+                onValueChange={(code) => {
+                  const currency = currencies.find(c => c.code === code);
+                  if (currency) setSelectedCurrency(currency);
+                }}
+              >
+                <SelectTrigger className="w-full h-12 text-base bg-white border-2 border-emerald-200 hover:border-emerald-400 transition-colors">
+                  <SelectValue>
+                    <span className="flex items-center gap-2">
+                      <span className="text-lg">{selectedCurrency.flag}</span>
+                      <span className="font-medium">{selectedCurrency.symbol}</span>
+                      <span>{selectedCurrency.name}</span>
+                    </span>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {currencies.map((currency) => (
+                    <SelectItem key={currency.code} value={currency.code} className="cursor-pointer">
+                      <span className="flex items-center gap-2">
+                        <span className="text-lg">{currency.flag}</span>
+                        <span className="font-medium w-8">{currency.symbol}</span>
+                        <span>{currency.name}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <Button
@@ -255,6 +326,8 @@ const BudgetBuilder = () => {
       </div>
     );
   }
+
+  if (!challenge) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
@@ -282,7 +355,7 @@ const BudgetBuilder = () => {
               </div>
               <div className="bg-white/20 px-3 py-1.5 md:px-4 md:py-2 rounded-xl">
                 <span className="text-sm md:text-base font-medium">
-                  {currentChallenge + 1}/{challenges.length}
+                  {currentChallenge + 1}/{challengeTemplates.length}
                 </span>
               </div>
             </div>
@@ -305,7 +378,7 @@ const BudgetBuilder = () => {
                   <p className="text-emerald-100 text-sm md:text-base mb-3">{challenge.description}</p>
                   <div className="flex flex-wrap items-center gap-2 md:gap-4">
                     <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
-                      💰 Budget: £{challenge.totalBudget}
+                      💰 Budget: {selectedCurrency.symbol}{challenge.totalBudget}
                     </span>
                     <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
                       🎯 {challenge.goal}
@@ -313,7 +386,7 @@ const BudgetBuilder = () => {
                   </div>
                 </div>
                 <div className="text-center shrink-0">
-                  <div className="text-3xl md:text-4xl font-bold">£{remaining}</div>
+                  <div className="text-3xl md:text-4xl font-bold">{selectedCurrency.symbol}{remaining}</div>
                   <div className="text-xs md:text-sm text-emerald-200">remaining</div>
                 </div>
               </div>
@@ -343,7 +416,7 @@ const BudgetBuilder = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
                           <h3 className="font-bold text-sm md:text-lg truncate">{category.name}</h3>
-                          <span className="text-lg md:text-xl font-bold text-emerald-600 shrink-0">£{allocated}</span>
+                          <span className="text-lg md:text-xl font-bold text-emerald-600 shrink-0">{selectedCurrency.symbol}{allocated}</span>
                         </div>
                         <p className="text-xs md:text-sm text-gray-500 mb-2 line-clamp-1">{category.description}</p>
                         
@@ -421,7 +494,7 @@ const BudgetBuilder = () => {
 
         {remaining !== 0 && (
           <p className="text-center text-amber-600 mt-3 text-sm md:text-base font-medium">
-            💡 You still have £{remaining} to allocate!
+            💡 You still have {selectedCurrency.symbol}{remaining} to allocate!
           </p>
         )}
 
@@ -461,7 +534,7 @@ const BudgetBuilder = () => {
                     <div className="bg-emerald-50 p-4 rounded-xl mb-6">
                       <span className="text-2xl md:text-3xl font-bold text-emerald-600">+{score} points</span>
                     </div>
-                    {currentChallenge < challenges.length - 1 ? (
+                    {currentChallenge < challengeTemplates.length - 1 ? (
                       <Button
                         onClick={nextChallenge}
                         className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-4 md:py-6 text-lg rounded-xl"
