@@ -37,7 +37,7 @@ import MoneyCounter from "./pages/MoneyCounter";
 import GeometryMaster from "./pages/GeometryMaster";
 import MathIntuition from "./pages/MathIntuition";
 import MathEveryday from "./pages/MathEveryday";
-import FamilyBuilder from "./pages/FamilyBuilder";
+import BudgetBuilder from "./pages/BudgetBuilder";
 import TaxCalculator from "./pages/TaxCalculator";
 import UnitConverter from "./pages/UnitConverter";
 import DataAnalysis from "./pages/DataAnalysis";
@@ -85,7 +85,7 @@ const App = () => (
                 <Route path="/geometry-master" element={<GeometryMaster />} />
                 <Route path="/math-intuition" element={<MathIntuition />} />
                 <Route path="/math-everyday" element={<MathEveryday />} />
-                <Route path="/family-builder" element={<FamilyBuilder />} />
+                <Route path="/budget-builder" element={<BudgetBuilder />} />
                 <Route path="/tax-calculator" element={<TaxCalculator />} />
                 <Route path="/unit-converter" element={<UnitConverter />} />
                 <Route path="/data-analysis" element={<DataAnalysis />} />

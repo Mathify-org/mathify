@@ -140,25 +140,25 @@ const TaxCalculator = () => {
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-4 rounded-lg">
-                    <h3 className="font-semibold text-lg mb-3 text-gray-800">Try These Scenarios:</h3>
-                    <div className="grid gap-3">
+                  <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-3 md:p-4 rounded-lg">
+                    <h3 className="font-semibold text-base md:text-lg mb-3 text-gray-800">Try These Scenarios:</h3>
+                    <div className="grid gap-2 md:gap-3">
                       {scenarios.map((scenario, index) => (
                         <Button
                           key={index}
                           variant="outline"
                           onClick={() => applyScenario(scenario.suggestedIncome)}
-                          className="justify-start text-left p-4 h-auto hover:bg-blue-100 border-blue-200"
+                          className="justify-start text-left p-3 md:p-4 h-auto hover:bg-blue-100 border-blue-200 w-full"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="text-blue-600">
+                          <div className="flex items-start gap-2 md:gap-3 min-w-0">
+                            <div className="text-blue-600 shrink-0">
                               {scenario.icon}
                             </div>
-                            <div>
-                              <div className="font-semibold">{scenario.title}</div>
-                              <div className="text-sm text-gray-600">{scenario.description}</div>
-                              <div className="text-sm font-medium text-green-600">
-                                ${scenario.suggestedIncome.toLocaleString()}/year
+                            <div className="min-w-0 flex-1">
+                              <div className="font-semibold text-sm md:text-base truncate">{scenario.title}</div>
+                              <div className="text-xs md:text-sm text-gray-600 line-clamp-2">{scenario.description}</div>
+                              <div className="text-xs md:text-sm font-medium text-green-600">
+                                ${scenario.suggestedIncome.toLocaleString()}/yr
                               </div>
                             </div>
                           </div>
