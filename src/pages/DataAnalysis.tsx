@@ -217,10 +217,11 @@ const DataAnalysis = () => {
               <Button
                 onClick={() => navigate(-1)}
                 variant="outline"
-                className="absolute left-0 bg-white/20 border-white/30 text-white hover:bg-white/30 hover:text-white"
+                size="icon"
+                className="absolute left-0 bg-white/20 border-white/30 text-white hover:bg-white/30 hover:text-white md:w-auto md:px-4"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
+                <ArrowLeft className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Back</span>
               </Button>
             </div>
             <div className="flex items-center justify-center space-x-2 mb-6">

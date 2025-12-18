@@ -99,12 +99,12 @@ const TimeMaster = () => {
         return {
           type: 'elapsedTime',
           question: `If you start at ${formatTime(startHour, startMin, true)} and wait ${elapsed} hour${elapsed > 1 ? 's' : ''}, what time will it be?`,
-          answer: formatTime(endHour > 12 ? endHour - 12 : endHour, endMin, true),
+          answer: formatTime(endHour, endMin, true),
           options: difficulty !== 'hard' ? [
-            formatTime(endHour > 12 ? endHour - 12 : endHour, endMin, true),
-            formatTime(endHour > 12 ? endHour - 11 : endHour + 1, endMin, true),
-            formatTime(endHour > 12 ? endHour - 13 : endHour - 1, endMin, true),
-            formatTime(endHour > 12 ? endHour - 10 : endHour + 2, endMin, true)
+            formatTime(endHour, endMin, true),
+            formatTime(endHour + 1, endMin, true),
+            formatTime(endHour - 1, endMin, true),
+            formatTime(endHour + 2, endMin, true)
           ].sort(() => Math.random() - 0.5) : undefined
         };
 
