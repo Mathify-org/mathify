@@ -2,7 +2,7 @@
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
-import { Users, TrendingUp, Ruler, BarChart3 } from "lucide-react";
+import { Wallet, TrendingUp, Ruler, BarChart3 } from "lucide-react";
 
 interface PracticalSkillsPopupProps {
   isOpen: boolean;
@@ -12,11 +12,11 @@ interface PracticalSkillsPopupProps {
 const PracticalSkillsPopup = ({ isOpen, onClose }: PracticalSkillsPopupProps) => {
   const practicalSkills = [
     {
-      id: "family-trees",
-      title: "Family Trees",
-      description: "Build and understand family relationships through interactive tree building",
-      path: "/family-builder",
-      icon: <Users className="h-8 w-8" />,
+      id: "budget-builder",
+      title: "Budget Builder",
+      description: "Learn to allocate money wisely with fun budgeting challenges",
+      path: "/budget-builder",
+      icon: <Wallet className="h-8 w-8" />,
       gradient: "from-emerald-500 via-teal-500 to-cyan-500"
     },
     {

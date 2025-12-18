@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Heart, BookOpen, GamepadIcon, Zap, Calculator, Users, Ruler, TrendingUp, Gauge } from "lucide-react";
+import { Heart, BookOpen, GamepadIcon, Zap, Calculator, Wallet, Ruler, TrendingUp, Gauge } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -290,11 +290,11 @@ const videoCurricula = [
 
 const practicalSkills = [
   {
-    id: "family-trees",
-    title: "Family Trees",
-    description: "Build and understand family relationships through interactive tree building",
-    path: "/family-builder",
-    icon: <Users className="h-8 w-8" />,
+    id: "budget-builder",
+    title: "Budget Builder",
+    description: "Learn to allocate money wisely with fun budgeting challenges",
+    path: "/budget-builder",
+    icon: <Wallet className="h-8 w-8" />,
     gradient: "from-emerald-500 via-teal-500 to-cyan-500"
   },
   {
