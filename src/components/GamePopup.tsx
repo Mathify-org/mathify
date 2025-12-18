@@ -107,7 +107,7 @@ const GamePopup: React.FC<GamePopupProps> = ({ isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md w-[95vw] mx-auto p-0 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 border-0 rounded-3xl overflow-hidden">
+      <DialogContent hideClose className="max-w-md w-[95vw] mx-auto p-0 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 border-0 rounded-3xl overflow-hidden">
         <div className="relative">
           {/* Header */}
           <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-center relative overflow-hidden">

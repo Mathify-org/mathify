@@ -72,7 +72,7 @@ const SecondaryMathsPopup: React.FC<SecondaryMathsPopupProps> = ({ isOpen, onClo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md w-[95vw] mx-auto p-0 bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 border-0 rounded-3xl overflow-hidden">
+      <DialogContent hideClose className="max-w-md w-[95vw] mx-auto p-0 bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 border-0 rounded-3xl overflow-hidden">
         <div className="relative">
           {/* Header */}
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-center relative overflow-hidden">
