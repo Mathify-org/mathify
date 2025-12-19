@@ -8,24 +8,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Trophy, Medal, Crown, Star, Flame, Target, Zap, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-
-interface LeaderboardEntry {
-  id: string;
-  userId: string;
-  username: string;
-  displayName: string;
-  gameId: string;
-  highScore: number;
-  totalXp: number;
-  gamesPlayed: number;
-  periodType: string;
-  periodStart: string;
-}
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface UserRanking {
   userId: string;
   username: string;
   displayName: string;
+  avatarUrl: string | null;
   totalXp: number;
   gamesPlayed: number;
   currentLevel: number;
@@ -36,7 +25,7 @@ const gameOptions = [
   { value: 'all', label: 'All Games' },
   { value: 'mental-maths', label: 'Mental Maths' },
   { value: 'times-tables', label: 'Times Tables' },
-  { value: 'math-facts', label: 'Math Facts Race' },
+  { value: 'math-facts-race', label: 'Math Facts Race' },
   { value: 'fraction-simplify', label: 'Fraction Master' },
   { value: 'geometry-master', label: 'Geometry Master' },
   { value: 'algebra-adventure', label: 'Algebra Adventure' },
@@ -46,6 +35,7 @@ const gameOptions = [
   { value: 'memorizing-pi', label: 'Memorizing Pi' },
   { value: 'memorizing-euler', label: "Memorizing Euler's" },
   { value: 'memorizing-phi', label: 'Memorizing Phi' },
+  { value: 'shape-explorer', label: 'Shape Explorer' },
 ];
 
 const Leaderboard = () => {
@@ -64,39 +54,121 @@ const Leaderboard = () => {
   const loadLeaderboard = async () => {
     setLoading(true);
     try {
-      // For overall rankings, we query user_progress joined with profiles
-      let query = supabase
-        .from('user_progress')
-        .select(`
-          user_id,
-          total_xp,
-          games_played,
-          current_level,
-          profiles!inner (
-            username,
-            display_name
-          )
-        `)
-        .order('total_xp', { ascending: false })
-        .limit(100);
+      let formattedRankings: UserRanking[] = [];
 
-      const { data, error } = await query;
+      if (gameFilter === 'all') {
+        // For "All Games", query user_progress for overall stats
+        const { data, error } = await supabase
+          .from('user_progress')
+          .select(`
+            user_id,
+            total_xp,
+            games_played,
+            current_level,
+            profiles!inner (
+              username,
+              display_name,
+              avatar_url
+            )
+          `)
+          .gt('total_xp', 0)
+          .order('total_xp', { ascending: false })
+          .limit(100);
 
-      if (error) {
-        console.error('Error loading leaderboard:', error);
-        setRankings([]);
-        return;
+        if (error) {
+          console.error('Error loading leaderboard:', error);
+          setRankings([]);
+          return;
+        }
+
+        formattedRankings = (data || []).map((entry: any, index: number) => ({
+          userId: entry.user_id,
+          username: entry.profiles?.username || 'anonymous',
+          displayName: entry.profiles?.display_name || 'Player',
+          avatarUrl: entry.profiles?.avatar_url || null,
+          totalXp: entry.total_xp || 0,
+          gamesPlayed: entry.games_played || 0,
+          currentLevel: entry.current_level || 1,
+          rank: index + 1,
+        }));
+      } else {
+        // For specific games, aggregate from game_sessions
+        const { data, error } = await supabase
+          .from('game_sessions')
+          .select(`
+            user_id,
+            xp_earned,
+            score
+          `)
+          .eq('game_id', gameFilter);
+
+        if (error) {
+          console.error('Error loading game leaderboard:', error);
+          setRankings([]);
+          return;
+        }
+
+        // Aggregate by user
+        const userStats = new Map<string, { totalXp: number; gamesPlayed: number }>();
+        (data || []).forEach((session: any) => {
+          const existing = userStats.get(session.user_id) || { totalXp: 0, gamesPlayed: 0 };
+          userStats.set(session.user_id, {
+            totalXp: existing.totalXp + (session.xp_earned || 0),
+            gamesPlayed: existing.gamesPlayed + 1,
+          });
+        });
+
+        // Filter users with XP > 0
+        const userIds = Array.from(userStats.entries())
+          .filter(([_, stats]) => stats.totalXp > 0)
+          .map(([id]) => id);
+
+        if (userIds.length === 0) {
+          setRankings([]);
+          setLoading(false);
+          return;
+        }
+
+        // Fetch profiles for these users
+        const { data: profiles, error: profileError } = await supabase
+          .from('profiles')
+          .select('id, username, display_name, avatar_url')
+          .in('id', userIds);
+
+        if (profileError) {
+          console.error('Error loading profiles:', profileError);
+          setRankings([]);
+          return;
+        }
+
+        // Fetch levels from user_progress
+        const { data: progressData } = await supabase
+          .from('user_progress')
+          .select('user_id, current_level')
+          .in('user_id', userIds);
+
+        const levelMap = new Map<string, number>();
+        (progressData || []).forEach((p: any) => levelMap.set(p.user_id, p.current_level));
+
+        // Build rankings sorted by XP
+        formattedRankings = Array.from(userStats.entries())
+          .filter(([_, stats]) => stats.totalXp > 0)
+          .sort((a, b) => b[1].totalXp - a[1].totalXp)
+          .map(([userId, stats], index) => {
+            const profile = profiles?.find((p: any) => p.id === userId);
+            return {
+              userId,
+              username: profile?.username || 'anonymous',
+              displayName: profile?.display_name || 'Player',
+              avatarUrl: profile?.avatar_url || null,
+              totalXp: stats.totalXp,
+              gamesPlayed: stats.gamesPlayed,
+              currentLevel: levelMap.get(userId) || 1,
+              rank: index + 1,
+            };
+          })
+          .slice(0, 100);
       }
-
-      const formattedRankings: UserRanking[] = (data || []).map((entry: any, index: number) => ({
-        userId: entry.user_id,
-        username: entry.profiles?.username || 'anonymous',
-        displayName: entry.profiles?.display_name || 'Player',
-        totalXp: entry.total_xp || 0,
-        gamesPlayed: entry.games_played || 0,
-        currentLevel: entry.current_level || 1,
-        rank: index + 1,
-      }));
 
       setRankings(formattedRankings);
 
@@ -267,6 +339,14 @@ const Leaderboard = () => {
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getRankBadgeClass(player.rank)}`}>
                       {getRankIcon(player.rank)}
                     </div>
+
+                    {/* Avatar */}
+                    <Avatar className="h-10 w-10 ring-2 ring-muted">
+                      <AvatarImage src={player.avatarUrl || undefined} alt={player.displayName} />
+                      <AvatarFallback className="bg-gradient-to-br from-purple-400 to-pink-400 text-white text-sm font-bold">
+                        {player.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
 
                     {/* Player Info */}
                     <div className="flex-1 min-w-0">
