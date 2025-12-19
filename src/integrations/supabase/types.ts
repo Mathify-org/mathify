@@ -321,6 +321,42 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_signups: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string
+          expires_at: string
+          first_name: string | null
+          id: string
+          otp_code: string
+          password_hash: string
+          verified: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email: string
+          expires_at: string
+          first_name?: string | null
+          id?: string
+          otp_code: string
+          password_hash: string
+          verified?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string
+          expires_at?: string
+          first_name?: string | null
+          id?: string
+          otp_code?: string
+          password_hash?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -461,6 +497,7 @@ export type Database = {
     }
     Functions: {
       calculate_level: { Args: { xp: number }; Returns: number }
+      cleanup_expired_otps: { Args: never; Returns: undefined }
       user_is_in_room: {
         Args: { _room_id: string; _user_id: string }
         Returns: boolean
