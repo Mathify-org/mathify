@@ -6,33 +6,24 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface SendOtpRequest {
+interface ForgotPasswordRequest {
   email: string;
-  password: string;
-  first_name: string;
-  display_name: string;
 }
 
-function generateOtp(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+function generateResetToken(): string {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return Array.from(array, b => b.toString(16).padStart(2, "0")).join("");
 }
 
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-function getEmailTemplate(firstName: string, otpCode: string): string {
+function getPasswordResetEmailTemplate(resetLink: string): string {
   return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verify Your Email</title>
+  <title>Reset Your Password</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); min-height: 100vh;">
   <table role="presentation" style="width: 100%; border-collapse: collapse;">
@@ -43,41 +34,46 @@ function getEmailTemplate(firstName: string, otpCode: string): string {
           <tr>
             <td style="background: linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #f97316 100%); padding: 40px 40px 60px; text-align: center;">
               <div style="width: 80px; height: 80px; background: white; border-radius: 20px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-                <span style="font-size: 40px;">🧮</span>
+                <span style="font-size: 40px;">🔑</span>
               </div>
-              <h1 style="color: white; margin: 0; font-size: 32px; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">Welcome to Mathify!</h1>
-              <p style="color: rgba(255,255,255,0.9); margin: 12px 0 0; font-size: 16px;">Your journey to mathematical excellence starts here</p>
+              <h1 style="color: white; margin: 0; font-size: 32px; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">Password Reset</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 12px 0 0; font-size: 16px;">Let's get you back into your account</p>
             </td>
           </tr>
           
           <!-- Body -->
           <tr>
             <td style="padding: 50px 40px 40px; text-align: center;">
-              <p style="color: #374151; font-size: 18px; margin: 0 0 8px; font-weight: 600;">Hey ${firstName}! 👋</p>
+              <p style="color: #374151; font-size: 18px; margin: 0 0 8px; font-weight: 600;">Forgot your password? No worries! 🎯</p>
               <p style="color: #6b7280; font-size: 16px; margin: 0 0 32px; line-height: 1.6;">
-                We're thrilled to have you join our community of math enthusiasts!<br>
-                Use the verification code below to complete your registration.
+                We received a request to reset your password.<br>
+                Click the button below to create a new one.
               </p>
               
-              <!-- OTP Code Box -->
-              <div style="background: linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #f97316 100%); border-radius: 16px; padding: 4px; margin: 0 auto 32px; max-width: 320px;">
-                <div style="background: white; border-radius: 14px; padding: 24px;">
-                  <p style="color: #9ca3af; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 12px; font-weight: 600;">Your Verification Code</p>
-                  <div style="font-size: 42px; font-weight: 800; letter-spacing: 12px; background: linear-gradient(135deg, #7c3aed, #ec4899, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">
-                    ${otpCode}
-                  </div>
-                </div>
+              <!-- Reset Button -->
+              <div style="margin: 0 auto 32px;">
+                <a href="${resetLink}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #f97316 100%); color: white; text-decoration: none; padding: 18px 48px; border-radius: 12px; font-size: 18px; font-weight: 700; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.4); transition: transform 0.2s;">
+                  Reset My Password
+                </a>
+              </div>
+              
+              <p style="color: #9ca3af; font-size: 14px; margin: 0 0 24px; line-height: 1.6;">
+                Or copy and paste this link into your browser:
+              </p>
+              
+              <div style="background: #f3f4f6; border-radius: 8px; padding: 12px 16px; margin-bottom: 24px; word-break: break-all;">
+                <a href="${resetLink}" style="color: #7c3aed; font-size: 13px; text-decoration: none;">${resetLink}</a>
               </div>
               
               <div style="background: #fef3c7; border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;">
                 <p style="color: #92400e; font-size: 14px; margin: 0;">
-                  ⏰ This code expires in <strong>10 minutes</strong>
+                  ⏰ This link expires in <strong>1 hour</strong>
                 </p>
               </div>
               
               <p style="color: #9ca3af; font-size: 14px; margin: 0; line-height: 1.6;">
-                If you didn't request this code, you can safely ignore this email.<br>
-                Someone might have entered your email by mistake.
+                If you didn't request a password reset, you can safely ignore this email.<br>
+                Your password will remain unchanged.
               </p>
             </td>
           </tr>
@@ -114,14 +110,13 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, password, first_name, display_name }: SendOtpRequest = await req.json();
+    const { email }: ForgotPasswordRequest = await req.json();
 
-    console.log("Processing OTP request for:", email);
+    console.log("Processing password reset request for:", email);
 
-    // Validate inputs
-    if (!email || !password || !first_name || !display_name) {
+    if (!email) {
       return new Response(
-        JSON.stringify({ error: "All fields are required. Please fill in your name, email, and password." }),
+        JSON.stringify({ error: "Please enter your email address." }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -135,67 +130,63 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Validate password length
-    if (password.length < 6) {
-      return new Response(
-        JSON.stringify({ error: "Password must be at least 6 characters long." }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const mailersendApiKey = Deno.env.get("MAILERSEND_API_KEY")!;
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check if user already exists in auth.users
+    // Check if user exists
     const { data: existingUsers, error: authCheckError } = await supabase.auth.admin.listUsers();
     
     if (authCheckError) {
       console.error("Error checking existing users:", authCheckError);
+      // Don't reveal that we had an error - security best practice
       return new Response(
-        JSON.stringify({ error: "We couldn't verify your email. Please try again in a moment." }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        JSON.stringify({ success: true, message: "If an account exists with this email, you'll receive a password reset link shortly." }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    const userExists = existingUsers.users.some(u => u.email?.toLowerCase() === email.toLowerCase());
-    if (userExists) {
+    const user = existingUsers.users.find(u => u.email?.toLowerCase() === email.toLowerCase());
+    
+    // Always return success to prevent email enumeration attacks
+    if (!user) {
+      console.log("No user found with email:", email);
       return new Response(
-        JSON.stringify({ error: "An account with this email already exists. Please sign in instead, or use the forgot password option if you've forgotten your password." }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        JSON.stringify({ success: true, message: "If an account exists with this email, you'll receive a password reset link shortly." }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Generate OTP and hash password
-    const otpCode = generateOtp();
-    const passwordHash = await hashPassword(password);
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-    // Delete any existing pending signups for this email
-    await supabase.from("pending_signups").delete().eq("email", email.toLowerCase());
-
-    // Insert new pending signup
-    const { error: insertError } = await supabase.from("pending_signups").insert({
+    // Generate password reset link using Supabase Auth
+    const { data: resetData, error: resetError } = await supabase.auth.admin.generateLink({
+      type: 'recovery',
       email: email.toLowerCase(),
-      password_hash: passwordHash,
-      otp_code: otpCode,
-      expires_at: expiresAt.toISOString(),
-      first_name,
-      display_name,
-      verified: false,
+      options: {
+        redirectTo: `${req.headers.get('origin') || 'https://mathify.org'}/auth?mode=reset-password`,
+      },
     });
 
-    if (insertError) {
-      console.error("Error inserting pending signup:", insertError);
+    if (resetError) {
+      console.error("Error generating reset link:", resetError);
       return new Response(
-        JSON.stringify({ error: "We couldn't start your signup process. Please try again." }),
+        JSON.stringify({ success: true, message: "If an account exists with this email, you'll receive a password reset link shortly." }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const resetLink = resetData.properties?.action_link;
+    
+    if (!resetLink) {
+      console.error("No reset link generated");
+      return new Response(
+        JSON.stringify({ error: "We couldn't generate a reset link. Please try again." }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Send OTP email via MailerSend
+    // Send password reset email via MailerSend
     const emailResponse = await fetch("https://api.mailersend.com/v1/email", {
       method: "POST",
       headers: {
@@ -208,33 +199,29 @@ const handler = async (req: Request): Promise<Response> => {
           name: "Mathify"
         },
         to: [{ email: email }],
-        subject: "🔐 Your Mathify Verification Code",
-        html: getEmailTemplate(first_name, otpCode),
-        text: `Welcome to Mathify, ${first_name}! Your verification code is: ${otpCode}. This code expires in 10 minutes. If you didn't request this code, please ignore this email.`,
+        subject: "🔑 Reset Your Mathify Password",
+        html: getPasswordResetEmailTemplate(resetLink),
+        text: `Reset your Mathify password by clicking this link: ${resetLink}. This link expires in 1 hour. If you didn't request this, you can safely ignore this email.`,
       }),
     });
 
     if (!emailResponse.ok) {
       const errorText = await emailResponse.text();
       console.error("MailerSend error:", errorText);
-      
-      // Clean up the pending signup
-      await supabase.from("pending_signups").delete().eq("email", email.toLowerCase());
-      
       return new Response(
-        JSON.stringify({ error: "We couldn't send the verification email. Please check your email address and try again." }),
+        JSON.stringify({ error: "We couldn't send the reset email. Please try again." }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    console.log("OTP sent successfully to:", email);
+    console.log("Password reset email sent successfully to:", email);
 
     return new Response(
-      JSON.stringify({ success: true, message: "Verification code sent to your email" }),
+      JSON.stringify({ success: true, message: "If an account exists with this email, you'll receive a password reset link shortly." }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   } catch (error: any) {
-    console.error("Error in send-otp function:", error);
+    console.error("Error in forgot-password function:", error);
     return new Response(
       JSON.stringify({ error: "Something went wrong. Please try again in a moment." }),
       { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
