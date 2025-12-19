@@ -14,42 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      achievements: {
-        Row: {
-          category: string
-          created_at: string
-          description: string
-          icon: string
-          id: string
-          name: string
-          requirement_type: string
-          requirement_value: number
-          xp_reward: number
-        }
-        Insert: {
-          category?: string
-          created_at?: string
-          description: string
-          icon: string
-          id: string
-          name: string
-          requirement_type: string
-          requirement_value: number
-          xp_reward?: number
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          description?: string
-          icon?: string
-          id?: string
-          name?: string
-          requirement_type?: string
-          requirement_value?: number
-          xp_reward?: number
-        }
-        Relationships: []
-      }
       game_answers: {
         Row: {
           answered_at: string
@@ -222,84 +186,6 @@ export type Database = {
         }
         Relationships: []
       }
-      game_sessions: {
-        Row: {
-          accuracy: number | null
-          completed_at: string
-          correct_answers: number
-          difficulty: string | null
-          game_id: string
-          id: string
-          score: number
-          time_spent_seconds: number | null
-          total_questions: number
-          user_id: string
-          xp_earned: number
-        }
-        Insert: {
-          accuracy?: number | null
-          completed_at?: string
-          correct_answers?: number
-          difficulty?: string | null
-          game_id: string
-          id?: string
-          score?: number
-          time_spent_seconds?: number | null
-          total_questions?: number
-          user_id: string
-          xp_earned?: number
-        }
-        Update: {
-          accuracy?: number | null
-          completed_at?: string
-          correct_answers?: number
-          difficulty?: string | null
-          game_id?: string
-          id?: string
-          score?: number
-          time_spent_seconds?: number | null
-          total_questions?: number
-          user_id?: string
-          xp_earned?: number
-        }
-        Relationships: []
-      }
-      leaderboard_entries: {
-        Row: {
-          game_id: string
-          games_played: number
-          high_score: number
-          id: string
-          period_start: string
-          period_type: string
-          total_xp: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          game_id: string
-          games_played?: number
-          high_score?: number
-          id?: string
-          period_start: string
-          period_type: string
-          total_xp?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          game_id?: string
-          games_played?: number
-          high_score?: number
-          id?: string
-          period_start?: string
-          period_type?: string
-          total_xp?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       newsletter_subscribers: {
         Row: {
           email: string
@@ -351,35 +237,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_achievements: {
-        Row: {
-          achievement_id: string
-          id: string
-          unlocked_at: string
-          user_id: string
-        }
-        Insert: {
-          achievement_id: string
-          id?: string
-          unlocked_at?: string
-          user_id: string
-        }
-        Update: {
-          achievement_id?: string
-          id?: string
-          unlocked_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_achievements_achievement_id_fkey"
-            columns: ["achievement_id"]
-            isOneToOne: false
-            referencedRelation: "achievements"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       user_favorites: {
         Row: {
           created_at: string
@@ -401,62 +258,15 @@ export type Database = {
         }
         Relationships: []
       }
-      user_progress: {
-        Row: {
-          created_at: string
-          current_level: number
-          current_streak: number
-          games_played: number
-          id: string
-          last_activity_date: string | null
-          longest_streak: number
-          total_correct_answers: number
-          total_questions_answered: number
-          total_xp: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          current_level?: number
-          current_streak?: number
-          games_played?: number
-          id?: string
-          last_activity_date?: string | null
-          longest_streak?: number
-          total_correct_answers?: number
-          total_questions_answered?: number
-          total_xp?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          current_level?: number
-          current_streak?: number
-          games_played?: number
-          id?: string
-          last_activity_date?: string | null
-          longest_streak?: number
-          total_correct_answers?: number
-          total_questions_answered?: number
-          total_xp?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      calculate_level: { Args: { xp: number }; Returns: number }
       user_is_in_room: {
         Args: { _room_id: string; _user_id: string }
         Returns: boolean
       }
-      xp_for_level: { Args: { level: number }; Returns: number }
     }
     Enums: {
       [_ in never]: never
