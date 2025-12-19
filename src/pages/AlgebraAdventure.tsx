@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Star, Trophy, Zap, Heart, Calculator, Sparkles, Target } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import GameCompletionHandler from '@/components/GameCompletionHandler';
 
 type GameMode = 'findX' | 'balance' | 'substitute';
 type GameState = 'menu' | 'playing' | 'gameOver';
@@ -42,6 +43,10 @@ const AlgebraAdventure = () => {
   const [showCorrectAnimation, setShowCorrectAnimation] = useState(false);
   const [showWrongAnimation, setShowWrongAnimation] = useState(false);
   const [comboMultiplier, setComboMultiplier] = useState(1);
+  const [showCompletionHandler, setShowCompletionHandler] = useState(false);
+  const [questionsAnswered, setQuestionsAnswered] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const gameStartTime = useRef<number>(Date.now());
   const { toast } = useToast();
 
   // Particle system for visual effects
@@ -122,12 +127,17 @@ const AlgebraAdventure = () => {
     setLevel(1);
     setTimeLeft(30);
     setComboMultiplier(1);
+    setQuestionsAnswered(0);
+    setCorrectAnswers(0);
+    setShowCompletionHandler(false);
+    gameStartTime.current = Date.now();
     setCurrentProblem(generateProblem());
   };
 
   const handleAnswer = (selectedAnswer: number, event: React.MouseEvent) => {
     if (isAnswering) return;
     setIsAnswering(true);
+    setQuestionsAnswered(prev => prev + 1);
 
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     const x = rect.left + rect.width / 2;
@@ -141,6 +151,7 @@ const AlgebraAdventure = () => {
       
       setScore(prev => prev + points);
       setStreak(prev => prev + 1);
+      setCorrectAnswers(prev => prev + 1);
       setShowCorrectAnimation(true);
       
       // Create success particles
@@ -186,6 +197,7 @@ const AlgebraAdventure = () => {
       
       if (lives <= 1 && selectedAnswer !== currentProblem?.answer) {
         setGameState('gameOver');
+        setShowCompletionHandler(true);
       } else {
         setCurrentProblem(generateProblem());
         setTimeLeft(30);
@@ -455,6 +467,21 @@ const AlgebraAdventure = () => {
             </div>
           </CardContent>
         </Card>
+        
+        {/* Progress Tracking Modal */}
+        {showCompletionHandler && (
+          <GameCompletionHandler
+            gameId="algebra-adventure"
+            gameName="Algebra Adventure"
+            score={score}
+            correctAnswers={correctAnswers}
+            totalQuestions={questionsAnswered}
+            timeSpentSeconds={Math.round((Date.now() - gameStartTime.current) / 1000)}
+            difficulty={difficulty}
+            onClose={() => setShowCompletionHandler(false)}
+            onPlayAgain={startGame}
+          />
+        )}
       </div>
     );
   }

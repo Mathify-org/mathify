@@ -1,11 +1,12 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, CheckCircle, XCircle, Star, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import GameCompletionHandler from "@/components/GameCompletionHandler";
 
 interface Shape {
   id: string;
@@ -101,6 +102,10 @@ const ShapeMatch = () => {
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("easy");
+  const [showCompletionHandler, setShowCompletionHandler] = useState(false);
+  const [gameComplete, setGameComplete] = useState(false);
+  const gameStartTime = useRef<number>(Date.now());
+  const totalQuestions = 10;
 
   const generateQuestion = (): Question => {
     const availableShapes = shapes.filter(shape => {
