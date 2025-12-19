@@ -11,6 +11,7 @@ import { ArrowLeft, Info, Sun, Moon, X, Timer } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useIsMobile } from "@/hooks/use-mobile";
+import GameCompletionHandler from "@/components/GameCompletionHandler";
 
 // Define types for grid and game state
 type GridSize = 3 | 4;
@@ -74,6 +75,7 @@ const TimesTablesMaster = () => {
   const [showHowToPlay, setShowHowToPlay] = useState<boolean>(false);
   const [showShareModal, setShowShareModal] = useState<boolean>(false);
   const [currentSeed, setCurrentSeed] = useState<number>(generateRandomSeed());
+  const [showCompletionHandler, setShowCompletionHandler] = useState<boolean>(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Generate grid with row and column factors
@@ -178,6 +180,7 @@ const TimesTablesMaster = () => {
   const completePuzzle = () => {
     setGameState("completed");
     setTimerActive(false);
+    setShowCompletionHandler(true);
     
     // Launch celebration confetti
     confetti({
@@ -288,6 +291,7 @@ const TimesTablesMaster = () => {
     setGameState("playing");
     setTimer(0);
     setTimerActive(false);
+    setShowCompletionHandler(false);
   };
   
   // Start a new game after completing one
@@ -746,6 +750,20 @@ const TimesTablesMaster = () => {
           }
         `}
       </style>
+      
+      {/* Progress Tracking Modal */}
+      {showCompletionHandler && (
+        <GameCompletionHandler
+          gameId="times-tables-master"
+          gameName="Times Tables Master"
+          score={Math.max(0, 100 - timer)}
+          correctAnswers={1}
+          totalQuestions={1}
+          timeSpentSeconds={timer}
+          onClose={() => setShowCompletionHandler(false)}
+          onPlayAgain={startGame}
+        />
+      )}
     </div>
   );
 };

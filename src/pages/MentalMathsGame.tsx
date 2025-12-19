@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Check, X, ArrowLeft, Plus, Minus, Divide, Timer } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import GameCompletionHandler from "@/components/GameCompletionHandler";
 
 // Types for our math problem
 type Operation = "+" | "-" | "*" | "/";
@@ -46,6 +47,8 @@ const MentalMathsGame = () => {
   const [results, setResults] = useState<Array<{ correct: boolean; problem: Problem }>>([]);
   const [showEncouragement, setShowEncouragement] = useState(false);
   const [encouragementMessage, setEncouragementMessage] = useState({ message: "", color: "" });
+  const [showCompletionHandler, setShowCompletionHandler] = useState(false);
+  const gameStartTime = useRef<number>(Date.now());
   const totalQuestions = 25;
   
   // Create random positions for the answer bubbles with better spacing and mobile optimization
@@ -162,6 +165,8 @@ const MentalMathsGame = () => {
     setQuestionNumber(0);
     setScore(0);
     setResults([]);
+    setShowCompletionHandler(false);
+    gameStartTime.current = Date.now();
     nextQuestion();
   };
   
@@ -224,6 +229,7 @@ const MentalMathsGame = () => {
   
   const endGame = () => {
     setGameState("completed");
+    setShowCompletionHandler(true);
     
     // Launch confetti if score is good
     if (score >= totalQuestions * 0.7) {
@@ -590,6 +596,20 @@ const MentalMathsGame = () => {
           }
         `}
       </style>
+      
+      {/* Progress Tracking Modal */}
+      {showCompletionHandler && (
+        <GameCompletionHandler
+          gameId="mental-maths"
+          gameName="Mental Maths"
+          score={score}
+          correctAnswers={score}
+          totalQuestions={totalQuestions}
+          timeSpentSeconds={Math.round((Date.now() - gameStartTime.current) / 1000)}
+          onClose={() => setShowCompletionHandler(false)}
+          onPlayAgain={handleStartGame}
+        />
+      )}
     </div>
   );
 };

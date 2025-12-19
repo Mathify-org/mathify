@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Star, BarChart3, RefreshCw, Home, Award } from 'lucide-react';
+import { Trophy, Star, BarChart3, RefreshCw, Home, Award, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { gameService } from '@/services/arithmeticHero/gameService';
 import { GameMode } from '@/types/arithmeticHero';
+import { useGameProgress } from '@/hooks/useGameProgress';
 import HeroAvatar from './HeroAvatar';
 import confetti from 'canvas-confetti';
 
@@ -35,6 +36,8 @@ const GameOver: React.FC<GameOverProps> = ({
   const [isNewHighScore, setIsNewHighScore] = useState(false);
   const [isNewLevelUnlocked, setIsNewLevelUnlocked] = useState(false);
   const [accuracy, setAccuracy] = useState(0);
+  const [xpEarned, setXpEarned] = useState(0);
+  const { saveSession } = useGameProgress();
 
   useEffect(() => {
     // Check if this is a new high score
@@ -69,6 +72,20 @@ const GameOver: React.FC<GameOverProps> = ({
     // Calculate accuracy
     const totalAnswered = correctAnswers + incorrectAnswers;
     setAccuracy(totalAnswered > 0 ? Math.round((correctAnswers / totalAnswered) * 100) : 0);
+    
+    // Save session to database for progress tracking
+    const saveGameSession = async () => {
+      const result = await saveSession({
+        gameId: 'arithmetic-hero',
+        score,
+        correctAnswers,
+        totalQuestions: correctAnswers + incorrectAnswers,
+        accuracy: totalAnswered > 0 ? Math.round((correctAnswers / totalAnswered) * 100) : 0,
+        difficulty: `level-${level}`
+      });
+      setXpEarned(result.xpEarned);
+    };
+    saveGameSession();
     
     // Animate in
     const animationTimeout = setTimeout(() => {
@@ -147,6 +164,12 @@ const GameOver: React.FC<GameOverProps> = ({
               <Award className="h-8 w-8 text-purple-300 mb-1" />
               <div className="text-sm opacity-80">Total Solved</div>
               <div className="text-2xl font-bold">{correctAnswers}</div>
+            </div>
+            
+            <div className="flex flex-col items-center p-3 bg-gradient-to-r from-yellow-500/30 to-orange-500/30 rounded-lg col-span-2">
+              <Zap className="h-8 w-8 text-yellow-300 mb-1" />
+              <div className="text-sm opacity-80">XP Earned</div>
+              <div className="text-2xl font-bold text-yellow-300">+{xpEarned}</div>
             </div>
           </div>
           
