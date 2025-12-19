@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, CheckCircle, XCircle, Star } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import GameCompletionHandler from "@/components/GameCompletionHandler";
 
 interface Question {
   id: number;
@@ -16,6 +17,8 @@ interface Question {
   type: "convert" | "simplify" | "add" | "subtract";
 }
 
+const totalQuestions = 10;
+
 const FractionBasics = () => {
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [userAnswer, setUserAnswer] = useState("");
@@ -23,6 +26,8 @@ const FractionBasics = () => {
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [showCompletionHandler, setShowCompletionHandler] = useState(false);
+  const gameStartTime = useRef<number>(Date.now());
 
   const generateQuestion = (): Question => {
     const types: Question["type"][] = ["convert", "simplify", "add", "subtract"];
@@ -165,10 +170,20 @@ const FractionBasics = () => {
       toast.error(`Incorrect. The answer was ${currentQuestion.answer}`);
     }
     
-    setQuestionsAnswered(prev => prev + 1);
+    const newQuestionsAnswered = questionsAnswered + 1;
+    setQuestionsAnswered(newQuestionsAnswered);
+    
+    // Check if game is complete
+    if (newQuestionsAnswered >= totalQuestions) {
+      setShowCompletionHandler(true);
+    }
   };
 
   const nextQuestion = () => {
+    if (questionsAnswered >= totalQuestions) {
+      setShowCompletionHandler(true);
+      return;
+    }
     setCurrentQuestion(generateQuestion());
     setUserAnswer("");
     setIsCorrect(null);
@@ -181,7 +196,9 @@ const FractionBasics = () => {
     setUserAnswer("");
     setIsCorrect(null);
     setShowResult(false);
+    setShowCompletionHandler(false);
     setCurrentQuestion(generateQuestion());
+    gameStartTime.current = Date.now();
   };
 
   return (
@@ -285,6 +302,25 @@ const FractionBasics = () => {
           </div>
         </div>
       </div>
+
+      {showCompletionHandler && (
+        <GameCompletionHandler
+          gameId="fraction-basics"
+          gameName="Fraction Basics"
+          score={score * 10}
+          correctAnswers={score}
+          totalQuestions={totalQuestions}
+          timeSpentSeconds={Math.round((Date.now() - gameStartTime.current) / 1000)}
+          difficulty="medium"
+          onPlayAgain={() => {
+            setShowCompletionHandler(false);
+            resetGame();
+          }}
+          onClose={() => {
+            setShowCompletionHandler(false);
+          }}
+        />
+      )}
     </div>
   );
 };

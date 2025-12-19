@@ -1,11 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Brain, Lightbulb, CheckCircle, XCircle, Home, Play, Trophy, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import confetti from 'canvas-confetti';
+import GameCompletionHandler from '@/components/GameCompletionHandler';
 
 interface Question {
   id: number;
@@ -27,6 +28,8 @@ const MathIntuition = () => {
   const [showResult, setShowResult] = useState(false);
   const [lastAnswer, setLastAnswer] = useState<boolean | null>(null);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [showCompletionHandler, setShowCompletionHandler] = useState(false);
+  const gameStartTime = useRef<number>(Date.now());
 
   const questions: Question[] = [
     {
@@ -199,6 +202,8 @@ const MathIntuition = () => {
     setStats({ currentQuestion: 1, score: 0, correctAnswers: 0 });
     setShowResult(false);
     setLastAnswer(null);
+    setShowCompletionHandler(false);
+    gameStartTime.current = Date.now();
   };
 
   const resetGame = () => {
@@ -207,6 +212,7 @@ const MathIntuition = () => {
     setStats({ currentQuestion: 1, score: 0, correctAnswers: 0 });
     setShowResult(false);
     setLastAnswer(null);
+    setShowCompletionHandler(false);
   };
 
   if (gameState === 'menu') {
@@ -287,6 +293,33 @@ const MathIntuition = () => {
 
   if (gameState === 'finished') {
     const percentage = Math.round((stats.correctAnswers / questions.length) * 100);
+
+    if (showCompletionHandler) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 p-2 sm:p-4">
+          <div className="container mx-auto max-w-2xl">
+            <GameCompletionHandler
+              gameId="math-intuition"
+              gameName="Math Intuition"
+              score={stats.score}
+              correctAnswers={stats.correctAnswers}
+              totalQuestions={questions.length}
+              timeSpentSeconds={Math.round((Date.now() - gameStartTime.current) / 1000)}
+              difficulty="medium"
+              onPlayAgain={() => {
+                setShowCompletionHandler(false);
+                startGame();
+              }}
+              onClose={() => {
+                setShowCompletionHandler(false);
+                resetGame();
+              }}
+            />
+          </div>
+        </div>
+      );
+    }
+
     let message = "";
     let color = "";
     
@@ -330,37 +363,14 @@ const MathIntuition = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-center mb-4 sm:mb-6">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star 
-                      key={star}
-                      className={`h-6 w-6 sm:h-8 sm:w-8 mx-1 ${
-                        star <= Math.ceil(percentage / 20) 
-                          ? 'text-yellow-400 fill-yellow-400' 
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-                
                 <div className="space-y-3 sm:space-y-4">
                   <Button
-                    onClick={startGame}
+                    onClick={() => setShowCompletionHandler(true)}
                     size="lg"
                     className={`bg-gradient-to-r ${color} hover:opacity-90 text-white border-0 px-6 sm:px-8 py-3 font-bold rounded-xl w-full sm:w-auto`}
                   >
-                    <Play className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                    Try Again
+                    View Results & XP
                   </Button>
-                  
-                  <div>
-                    <Link to="/">
-                      <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                        <Home className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                        Back to Home
-                      </Button>
-                    </Link>
-                  </div>
                 </div>
               </div>
             </div>
