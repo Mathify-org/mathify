@@ -1,17 +1,23 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import MainMenu from '@/components/ArithmeticHero/MainMenu';
 import GameArea from '@/components/ArithmeticHero/GameArea';
-import GameOver from '@/components/ArithmeticHero/GameOver';
 import PracticeMode from '@/components/ArithmeticHero/PracticeMode';
 import HeroChallenge from '@/components/ArithmeticHero/HeroChallenge';
 import AvatarCustomizer from '@/components/ArithmeticHero/AvatarCustomizer';
 import RewardsGallery from '@/components/ArithmeticHero/RewardsGallery';
+import GameCompletionHandler from '@/components/GameCompletionHandler';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { gameService } from '@/services/arithmeticHero/gameService';
 import { GameState, GameMode } from '@/types/arithmeticHero';
+
+interface GameStats {
+  score: number;
+  correctAnswers: number;
+  incorrectAnswers: number;
+  longestStreak: number;
+}
 
 const ArithmeticHero = () => {
   const { toast } = useToast();
@@ -20,6 +26,14 @@ const ArithmeticHero = () => {
   const [selectedLevel, setSelectedLevel] = useState(1);
   const [showCustomizer, setShowCustomizer] = useState(false);
   const [showRewards, setShowRewards] = useState(false);
+  const [showCompletionHandler, setShowCompletionHandler] = useState(false);
+  const [gameStats, setGameStats] = useState<GameStats>({
+    score: 0,
+    correctAnswers: 0,
+    incorrectAnswers: 0,
+    longestStreak: 0
+  });
+  const gameStartTime = useRef<number>(Date.now());
 
   // Initialize game data from localStorage on first load
   useEffect(() => {
@@ -43,6 +57,8 @@ const ArithmeticHero = () => {
     setGameMode(mode);
     setSelectedLevel(level);
     setGameState("playing");
+    setShowCompletionHandler(false);
+    gameStartTime.current = Date.now();
     
     // Show toast when game starts
     toast({
@@ -52,14 +68,19 @@ const ArithmeticHero = () => {
     });
   };
 
-  const handleGameOver = () => {
+  const handleGameOver = (stats?: GameStats) => {
+    if (stats) {
+      setGameStats(stats);
+    }
     setGameState("gameover");
+    setShowCompletionHandler(true);
   };
 
   const handleReturnToMenu = () => {
     setGameState("menu");
     setShowCustomizer(false);
     setShowRewards(false);
+    setShowCompletionHandler(false);
   };
 
   const handleOpenCustomizer = () => {
@@ -70,6 +91,11 @@ const ArithmeticHero = () => {
   const handleOpenRewards = () => {
     setShowRewards(true);
     setGameState("other");
+  };
+
+  const handlePlayAgain = () => {
+    setShowCompletionHandler(false);
+    handleStartGame(gameMode, selectedLevel);
   };
 
   return (
@@ -107,15 +133,6 @@ const ArithmeticHero = () => {
           />
         )}
         
-        {gameState === "gameover" && (
-          <GameOver 
-            gameMode={gameMode}
-            level={selectedLevel}
-            onRetry={() => handleStartGame(gameMode, selectedLevel)}
-            onReturnToMenu={handleReturnToMenu}
-          />
-        )}
-        
         {showCustomizer && (
           <AvatarCustomizer onClose={handleReturnToMenu} />
         )}
@@ -124,7 +141,7 @@ const ArithmeticHero = () => {
           <RewardsGallery onClose={handleReturnToMenu} />
         )}
         
-        {gameState !== "menu" && gameState !== "gameover" && (
+        {gameState !== "menu" && gameState !== "gameover" && !showCompletionHandler && (
           <div className="mt-4">
             <Button 
               variant="outline" 
@@ -136,6 +153,21 @@ const ArithmeticHero = () => {
           </div>
         )}
       </div>
+      
+      {/* Global Progress Tracking Modal */}
+      {showCompletionHandler && (
+        <GameCompletionHandler
+          gameId="arithmetic-hero"
+          gameName="Arithmetic Hero"
+          score={gameStats.score}
+          correctAnswers={gameStats.correctAnswers}
+          totalQuestions={gameStats.correctAnswers + gameStats.incorrectAnswers}
+          timeSpentSeconds={Math.round((Date.now() - gameStartTime.current) / 1000)}
+          difficulty={gameMode === "challenge" ? "challenge" : `level-${selectedLevel}`}
+          onClose={handleReturnToMenu}
+          onPlayAgain={handlePlayAgain}
+        />
+      )}
     </div>
   );
 };
