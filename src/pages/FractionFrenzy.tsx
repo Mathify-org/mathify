@@ -10,12 +10,15 @@ import DifficultySelector from '@/components/FractionFrenzy/DifficultySelector';
 import StatsDisplay from '@/components/FractionFrenzy/StatsDisplay';
 import FractionVisual from '@/components/FractionFrenzy/FractionVisual';
 import GameTimer from '@/components/FractionFrenzy/GameTimer';
+import GameCompletionHandler from '@/components/GameCompletionHandler';
 
 const FractionFrenzy = () => {
   const [gameState, setGameState] = useState<GameState>('menu');
   const [selectedMode, setSelectedMode] = useState<GameMode>('visual-match');
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('easy');
   const [currentQuestion, setCurrentQuestion] = useState<FractionQuestion | null>(null);
+  const [showCompletionHandler, setShowCompletionHandler] = useState(false);
+  const [gameStartTime, setGameStartTime] = useState<number>(Date.now());
   const [gameStats, setGameStats] = useState<GameStats>({
     score: 0,
     questionsAnswered: 0,
@@ -90,6 +93,8 @@ const FractionFrenzy = () => {
     
     setCurrentQuestion(generateQuestion());
     setGameState('playing');
+    setShowCompletionHandler(false);
+    setGameStartTime(Date.now());
   };
 
   const handleAnswer = (answer: string) => {
@@ -127,6 +132,7 @@ const FractionFrenzy = () => {
 
   const handleTimeUp = () => {
     setGameState('gameOver');
+    setShowCompletionHandler(true);
   };
 
   useEffect(() => {
@@ -340,6 +346,21 @@ const FractionFrenzy = () => {
             </CardContent>
           </Card>
         </div>
+      )}
+      
+      {/* Progress Tracking Modal */}
+      {showCompletionHandler && (
+        <GameCompletionHandler
+          gameId="fraction-frenzy"
+          gameName="Fraction Frenzy"
+          score={gameStats.score}
+          correctAnswers={gameStats.correctAnswers}
+          totalQuestions={gameStats.questionsAnswered}
+          timeSpentSeconds={Math.round((Date.now() - gameStartTime) / 1000)}
+          difficulty={selectedDifficulty}
+          onClose={() => setShowCompletionHandler(false)}
+          onPlayAgain={startGame}
+        />
       )}
     </div>
   );

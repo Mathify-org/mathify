@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import GameBoard from '@/components/TargetTakedown/GameBoard';
 import GameStats from '@/components/TargetTakedown/GameStats';
 import ModeSelector from '@/components/TargetTakedown/ModeSelector';
 import DifficultyBadge from '@/components/TargetTakedown/DifficultyBadge';
+import GameCompletionHandler from '@/components/GameCompletionHandler';
 
 export type GameMode = 'classic' | 'survival' | 'chill';
 export type GameState = 'menu' | 'playing' | 'paused' | 'gameOver';
@@ -19,6 +20,10 @@ const TargetTakedown = () => {
   const [lives, setLives] = useState(3);
   const [streak, setStreak] = useState(0);
   const [level, setLevel] = useState(1);
+  const [showCompletionHandler, setShowCompletionHandler] = useState(false);
+  const [questionsAnswered, setQuestionsAnswered] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const gameStartTime = useRef<number>(Date.now());
 
   const startGame = () => {
     setGameState('playing');
@@ -26,14 +31,20 @@ const TargetTakedown = () => {
     setLives(selectedMode === 'survival' ? 3 : Infinity);
     setStreak(0);
     setLevel(1);
+    setQuestionsAnswered(0);
+    setCorrectAnswers(0);
+    setShowCompletionHandler(false);
+    gameStartTime.current = Date.now();
   };
 
   const handleGameOver = () => {
     setGameState('gameOver');
+    setShowCompletionHandler(true);
   };
 
   const resetGame = () => {
     setGameState('menu');
+    setShowCompletionHandler(false);
   };
 
   if (gameState === 'menu') {
@@ -185,6 +196,21 @@ const TargetTakedown = () => {
           onPause={() => setGameState('paused')}
         />
       </div>
+      
+      {/* Progress Tracking Modal */}
+      {showCompletionHandler && (
+        <GameCompletionHandler
+          gameId="target-takedown"
+          gameName="Target Takedown"
+          score={score}
+          correctAnswers={level}
+          totalQuestions={level + (selectedMode === 'survival' ? (3 - lives) : 0)}
+          timeSpentSeconds={Math.round((Date.now() - gameStartTime.current) / 1000)}
+          difficulty={selectedMode}
+          onClose={() => setShowCompletionHandler(false)}
+          onPlayAgain={startGame}
+        />
+      )}
     </div>
   );
 };

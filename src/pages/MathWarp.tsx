@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import GameArea from '@/components/MathWarp/GameArea';
 import GameHUD from '@/components/MathWarp/GameHUD';
 import GameMenu from '@/components/MathWarp/GameMenu';
 import GameOver from '@/components/MathWarp/GameOver';
+import GameCompletionHandler from '@/components/GameCompletionHandler';
 
 export type GameState = 'menu' | 'playing' | 'gameOver';
 export type Difficulty = 'easy' | 'medium' | 'hard';
@@ -27,6 +28,10 @@ const MathWarp = () => {
   const [timeLeft, setTimeLeft] = useState(60);
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [lives, setLives] = useState(3);
+  const [showCompletionHandler, setShowCompletionHandler] = useState(false);
+  const [questionsAnswered, setQuestionsAnswered] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const gameStartTime = useRef<number>(Date.now());
 
   const startGame = () => {
     setGameState('playing');
@@ -34,14 +39,20 @@ const MathWarp = () => {
     setStreak(0);
     setTimeLeft(60);
     setLives(3);
+    setQuestionsAnswered(0);
+    setCorrectAnswers(0);
+    setShowCompletionHandler(false);
+    gameStartTime.current = Date.now();
   };
 
   const endGame = () => {
     setGameState('gameOver');
+    setShowCompletionHandler(true);
   };
 
   const backToMenu = () => {
     setGameState('menu');
+    setShowCompletionHandler(false);
   };
 
   return (
@@ -92,6 +103,21 @@ const MathWarp = () => {
           />
         )}
       </div>
+      
+      {/* Progress Tracking Modal */}
+      {showCompletionHandler && (
+        <GameCompletionHandler
+          gameId="math-warp"
+          gameName="Math Warp"
+          score={score}
+          correctAnswers={Math.max(streak, Math.floor(score / 10))}
+          totalQuestions={Math.max(streak, Math.floor(score / 10)) + (3 - lives)}
+          timeSpentSeconds={Math.round((Date.now() - gameStartTime.current) / 1000)}
+          difficulty={difficulty}
+          onClose={() => setShowCompletionHandler(false)}
+          onPlayAgain={startGame}
+        />
+      )}
     </div>
   );
 };
