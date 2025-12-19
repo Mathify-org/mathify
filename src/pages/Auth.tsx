@@ -1,7 +1,6 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,40 +8,56 @@ import { useToast } from '@/hooks/use-toast';
 import { Mail, ArrowLeft, User, Lock, KeyRound, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
-type AuthMode = 'login' | 'signup' | 'otp-verify';
+type AuthMode = 'login' | 'signup' | 'otp-verify' | 'forgot-password' | 'reset-password';
 
 const Auth = () => {
+  const [searchParams] = useSearchParams();
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const { signInWithPassword, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Handle reset password mode from URL
+  useEffect(() => {
+    const urlMode = searchParams.get('mode');
+    if (urlMode === 'reset-password') {
+      setMode('reset-password');
+    }
+  }, [searchParams]);
+
   // Redirect if already logged in
-  React.useEffect(() => {
-    if (user) {
+  useEffect(() => {
+    if (user && mode !== 'reset-password') {
       navigate('/');
     }
-  }, [user, navigate]);
+  }, [user, navigate, mode]);
+
+  const clearError = () => setErrorMessage('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    clearError();
 
     try {
       const { error } = await signInWithPassword(email, password);
       
       if (error) {
-        toast({
-          title: "Sign in failed",
-          description: error.message,
-          variant: "destructive",
-        });
+        if (error.message.includes('Invalid login credentials')) {
+          setErrorMessage('Incorrect email or password. Please check your credentials and try again.');
+        } else if (error.message.includes('Email not confirmed')) {
+          setErrorMessage('Please verify your email before signing in.');
+        } else {
+          setErrorMessage(error.message);
+        }
       } else {
         toast({
           title: "Welcome back!",
@@ -51,11 +66,7 @@ const Auth = () => {
         navigate('/');
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      setErrorMessage('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -63,13 +74,20 @@ const Auth = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    clearError();
     
+    if (!firstName.trim()) {
+      setErrorMessage('Please enter your first name.');
+      return;
+    }
+
+    if (!displayName.trim()) {
+      setErrorMessage('Please choose a display name.');
+      return;
+    }
+
     if (password.length < 6) {
-      toast({
-        title: "Password too short",
-        description: "Password must be at least 6 characters.",
-        variant: "destructive",
-      });
+      setErrorMessage('Password must be at least 6 characters.');
       return;
     }
 
@@ -86,15 +104,12 @@ const Auth = () => {
       });
 
       if (error) {
-        throw error;
+        setErrorMessage('We couldn\'t send the verification code. Please try again.');
+        return;
       }
 
       if (data?.error) {
-        toast({
-          title: "Signup failed",
-          description: data.error,
-          variant: "destructive",
-        });
+        setErrorMessage(data.error);
         return;
       }
 
@@ -105,11 +120,7 @@ const Auth = () => {
       setMode('otp-verify');
     } catch (error: any) {
       console.error('Signup error:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send verification code. Please try again.",
-        variant: "destructive",
-      });
+      setErrorMessage('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -118,6 +129,7 @@ const Auth = () => {
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    clearError();
 
     try {
       const { data, error } = await supabase.functions.invoke('verify-otp', {
@@ -129,21 +141,18 @@ const Auth = () => {
       });
 
       if (error) {
-        throw error;
+        setErrorMessage('Verification failed. Please try again.');
+        return;
       }
 
       if (data?.error) {
-        toast({
-          title: "Verification failed",
-          description: data.error,
-          variant: "destructive",
-        });
+        setErrorMessage(data.error);
         return;
       }
 
       toast({
         title: "Account created!",
-        description: "You can now sign in with your email and password.",
+        description: "Welcome to Mathify! Signing you in...",
       });
       
       // Auto sign in after successful verification
@@ -155,11 +164,90 @@ const Auth = () => {
       }
     } catch (error: any) {
       console.error('Verify OTP error:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to verify code. Please try again.",
-        variant: "destructive",
+      setErrorMessage('Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    clearError();
+
+    if (!email.trim()) {
+      setErrorMessage('Please enter your email address.');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('forgot-password', {
+        body: { email },
       });
+
+      if (error) {
+        setErrorMessage('We couldn\'t process your request. Please try again.');
+        return;
+      }
+
+      if (data?.error) {
+        setErrorMessage(data.error);
+        return;
+      }
+
+      toast({
+        title: "Check your email",
+        description: "If an account exists, you'll receive a password reset link.",
+      });
+      setMode('login');
+    } catch (error: any) {
+      console.error('Forgot password error:', error);
+      setErrorMessage('Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    clearError();
+
+    if (password.length < 6) {
+      setErrorMessage('Password must be at least 6 characters.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMessage('Passwords do not match.');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+
+      if (error) {
+        if (error.message.includes('same password')) {
+          setErrorMessage('Please choose a different password than your current one.');
+        } else {
+          setErrorMessage(error.message);
+        }
+        return;
+      }
+
+      toast({
+        title: "Password updated!",
+        description: "You can now sign in with your new password.",
+      });
+      setMode('login');
+      setPassword('');
+      setConfirmPassword('');
+    } catch (error: any) {
+      console.error('Reset password error:', error);
+      setErrorMessage('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -168,10 +256,147 @@ const Auth = () => {
   const resetForm = () => {
     setEmail('');
     setPassword('');
+    setConfirmPassword('');
     setFirstName('');
     setDisplayName('');
     setOtpCode('');
+    clearError();
   };
+
+  // Error Alert Component
+  const ErrorAlert = () => errorMessage ? (
+    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
+      {errorMessage}
+    </div>
+  ) : null;
+
+  // Reset Password View
+  if (mode === 'reset-password') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 px-4">
+        <div className="max-w-md w-full space-y-8">
+          <div className="text-center">
+            <Lock className="mx-auto h-12 w-12 text-purple-600" />
+            <h2 className="mt-6 text-3xl font-bold text-gray-900">Create new password</h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Enter your new password below
+            </p>
+          </div>
+          <form className="mt-8 space-y-6" onSubmit={handleResetPassword}>
+            <ErrorAlert />
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="newPassword">New Password</Label>
+                <div className="relative mt-1">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    required
+                    minLength={6}
+                    className="pl-10"
+                    placeholder="Enter new password"
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); clearError(); }}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <div className="relative mt-1">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    required
+                    minLength={6}
+                    className="pl-10"
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChange={(e) => { setConfirmPassword(e.target.value); clearError(); }}
+                  />
+                </div>
+              </div>
+            </div>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:opacity-90"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Updating password...
+                </>
+              ) : (
+                "Update Password"
+              )}
+            </Button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Forgot Password View
+  if (mode === 'forgot-password') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 px-4">
+        <div className="max-w-md w-full space-y-8">
+          <div className="text-center">
+            <Mail className="mx-auto h-12 w-12 text-purple-600" />
+            <h2 className="mt-6 text-3xl font-bold text-gray-900">Forgot password?</h2>
+            <p className="mt-2 text-sm text-gray-600">
+              No worries! Enter your email and we'll send you a reset link.
+            </p>
+          </div>
+          <form className="mt-8 space-y-6" onSubmit={handleForgotPassword}>
+            <ErrorAlert />
+            <div>
+              <Label htmlFor="resetEmail">Email address</Label>
+              <div className="relative mt-1">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="resetEmail"
+                  type="email"
+                  required
+                  className="pl-10"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); clearError(); }}
+                />
+              </div>
+            </div>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:opacity-90"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending link...
+                </>
+              ) : (
+                "Send Reset Link"
+              )}
+            </Button>
+          </form>
+          <Button
+            onClick={() => {
+              setMode('login');
+              clearError();
+            }}
+            variant="outline"
+            className="w-full"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to sign in
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // OTP Verification View
   if (mode === 'otp-verify') {
@@ -186,6 +411,7 @@ const Auth = () => {
             </p>
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleVerifyOtp}>
+            <ErrorAlert />
             <div>
               <Label htmlFor="otp">Verification Code</Label>
               <Input
@@ -198,7 +424,7 @@ const Auth = () => {
                 className="mt-1 text-center text-2xl tracking-widest"
                 placeholder="000000"
                 value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                onChange={(e) => { setOtpCode(e.target.value.replace(/\D/g, '')); clearError(); }}
               />
             </div>
             <Button
@@ -220,6 +446,7 @@ const Auth = () => {
             onClick={() => {
               setMode('signup');
               setOtpCode('');
+              clearError();
             }}
             variant="outline"
             className="w-full"
@@ -261,6 +488,8 @@ const Auth = () => {
           </p>
         </div>
 
+        <ErrorAlert />
+
         {mode === 'login' ? (
           <form className="mt-8 space-y-6" onSubmit={handleLogin}>
             <div className="space-y-4">
@@ -276,12 +505,21 @@ const Auth = () => {
                     className="pl-10"
                     placeholder="Enter your email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => { setEmail(e.target.value); clearError(); }}
                   />
                 </div>
               </div>
               <div>
-                <Label htmlFor="password">Password</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <button
+                    type="button"
+                    onClick={() => { setMode('forgot-password'); clearError(); }}
+                    className="text-sm text-purple-600 hover:text-purple-500"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <div className="relative mt-1">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
@@ -292,7 +530,7 @@ const Auth = () => {
                     className="pl-10"
                     placeholder="Enter your password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => { setPassword(e.target.value); clearError(); }}
                   />
                 </div>
               </div>
@@ -326,7 +564,7 @@ const Auth = () => {
                     className="pl-10"
                     placeholder="Enter your first name"
                     value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    onChange={(e) => { setFirstName(e.target.value); clearError(); }}
                   />
                 </div>
               </div>
@@ -341,7 +579,7 @@ const Auth = () => {
                     className="pl-10"
                     placeholder="Choose a display name"
                     value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
+                    onChange={(e) => { setDisplayName(e.target.value); clearError(); }}
                   />
                 </div>
               </div>
@@ -357,7 +595,7 @@ const Auth = () => {
                     className="pl-10"
                     placeholder="Enter your email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => { setEmail(e.target.value); clearError(); }}
                   />
                 </div>
               </div>
@@ -374,7 +612,7 @@ const Auth = () => {
                     className="pl-10"
                     placeholder="Create a password (min 6 characters)"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => { setPassword(e.target.value); clearError(); }}
                   />
                 </div>
               </div>
