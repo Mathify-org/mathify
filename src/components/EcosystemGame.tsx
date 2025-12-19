@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Bird, Bug, Cat, Fish, TreeDeciduous, Droplet, Sun, Rabbit } from "lucide-react";
+import GameCompletionHandler from "@/components/GameCompletionHandler";
 
 // Ecosystem entities and their relationships
 interface EcosystemEntity {

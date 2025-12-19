@@ -6,6 +6,7 @@ import { Brain, Trophy, Zap, Eye, EyeOff } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import confetti from "canvas-confetti";
+import GameCompletionHandler from "@/components/GameCompletionHandler";
 
 // First 50 digits of Pi for the game (including decimal point)
 const PI_DIGITS = "3.1415926535897932384626433832795028841971693993751";
@@ -20,6 +21,8 @@ const MemorizingNumbers = () => {
   const [flashTime, setFlashTime] = useState(3000);
   const [highScore, setHighScore] = useState(3);
   const [streak, setStreak] = useState(0);
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [gameStartTime, setGameStartTime] = useState<number | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("piMemoryHighScore");
@@ -47,6 +50,7 @@ const MemorizingNumbers = () => {
     setGameState("memorize");
     setCountdown(3);
     setUserInput("");
+    setGameStartTime(Date.now());
   };
 
   const getCurrentDigits = () => {
@@ -94,6 +98,7 @@ const MemorizingNumbers = () => {
       }, 2000);
     } else {
       setGameState("gameover");
+      setShowCompletion(true);
       toast({
         title: "Game Over!",
         description: `You reached ${currentLevel - 1} digits with a streak of ${streak}!`,
@@ -106,6 +111,22 @@ const MemorizingNumbers = () => {
     if (e.key === "Enter" && userInput.length === currentLevel) {
       checkAnswer();
     }
+  };
+
+  const handlePlayAgain = () => {
+    setShowCompletion(false);
+    startGame();
+  };
+
+  const handleExitGame = () => {
+    setShowCompletion(false);
+    setGameState("menu");
+  };
+
+  // Calculate time spent for game completion
+  const getTimeSpent = () => {
+    if (!gameStartTime) return 0;
+    return Math.round((Date.now() - gameStartTime) / 1000);
   };
 
   return (
@@ -292,7 +313,7 @@ const MemorizingNumbers = () => {
             )}
 
             {/* Game Over State */}
-            {gameState === "gameover" && (
+            {gameState === "gameover" && !showCompletion && (
               <div className="text-center space-y-6">
                 <div className="text-6xl mb-4">🧠</div>
                 <h3 className="text-3xl font-bold text-slate-800 mb-4">Final Score</h3>
@@ -356,6 +377,21 @@ const MemorizingNumbers = () => {
           </Card>
         </div>
       </div>
+
+      {/* Game Completion Handler */}
+      {showCompletion && (
+        <GameCompletionHandler
+          gameId="memorizing-numbers"
+          gameName="Pi Memory Challenge"
+          score={(currentLevel - 1) * 10}
+          correctAnswers={streak}
+          totalQuestions={currentLevel - 1}
+          difficulty="medium"
+          timeSpentSeconds={getTimeSpent()}
+          onPlayAgain={handlePlayAgain}
+          onClose={handleExitGame}
+        />
+      )}
     </div>
   );
 };
