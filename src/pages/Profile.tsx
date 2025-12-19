@@ -6,10 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, User, Save, LogOut, Heart, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, User, Save, LogOut, Heart } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ProgressDashboard } from '@/components/progress/ProgressDashboard';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+
 interface Profile {
   id: string;
   first_name: string | null;
@@ -227,77 +226,63 @@ const Profile = () => {
             <div className="w-20 h-20 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 rounded-full flex items-center justify-center mx-auto mb-4">
               <User className="h-10 w-10 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-foreground">Your Profile</h1>
-            <p className="text-muted-foreground">Track your progress and achievements</p>
+            <h1 className="text-3xl font-bold text-gray-900">Your Profile</h1>
+            <p className="text-gray-600">Manage your personal information</p>
+          </div>
+
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="first_name">First Name</Label>
+                <Input
+                  id="first_name"
+                  value={profile.first_name || ''}
+                  onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
+                  placeholder="Enter your first name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="last_name">Last Name</Label>
+                <Input
+                  id="last_name"
+                  value={profile.last_name || ''}
+                  onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
+                  placeholder="Enter your last name"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={profile.email || ''}
+                onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="date_of_birth">Date of Birth</Label>
+              <Input
+                id="date_of_birth"
+                type="date"
+                value={profile.date_of_birth || ''}
+                onChange={(e) => setProfile({ ...profile, date_of_birth: e.target.value })}
+              />
+            </div>
+
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+              className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:opacity-90"
+            >
+              <Save className="mr-2 h-4 w-4" />
+              {saving ? "Saving..." : "Save Profile"}
+            </Button>
           </div>
         </div>
-
-        {/* Progress Dashboard */}
-        <div className="mb-8">
-          <ProgressDashboard />
-        </div>
-
-        {/* Profile Settings - Collapsible */}
-        <Collapsible className="bg-card rounded-lg shadow-lg mb-8">
-          <CollapsibleTrigger className="w-full p-6 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-foreground">Profile Settings</h2>
-            <ChevronDown className="w-5 h-5 text-muted-foreground" />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="px-6 pb-6">
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="first_name">First Name</Label>
-                  <Input
-                    id="first_name"
-                    value={profile.first_name || ''}
-                    onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
-                    placeholder="Enter your first name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="last_name">Last Name</Label>
-                  <Input
-                    id="last_name"
-                    value={profile.last_name || ''}
-                    onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
-                    placeholder="Enter your last name"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={profile.email || ''}
-                  onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                  placeholder="Enter your email"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="date_of_birth">Date of Birth</Label>
-                <Input
-                  id="date_of_birth"
-                  type="date"
-                  value={profile.date_of_birth || ''}
-                  onChange={(e) => setProfile({ ...profile, date_of_birth: e.target.value })}
-                />
-              </div>
-
-              <Button
-                onClick={handleSave}
-                disabled={saving}
-                className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:opacity-90"
-              >
-                <Save className="mr-2 h-4 w-4" />
-                {saving ? "Saving..." : "Save Profile"}
-              </Button>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
 
         {/* Favorite Games Section */}
         <Card className="bg-white shadow-lg">
