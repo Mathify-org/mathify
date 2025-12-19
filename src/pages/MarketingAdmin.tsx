@@ -467,8 +467,8 @@ const MarketingAdmin = () => {
                         variant={sendingTo === 'subscribers' ? 'default' : 'outline'}
                         onClick={() => setSendingTo('subscribers')}
                         className={sendingTo === 'subscribers' 
-                          ? 'bg-gradient-to-r from-purple-600 to-pink-600' 
-                          : 'border-white/20 text-white hover:bg-white/10'}
+                          ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' 
+                          : 'border-white/20 bg-white/10 text-slate-900 dark:text-white hover:bg-white/20'}
                       >
                         All Subscribers ({subscribers.filter(s => s.is_active).length})
                       </Button>
@@ -477,8 +477,8 @@ const MarketingAdmin = () => {
                         variant={sendingTo === 'users' ? 'default' : 'outline'}
                         onClick={() => setSendingTo('users')}
                         className={sendingTo === 'users' 
-                          ? 'bg-gradient-to-r from-purple-600 to-pink-600' 
-                          : 'border-white/20 text-white hover:bg-white/10'}
+                          ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' 
+                          : 'border-white/20 bg-white/10 text-slate-900 dark:text-white hover:bg-white/20'}
                       >
                         All Users ({users.length})
                       </Button>
@@ -487,12 +487,89 @@ const MarketingAdmin = () => {
                         variant={sendingTo === 'selected' ? 'default' : 'outline'}
                         onClick={() => setSendingTo('selected')}
                         className={sendingTo === 'selected' 
-                          ? 'bg-gradient-to-r from-purple-600 to-pink-600' 
-                          : 'border-white/20 text-white hover:bg-white/10'}
+                          ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' 
+                          : 'border-white/20 bg-white/10 text-slate-900 dark:text-white hover:bg-white/20'}
                       >
                         Selected Only ({selectedUsers.size + selectedSubscribers.size})
                       </Button>
                     </div>
+                    
+                    {/* User Selection Panel */}
+                    {sendingTo === 'selected' && (
+                      <div className="mt-4 p-4 rounded-xl bg-white/10 border border-white/20">
+                        <div className="flex items-center justify-between mb-3">
+                          <Label className="text-white">Select Recipients</Label>
+                          <span className="text-sm text-purple-200">
+                            {selectedUsers.size + selectedSubscribers.size} selected
+                          </span>
+                        </div>
+                        <Input
+                          placeholder="Search users and subscribers..."
+                          className="mb-3 bg-white/10 border-white/20 text-white placeholder:text-purple-300"
+                          onChange={(e) => {
+                            // This is just for the search filter state
+                            const searchInput = e.target.value.toLowerCase();
+                            const filtered = [...users, ...subscribers].filter(item => 
+                              ('email' in item && item.email.toLowerCase().includes(searchInput))
+                            );
+                          }}
+                        />
+                        <div className="max-h-48 overflow-y-auto space-y-2">
+                          {/* Show users */}
+                          <div className="text-xs text-purple-300 font-medium mb-1">Users ({users.length})</div>
+                          {users.slice(0, 50).map((u) => (
+                            <div 
+                              key={u.id} 
+                              className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all ${
+                                selectedUsers.has(u.email) 
+                                  ? 'bg-purple-500/30 border border-purple-400/50' 
+                                  : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                              }`}
+                              onClick={() => toggleUserSelection(u.email)}
+                            >
+                              <Checkbox
+                                checked={selectedUsers.has(u.email)}
+                                onCheckedChange={() => toggleUserSelection(u.email)}
+                                className="border-white/30"
+                              />
+                              <span className="text-sm text-white truncate">{u.email}</span>
+                              {u.first_name && (
+                                <span className="text-xs text-purple-300">({u.first_name})</span>
+                              )}
+                            </div>
+                          ))}
+                          {users.length > 50 && (
+                            <p className="text-xs text-purple-300 text-center py-2">
+                              Showing first 50 users. Use the Users tab to select more.
+                            </p>
+                          )}
+                          
+                          {/* Show subscribers */}
+                          <div className="text-xs text-purple-300 font-medium mb-1 mt-3">Subscribers ({subscribers.filter(s => s.is_active).length})</div>
+                          {subscribers.filter(s => s.is_active).slice(0, 50).map((s) => (
+                            <div 
+                              key={s.id} 
+                              className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all ${
+                                selectedSubscribers.has(s.email) 
+                                  ? 'bg-pink-500/30 border border-pink-400/50' 
+                                  : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                              }`}
+                              onClick={() => toggleSubscriberSelection(s.email)}
+                            >
+                              <Checkbox
+                                checked={selectedSubscribers.has(s.email)}
+                                onCheckedChange={() => toggleSubscriberSelection(s.email)}
+                                className="border-white/30"
+                              />
+                              <span className="text-sm text-white truncate">{s.email}</span>
+                              <Badge variant="outline" className="text-xs border-pink-400/50 text-pink-300">
+                                Subscriber
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <Button
