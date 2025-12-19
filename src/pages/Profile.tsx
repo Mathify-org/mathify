@@ -6,8 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, User, Save, LogOut, Heart } from 'lucide-react';
+import { ArrowLeft, User, Save, LogOut, Settings, Trophy, BarChart3, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useGameProgress } from '@/hooks/useGameProgress';
+import ProgressDashboard from '@/components/profile/ProgressDashboard';
+import AchievementsDisplay from '@/components/profile/AchievementsDisplay';
+import RecentActivity from '@/components/profile/RecentActivity';
 
 interface Profile {
   id: string;
@@ -15,60 +20,8 @@ interface Profile {
   last_name: string | null;
   email: string | null;
   date_of_birth: string | null;
+  display_name: string | null;
 }
-
-interface FavoriteGame {
-  id: string;
-  title: string;
-  description: string;
-  path: string;
-  color: string;
-}
-
-const gamesList: FavoriteGame[] = [
-  {
-    id: "mental-maths",
-    title: "Mental Maths Challenge",
-    description: "Test your mental math skills with quick calculations",
-    path: "/mental-maths",
-    color: "bg-gradient-to-r from-amber-500 to-pink-500"
-  },
-  {
-    id: "times-tables",
-    title: "Times Tables Master",
-    description: "Perfect your multiplication tables with fun challenges",
-    path: "/times-tables",
-    color: "bg-gradient-to-r from-green-400 to-blue-500"
-  },
-  {
-    id: "math-facts",
-    title: "Math Facts Race",
-    description: "Race against time to answer math facts quickly",
-    path: "/math-facts",
-    color: "bg-gradient-to-r from-purple-500 to-indigo-500"
-  },
-  {
-    id: "shape-match",
-    title: "Shape Match",
-    description: "Learn to identify shapes and count their sides",
-    path: "/shape-match",
-    color: "bg-gradient-to-r from-emerald-500 to-cyan-600"
-  },
-  {
-    id: "fraction-basics",
-    title: "Fraction Basics",
-    description: "Master fraction fundamentals with simple exercises",
-    path: "/fraction-basics",
-    color: "bg-gradient-to-r from-pink-500 to-orange-400"
-  },
-  {
-    id: "target-takedown",
-    title: "Target Takedown",
-    description: "Hit number targets by combining tiles strategically",
-    path: "/target-takedown",
-    color: "bg-gradient-to-r from-pink-500 to-pink-600"
-  }
-];
 
 const Profile = () => {
   const { user, signOut } = useAuth();
@@ -76,13 +29,14 @@ const Profile = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [favoriteGames, setFavoriteGames] = useState<FavoriteGame[]>([]);
+  const { progress, achievements, loading: progressLoading } = useGameProgress();
   const [profile, setProfile] = useState<Profile>({
     id: '',
     first_name: '',
     last_name: '',
     email: '',
     date_of_birth: '',
+    display_name: '',
   });
 
   useEffect(() => {
@@ -91,7 +45,6 @@ const Profile = () => {
       return;
     }
     loadProfile();
-    loadFavoriteGames();
   }, [user, navigate]);
 
   const loadProfile = async () => {
@@ -111,13 +64,13 @@ const Profile = () => {
       if (data) {
         setProfile(data);
       } else {
-        // If no profile exists, create one with basic info
         setProfile({
           id: user.id,
           first_name: '',
           last_name: '',
           email: user.email || '',
           date_of_birth: '',
+          display_name: '',
         });
       }
     } catch (error: any) {
@@ -128,25 +81,6 @@ const Profile = () => {
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadFavoriteGames = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('user_favorites')
-        .select('game_id')
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      const favoriteIds = data?.map(fav => fav.game_id) || [];
-      const favorites = gamesList.filter(game => favoriteIds.includes(game.id));
-      setFavoriteGames(favorites);
-    } catch (error: any) {
-      console.error('Error loading favorite games:', error);
     }
   };
 
@@ -163,6 +97,7 @@ const Profile = () => {
           last_name: profile.last_name,
           email: profile.email,
           date_of_birth: profile.date_of_birth,
+          display_name: profile.display_name,
         });
 
       if (error) throw error;
@@ -189,138 +124,202 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600"></div>
-          <p className="mt-4 text-gray-600">Loading profile...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your profile...</p>
         </div>
       </div>
     );
   }
 
+  const displayName = profile.display_name || profile.first_name || user?.email?.split('@')[0] || 'Learner';
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-8">
-      <div className="container mx-auto px-4 max-w-2xl">
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <Button
-              onClick={() => navigate('/')}
-              variant="outline"
-              size="sm"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </Button>
-            <Button
-              onClick={handleSignOut}
-              variant="outline"
-              size="sm"
-              className="text-red-600 hover:text-red-700"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
-            </Button>
-          </div>
-
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 rounded-full flex items-center justify-center mx-auto mb-4">
-              <User className="h-10 w-10 text-white" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900">Your Profile</h1>
-            <p className="text-gray-600">Manage your personal information</p>
-          </div>
-
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="first_name">First Name</Label>
-                <Input
-                  id="first_name"
-                  value={profile.first_name || ''}
-                  onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
-                  placeholder="Enter your first name"
-                />
-              </div>
-              <div>
-                <Label htmlFor="last_name">Last Name</Label>
-                <Input
-                  id="last_name"
-                  value={profile.last_name || ''}
-                  onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
-                  placeholder="Enter your last name"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={profile.email || ''}
-                onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                placeholder="Enter your email"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="date_of_birth">Date of Birth</Label>
-              <Input
-                id="date_of_birth"
-                type="date"
-                value={profile.date_of_birth || ''}
-                onChange={(e) => setProfile({ ...profile, date_of_birth: e.target.value })}
-              />
-            </div>
-
-            <Button
-              onClick={handleSave}
-              disabled={saving}
-              className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:opacity-90"
-            >
-              <Save className="mr-2 h-4 w-4" />
-              {saving ? "Saving..." : "Save Profile"}
-            </Button>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 py-8">
+      <div className="container mx-auto px-4 max-w-4xl">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <Button
+            onClick={() => navigate('/')}
+            variant="outline"
+            size="sm"
+            className="gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+          <Button
+            onClick={handleSignOut}
+            variant="outline"
+            size="sm"
+            className="text-red-600 hover:text-red-700 gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </Button>
         </div>
 
-        {/* Favorite Games Section */}
-        <Card className="bg-white shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Heart className="h-5 w-5 text-red-500" />
-              Your Favorite Games
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {favoriteGames.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">
-                You haven't favorited any games yet. Go to the home page to add some favorites!
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {favoriteGames.map((game) => (
-                  <Card key={game.id} className="overflow-hidden hover:shadow-md transition-all">
-                    <div className={`h-2 ${game.color}`}></div>
-                    <CardContent className="p-4">
-                      <h3 className="font-bold text-lg mb-2">{game.title}</h3>
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{game.description}</p>
-                      <Link 
-                        to={game.path} 
-                        className={`inline-flex items-center px-3 py-1 rounded-lg ${game.color} text-white font-medium text-sm hover:opacity-90 transition-opacity`}
-                      >
-                        Play Now
-                        <svg className="ml-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                      </Link>
-                    </CardContent>
-                  </Card>
-                ))}
+        {/* Profile Header Card */}
+        <Card className="mb-8 overflow-hidden">
+          <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 p-6 text-white">
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                <User className="h-10 w-10 text-white" />
               </div>
-            )}
-          </CardContent>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold">Welcome back, {displayName}!</h1>
+                <p className="text-white/80">{user?.email}</p>
+                {progress && (
+                  <div className="flex items-center gap-4 mt-2">
+                    <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
+                      Level {progress.currentLevel}
+                    </span>
+                    <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
+                      {progress.totalXp.toLocaleString()} XP
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </Card>
+
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="progress" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+            <TabsTrigger value="progress" className="gap-2">
+              <BarChart3 className="h-4 w-4" />
+              <span className="hidden sm:inline">Progress</span>
+            </TabsTrigger>
+            <TabsTrigger value="achievements" className="gap-2">
+              <Trophy className="h-4 w-4" />
+              <span className="hidden sm:inline">Achievements</span>
+            </TabsTrigger>
+            <TabsTrigger value="activity" className="gap-2">
+              <Clock className="h-4 w-4" />
+              <span className="hidden sm:inline">Activity</span>
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="gap-2">
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">Settings</span>
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Progress Tab */}
+          <TabsContent value="progress">
+            {progressLoading ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <div className="animate-pulse">Loading your progress...</div>
+                </CardContent>
+              </Card>
+            ) : progress ? (
+              <ProgressDashboard progress={progress} />
+            ) : (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <BarChart3 className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-500 mb-4">Start playing games to track your progress!</p>
+                  <Link to="/">
+                    <Button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                      Browse Games
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Achievements Tab */}
+          <TabsContent value="achievements">
+            {user && (
+              <AchievementsDisplay 
+                userId={user.id} 
+                userAchievements={achievements} 
+              />
+            )}
+          </TabsContent>
+
+          {/* Activity Tab */}
+          <TabsContent value="activity">
+            {user && <RecentActivity userId={user.id} />}
+          </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-purple-500" />
+                  Profile Settings
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <Label htmlFor="display_name">Display Name</Label>
+                  <Input
+                    id="display_name"
+                    value={profile.display_name || ''}
+                    onChange={(e) => setProfile({ ...profile, display_name: e.target.value })}
+                    placeholder="Choose a display name"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="first_name">First Name</Label>
+                    <Input
+                      id="first_name"
+                      value={profile.first_name || ''}
+                      onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
+                      placeholder="Enter your first name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="last_name">Last Name</Label>
+                    <Input
+                      id="last_name"
+                      value={profile.last_name || ''}
+                      onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
+                      placeholder="Enter your last name"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={profile.email || ''}
+                    onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                    placeholder="Enter your email"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="date_of_birth">Date of Birth</Label>
+                  <Input
+                    id="date_of_birth"
+                    type="date"
+                    value={profile.date_of_birth || ''}
+                    onChange={(e) => setProfile({ ...profile, date_of_birth: e.target.value })}
+                  />
+                </div>
+
+                <Button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:opacity-90"
+                >
+                  <Save className="mr-2 h-4 w-4" />
+                  {saving ? "Saving..." : "Save Changes"}
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
