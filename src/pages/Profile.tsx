@@ -13,6 +13,8 @@ import { useGameProgress } from '@/hooks/useGameProgress';
 import ProgressDashboard from '@/components/profile/ProgressDashboard';
 import AchievementsDisplay from '@/components/profile/AchievementsDisplay';
 import RecentActivity from '@/components/profile/RecentActivity';
+import AvatarUpload from '@/components/profile/AvatarUpload';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface Profile {
   id: string;
@@ -22,6 +24,7 @@ interface Profile {
   date_of_birth: string | null;
   display_name: string | null;
   username: string | null;
+  avatar_url: string | null;
 }
 
 const Profile = () => {
@@ -42,6 +45,7 @@ const Profile = () => {
     date_of_birth: '',
     display_name: '',
     username: '',
+    avatar_url: null,
   });
   const [originalUsername, setOriginalUsername] = useState<string | null>(null);
 
@@ -79,6 +83,7 @@ const Profile = () => {
           date_of_birth: '',
           display_name: '',
           username: '',
+          avatar_url: null,
         });
         setOriginalUsername(null);
       }
@@ -261,9 +266,12 @@ const Profile = () => {
         <Card className="mb-8 overflow-hidden">
           <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 p-6 text-white">
             <div className="flex items-center gap-4">
-              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                <User className="h-10 w-10 text-white" />
-              </div>
+              <Avatar className="h-20 w-20 ring-4 ring-white/30 shadow-lg">
+                <AvatarImage src={profile.avatar_url || undefined} alt={displayName} />
+                <AvatarFallback className="bg-white/20 backdrop-blur-sm text-white text-2xl font-bold">
+                  {displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || <User className="h-10 w-10" />}
+                </AvatarFallback>
+              </Avatar>
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold">Welcome back, {displayName}!</h1>
                 {profile.username && (
@@ -376,6 +384,15 @@ const Profile = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Avatar Upload Section */}
+                <div className="flex justify-center pb-4 border-b">
+                  <AvatarUpload
+                    userId={user?.id || ''}
+                    currentAvatarUrl={profile.avatar_url}
+                    displayName={displayName}
+                    onAvatarChange={(url) => setProfile({ ...profile, avatar_url: url })}
+                  />
+                </div>
                 {/* Username Field */}
                 <div>
                   <Label htmlFor="username" className="flex items-center gap-2">
