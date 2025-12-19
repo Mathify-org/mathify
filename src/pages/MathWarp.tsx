@@ -90,6 +90,8 @@ const MathWarp = () => {
             onTimeUpdate={setTimeLeft}
             onLivesUpdate={setLives}
             onGameEnd={endGame}
+            onCorrectAnswersUpdate={setCorrectAnswers}
+            onQuestionsAnsweredUpdate={setQuestionsAnswered}
             difficulty={difficulty}
           />
         )}
@@ -110,8 +112,8 @@ const MathWarp = () => {
           gameId="math-warp"
           gameName="Math Warp"
           score={score}
-          correctAnswers={Math.max(streak, Math.floor(score / 10))}
-          totalQuestions={Math.max(streak, Math.floor(score / 10)) + (3 - lives)}
+          correctAnswers={correctAnswers}
+          totalQuestions={questionsAnswered}
           timeSpentSeconds={Math.round((Date.now() - gameStartTime.current) / 1000)}
           difficulty={difficulty}
           onClose={() => setShowCompletionHandler(false)}
