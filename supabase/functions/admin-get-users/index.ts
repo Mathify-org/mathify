@@ -49,17 +49,37 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Now use service role to fetch all users
+    // Now use service role to fetch all users with pagination
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
     
-    const { data: authUsers, error: authError } = await adminClient.auth.admin.listUsers();
+    // Fetch all users with pagination (listUsers defaults to 50)
+    let allAuthUsers: any[] = [];
+    let page = 1;
+    const perPage = 1000; // Max allowed by Supabase
+    let hasMore = true;
     
-    if (authError) {
-      console.error("Error fetching auth users:", authError);
-      return new Response(
-        JSON.stringify({ error: "Failed to fetch users" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+    while (hasMore) {
+      const { data: authUsers, error: authError } = await adminClient.auth.admin.listUsers({
+        page,
+        perPage,
+      });
+      
+      if (authError) {
+        console.error("Error fetching auth users:", authError);
+        return new Response(
+          JSON.stringify({ error: "Failed to fetch users" }),
+          { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+      
+      allAuthUsers = [...allAuthUsers, ...authUsers.users];
+      
+      // Check if there are more users
+      if (authUsers.users.length < perPage) {
+        hasMore = false;
+      } else {
+        page++;
+      }
     }
 
     // Also fetch profiles for additional data
@@ -72,7 +92,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Merge auth users with profiles
-    const users = authUsers.users.map(authUser => {
+    const users = allAuthUsers.map(authUser => {
       const profile = profiles?.find(p => p.id === authUser.id);
       return {
         id: authUser.id,
@@ -86,7 +106,7 @@ const handler = async (req: Request): Promise<Response> => {
       };
     });
 
-    console.log(`Admin ${user.email} fetched ${users.length} users`);
+    console.log(`Admin ${user.email} fetched ${users.length} users (paginated)`);
 
     return new Response(
       JSON.stringify({ users }),
