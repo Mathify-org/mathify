@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import GameCompletionHandler from "@/components/GameCompletionHandler";
 
 interface Sentence {
   text: string;
@@ -63,6 +64,7 @@ const SoilTypingGame = () => {
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
   const [mistakeCount, setMistakeCount] = useState<number>(0);
   const [showHint, setShowHint] = useState<boolean>(false);
+  const [showCompletion, setShowCompletion] = useState(false);
   const [results, setResults] = useState<{
     accuracy: number;
     speed: number;
@@ -107,6 +109,7 @@ const SoilTypingGame = () => {
     setMistakeCount(0);
     setResults(null);
     setIsGameComplete(false);
+    setShowCompletion(false);
     
     if (timerRef.current) {
       window.clearInterval(timerRef.current);
@@ -170,6 +173,7 @@ const SoilTypingGame = () => {
     });
     
     setIsGameComplete(true);
+    setShowCompletion(true);
     
     // Launch confetti if score is good
     if (score > 70) {
@@ -183,6 +187,17 @@ const SoilTypingGame = () => {
       spread: 70,
       origin: { y: 0.6 }
     });
+  };
+
+  const handlePlayAgain = () => {
+    setShowCompletion(false);
+    startGame();
+  };
+
+  const handleExitGame = () => {
+    setShowCompletion(false);
+    setIsGameStarted(false);
+    setIsGameComplete(false);
   };
 
   // Format time as MM:SS
@@ -298,7 +313,7 @@ const SoilTypingGame = () => {
         </div>
       )}
 
-      {isGameComplete && results && (
+      {isGameComplete && results && !showCompletion && (
         <div className="text-center py-8 space-y-6">
           <div className="mb-4 animate-bounce">
             <Trophy className="h-20 w-20 text-amber-500 mx-auto" />
@@ -339,6 +354,21 @@ const SoilTypingGame = () => {
             </Button>
           </div>
         </div>
+      )}
+
+      {/* Game Completion Handler */}
+      {showCompletion && results && (
+        <GameCompletionHandler
+          gameId="soil-typing-game"
+          gameName="Soil Typing Challenge"
+          score={results.score}
+          correctAnswers={SENTENCES.length}
+          totalQuestions={SENTENCES.length}
+          difficulty="medium"
+          timeSpentSeconds={results.totalTime}
+          onPlayAgain={handlePlayAgain}
+          onClose={handleExitGame}
+        />
       )}
     </Card>
   );

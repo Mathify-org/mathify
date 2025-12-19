@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Trophy, Zap, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import GameCompletionHandler from "@/components/GameCompletionHandler";
 
 type QuestionType = "identify-law" | "scenario" | "formula" | "application";
 
@@ -107,6 +108,9 @@ const NewtonsLaws = () => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [answeredQuestions, setAnsweredQuestions] = useState<boolean[]>(new Array(questions.length).fill(false));
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [gameStartTime, setGameStartTime] = useState<number | null>(null);
 
   const handleStartGame = () => {
     setGameStarted(true);
@@ -115,6 +119,8 @@ const NewtonsLaws = () => {
     setSelectedAnswer(null);
     setShowExplanation(false);
     setAnsweredQuestions(new Array(questions.length).fill(false));
+    setCorrectAnswers(0);
+    setGameStartTime(Date.now());
   };
 
   const handleAnswer = (answerIndex: number) => {
@@ -127,6 +133,7 @@ const NewtonsLaws = () => {
     
     if (isCorrect) {
       setScore(score + 10);
+      setCorrectAnswers(prev => prev + 1);
       toast.success("Correct! 🎉");
     } else {
       toast.error("Not quite right. Read the explanation!");
@@ -143,6 +150,25 @@ const NewtonsLaws = () => {
       setSelectedAnswer(null);
       setShowExplanation(false);
     }
+  };
+
+  const handleGameComplete = () => {
+    setShowCompletion(true);
+  };
+
+  const handlePlayAgain = () => {
+    setShowCompletion(false);
+    handleStartGame();
+  };
+
+  const handleExitGame = () => {
+    setShowCompletion(false);
+    setGameStarted(false);
+  };
+
+  const getTimeSpent = () => {
+    if (!gameStartTime) return 0;
+    return Math.round((Date.now() - gameStartTime) / 1000);
   };
 
   const getLawColor = (law: 1 | 2 | 3) => {
@@ -337,10 +363,7 @@ const NewtonsLaws = () => {
           <div className="mt-6 flex justify-center">
             {isLastQuestion ? (
               <Button 
-                onClick={() => {
-                  setGameStarted(false);
-                  toast.success(`Game Complete! Final Score: ${score}/${questions.length * 10}`);
-                }}
+                onClick={handleGameComplete}
                 className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-6 text-lg"
               >
                 View Results
@@ -357,6 +380,21 @@ const NewtonsLaws = () => {
           </div>
         )}
       </div>
+
+      {/* Game Completion Handler */}
+      {showCompletion && (
+        <GameCompletionHandler
+          gameId="newtons-laws"
+          gameName="Newton's Laws"
+          score={score}
+          correctAnswers={correctAnswers}
+          totalQuestions={questions.length}
+          difficulty="medium"
+          timeSpentSeconds={getTimeSpent()}
+          onPlayAgain={handlePlayAgain}
+          onClose={handleExitGame}
+        />
+      )}
     </div>
   );
 };

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { Bird, Bug, Cat, ArrowRight, Check, CircleCheck, CircleX, Timer } from "lucide-react";
 import { cn } from "@/lib/utils";
+import GameCompletionHandler from "@/components/GameCompletionHandler";
 
 interface QuizItem {
   id: number;
@@ -132,11 +133,14 @@ const AnimalQuiz = () => {
   const [shuffledQuestions, setShuffledQuestions] = useState<QuizItem[]>([]);
   const [timeRemaining, setTimeRemaining] = useState(5);
   const [timerActive, setTimerActive] = useState(true);
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [gameStartTime, setGameStartTime] = useState<number | null>(null);
 
   // Initialize with shuffled questions
   useEffect(() => {
     const shuffled = [...quizItems].sort(() => Math.random() - 0.5);
     setShuffledQuestions(shuffled);
+    setGameStartTime(Date.now());
   }, []);
 
   // Timer effect
@@ -177,6 +181,7 @@ const AnimalQuiz = () => {
       setTimerActive(true);
     } else {
       setQuizComplete(true);
+      setShowCompletion(true);
     }
   }, [currentQuestionIndex, shuffledQuestions.length]);
 
@@ -223,14 +228,41 @@ const AnimalQuiz = () => {
     setIsCorrect(null);
     setTimeRemaining(5);
     setTimerActive(true);
+    setShowCompletion(false);
+    setGameStartTime(Date.now());
     
     toast.info("Let's play again!");
+  };
+
+  const handlePlayAgain = () => {
+    setShowCompletion(false);
+    restartQuiz();
+  };
+
+  const handleExitGame = () => {
+    setShowCompletion(false);
+    setQuizComplete(false);
+    // Reset to initial state
+    const shuffled = [...quizItems].sort(() => Math.random() - 0.5);
+    setShuffledQuestions(shuffled);
+    setCurrentQuestionIndex(0);
+    setScore(0);
+    setShowFeedback(false);
+    setSelectedAnswer(null);
+    setIsCorrect(null);
+    setTimeRemaining(5);
+    setTimerActive(true);
+  };
+
+  const getTimeSpent = () => {
+    if (!gameStartTime) return 0;
+    return Math.round((Date.now() - gameStartTime) / 1000);
   };
 
   // Calculate progress percentage
   const progress = ((currentQuestionIndex) / shuffledQuestions.length) * 100;
 
-  if (quizComplete) {
+  if (quizComplete && !showCompletion) {
     return (
       <motion.div 
         className="text-center py-10"
@@ -390,6 +422,21 @@ const AnimalQuiz = () => {
           </Button>
         </motion.div>
       </div>
+
+      {/* Game Completion Handler */}
+      {showCompletion && (
+        <GameCompletionHandler
+          gameId="animal-quiz"
+          gameName="Animal Kingdom Quiz"
+          score={score * 10}
+          correctAnswers={score}
+          totalQuestions={shuffledQuestions.length}
+          difficulty="easy"
+          timeSpentSeconds={getTimeSpent()}
+          onPlayAgain={handlePlayAgain}
+          onClose={handleExitGame}
+        />
+      )}
     </div>
   );
 };

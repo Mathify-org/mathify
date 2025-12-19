@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Trophy, Hand, Zap, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import GameCompletionHandler from "@/components/GameCompletionHandler";
 
 type QuestionType = "identify" | "compare" | "scenario" | "drag-demo";
 
@@ -110,6 +111,9 @@ const PushPullForces = () => {
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [gameStartTime, setGameStartTime] = useState<number | null>(null);
 
   const handleStartGame = () => {
     setGameStarted(true);
@@ -117,6 +121,8 @@ const PushPullForces = () => {
     setScore(0);
     setSelectedAnswer(null);
     setShowExplanation(false);
+    setCorrectAnswers(0);
+    setGameStartTime(Date.now());
   };
 
   const handleAnswer = (answerIndex: number) => {
@@ -129,6 +135,7 @@ const PushPullForces = () => {
     
     if (isCorrect) {
       setScore(score + 10);
+      setCorrectAnswers(prev => prev + 1);
       toast.success("Great job! 🎉");
     } else {
       toast.error("Try again next time!");
@@ -141,6 +148,25 @@ const PushPullForces = () => {
       setSelectedAnswer(null);
       setShowExplanation(false);
     }
+  };
+
+  const handleGameComplete = () => {
+    setShowCompletion(true);
+  };
+
+  const handlePlayAgain = () => {
+    setShowCompletion(false);
+    handleStartGame();
+  };
+
+  const handleExitGame = () => {
+    setShowCompletion(false);
+    setGameStarted(false);
+  };
+
+  const getTimeSpent = () => {
+    if (!gameStartTime) return 0;
+    return Math.round((Date.now() - gameStartTime) / 1000);
   };
 
   const renderVisual = (visual?: { push?: boolean; pull?: boolean; both?: boolean }) => {
@@ -356,10 +382,7 @@ const PushPullForces = () => {
           <div className="mt-6 flex justify-center">
             {isLastQuestion ? (
               <Button 
-                onClick={() => {
-                  setGameStarted(false);
-                  toast.success(`Fantastic! Final Score: ${score}/${questions.length * 10}`);
-                }}
+                onClick={handleGameComplete}
                 className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-6 text-lg"
               >
                 View Results
@@ -376,6 +399,21 @@ const PushPullForces = () => {
           </div>
         )}
       </div>
+
+      {/* Game Completion Handler */}
+      {showCompletion && (
+        <GameCompletionHandler
+          gameId="push-pull-forces"
+          gameName="Push & Pull Forces"
+          score={score}
+          correctAnswers={correctAnswers}
+          totalQuestions={questions.length}
+          difficulty="easy"
+          timeSpentSeconds={getTimeSpent()}
+          onPlayAgain={handlePlayAgain}
+          onClose={handleExitGame}
+        />
+      )}
     </div>
   );
 };
