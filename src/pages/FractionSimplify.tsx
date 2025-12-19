@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Trophy, Star, Clock, CheckCircle, XCircle, RotateCcw, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import confetti from 'canvas-confetti';
+import GameCompletionHandler from '@/components/GameCompletionHandler';
 
 type Difficulty = 'easy' | 'medium' | 'hard' | 'advanced';
 type GameState = 'menu' | 'playing' | 'finished';
@@ -56,6 +57,8 @@ const FractionSimplify = () => {
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [showSubModeSelector, setShowSubModeSelector] = useState(false);
+  const [showCompletionHandler, setShowCompletionHandler] = useState(false);
+  const gameStartTime = useRef<number>(Date.now());
 
   const totalQuestions = 10;
 
@@ -1108,7 +1111,7 @@ const FractionSimplify = () => {
         )}
 
         {/* Finished State */}
-        {gameState === 'finished' && (
+        {gameState === 'finished' && !showCompletionHandler && (
           <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl">
             <CardContent className="p-8 text-center">
               <div className="mb-6">
@@ -1134,15 +1137,35 @@ const FractionSimplify = () => {
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
-                  onClick={() => startGame(difficulty)}
+                  onClick={() => setShowCompletionHandler(true)}
                   className="bg-gradient-to-r from-purple-500 to-pink-500 hover:scale-105 transition-transform text-white font-bold px-8 py-3"
                 >
-                  <RotateCcw className="h-5 w-5 mr-2" />
-                  Play Again
+                  View Results & XP
                 </Button>
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {showCompletionHandler && (
+          <GameCompletionHandler
+            gameId="fraction-simplify"
+            gameName="Fraction Simplify"
+            score={score * 10}
+            correctAnswers={score}
+            totalQuestions={totalQuestions}
+            timeSpentSeconds={Math.round((Date.now() - gameStartTime.current) / 1000)}
+            difficulty={difficulty}
+            onPlayAgain={() => {
+              setShowCompletionHandler(false);
+              gameStartTime.current = Date.now();
+              startGame(difficulty);
+            }}
+            onClose={() => {
+              setShowCompletionHandler(false);
+              setGameState('menu');
+            }}
+          />
         )}
 
         {/* Back to Home */}

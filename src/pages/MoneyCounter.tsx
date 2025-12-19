@@ -472,7 +472,7 @@ const MoneyCounter = () => {
           </div>
         )}
 
-        {gameState === 'finished' && (
+        {gameState === 'finished' && !showCompletionHandler && (
           <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl">
             <CardContent className="p-8 text-center">
               <div className="mb-6">
@@ -498,15 +498,34 @@ const MoneyCounter = () => {
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
-                  onClick={() => startGame(difficulty)}
+                  onClick={() => setShowCompletionHandler(true)}
                   className="bg-gradient-to-r from-green-500 to-emerald-500 hover:scale-105 transition-transform text-white font-bold px-8 py-3"
                 >
-                  <RotateCcw className="h-5 w-5 mr-2" />
-                  Play Again
+                  View Results & XP
                 </Button>
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {showCompletionHandler && (
+          <GameCompletionHandler
+            gameId="money-counter"
+            gameName="Money Counter"
+            score={score * 10}
+            correctAnswers={score}
+            totalQuestions={totalQuestions}
+            timeSpentSeconds={Math.round((Date.now() - gameStartTime.current) / 1000)}
+            difficulty={difficulty}
+            onPlayAgain={() => {
+              setShowCompletionHandler(false);
+              startGame(difficulty);
+            }}
+            onClose={() => {
+              setShowCompletionHandler(false);
+              setGameState('menu');
+            }}
+          />
         )}
 
         <div className="text-center mt-8">

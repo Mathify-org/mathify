@@ -11,6 +11,7 @@ import LabelingChallenge from "./challenges/LabelingChallenge";
 import CalculateChallenge from "./challenges/CalculateChallenge";
 import IdentifyChallenge from "./challenges/IdentifyChallenge";
 import RotateChallenge from "./challenges/RotateChallenge";
+import { useGameProgress } from "@/hooks/useGameProgress";
 
 interface Challenge {
   id: string;
@@ -33,6 +34,7 @@ const ShapeChallenge: React.FC<ShapeChallengeProps> = ({ challenge, onComplete, 
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
   const [attempts, setAttempts] = useState(0);
+  const { saveSession } = useGameProgress();
   
   useEffect(() => {
     // Start the timer when the challenge loads
@@ -44,7 +46,7 @@ const ShapeChallenge: React.FC<ShapeChallengeProps> = ({ challenge, onComplete, 
     setAttempts(0);
   }, [challenge.id]);
   
-  const handleChallengeSuccess = () => {
+  const handleChallengeSuccess = async () => {
     // Record end time
     const end = Date.now();
     setEndTime(end);
@@ -64,6 +66,16 @@ const ShapeChallenge: React.FC<ShapeChallengeProps> = ({ challenge, onComplete, 
     
     setStars(calculatedStars);
     setCompleted(true);
+    
+    // Save progress to Supabase
+    await saveSession({
+      gameId: 'shape-explorer',
+      score: calculatedStars * 10,
+      correctAnswers: 1,
+      totalQuestions: 1,
+      accuracy: 100,
+      difficulty: challenge.type
+    });
     
     // Show completion message
     toast.success(`Challenge completed!`, {
