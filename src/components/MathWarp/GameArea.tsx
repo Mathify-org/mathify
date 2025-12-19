@@ -11,6 +11,8 @@ interface GameAreaProps {
   onTimeUpdate: (time: number) => void;
   onLivesUpdate: (lives: number) => void;
   onGameEnd: () => void;
+  onCorrectAnswersUpdate: (correct: number) => void;
+  onQuestionsAnsweredUpdate: (total: number) => void;
   difficulty: Difficulty;
 }
 
@@ -39,6 +41,8 @@ const GameArea: React.FC<GameAreaProps> = ({
   onTimeUpdate,
   onLivesUpdate,
   onGameEnd,
+  onCorrectAnswersUpdate,
+  onQuestionsAnsweredUpdate,
   difficulty
 }) => {
   const [currentEquation, setCurrentEquation] = useState<Equation | null>(null);
@@ -49,6 +53,7 @@ const GameArea: React.FC<GameAreaProps> = ({
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [isWarpStreakActive, setIsWarpStreakActive] = useState(false);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
   const [portalState, setPortalState] = useState<'closed' | 'opening' | 'open' | 'closing'>('closed');
   const [currentQuote, setCurrentQuote] = useState('');
 
@@ -180,12 +185,16 @@ const GameArea: React.FC<GameAreaProps> = ({
       const newScore = score + (10 * (streak + 1)) + progressBonus;
       const newStreak = streak + 1;
       const newQuestionsAnswered = questionsAnswered + 1;
+      const newCorrectAnswers = correctAnswers + 1;
       
       setScore(newScore);
       setStreak(newStreak);
       setQuestionsAnswered(newQuestionsAnswered);
+      setCorrectAnswers(newCorrectAnswers);
       onScoreUpdate(newScore);
       onStreakUpdate(newStreak);
+      onCorrectAnswersUpdate(newCorrectAnswers);
+      onQuestionsAnsweredUpdate(newQuestionsAnswered);
 
       // Activate warp streak at 5+ correct answers
       if (newStreak >= 5) {
@@ -211,6 +220,7 @@ const GameArea: React.FC<GameAreaProps> = ({
       setQuestionsAnswered(newQuestionsAnswered);
       onLivesUpdate(newLives);
       onStreakUpdate(0);
+      onQuestionsAnsweredUpdate(newQuestionsAnswered);
 
       if (newLives === 0) {
         onGameEnd();

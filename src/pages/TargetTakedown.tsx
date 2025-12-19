@@ -192,6 +192,8 @@ const TargetTakedown = () => {
           onLivesUpdate={setLives}
           onStreakUpdate={setStreak}
           onLevelUpdate={setLevel}
+          onCorrectAnswersUpdate={setCorrectAnswers}
+          onQuestionsAnsweredUpdate={setQuestionsAnswered}
           onGameOver={handleGameOver}
           onPause={() => setGameState('paused')}
         />
@@ -203,8 +205,8 @@ const TargetTakedown = () => {
           gameId="target-takedown"
           gameName="Target Takedown"
           score={score}
-          correctAnswers={level}
-          totalQuestions={level + (selectedMode === 'survival' ? (3 - lives) : 0)}
+          correctAnswers={correctAnswers}
+          totalQuestions={questionsAnswered}
           timeSpentSeconds={Math.round((Date.now() - gameStartTime.current) / 1000)}
           difficulty={selectedMode}
           onClose={() => setShowCompletionHandler(false)}

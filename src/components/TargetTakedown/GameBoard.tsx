@@ -14,6 +14,8 @@ interface GameBoardProps {
   onLivesUpdate: (lives: number) => void;
   onStreakUpdate: (streak: number) => void;
   onLevelUpdate: (level: number) => void;
+  onCorrectAnswersUpdate: (correct: number) => void;
+  onQuestionsAnsweredUpdate: (total: number) => void;
   onGameOver: () => void;
   onPause: () => void;
 }
@@ -31,6 +33,8 @@ const GameBoard = ({
   onLivesUpdate,
   onStreakUpdate,
   onLevelUpdate,
+  onCorrectAnswersUpdate,
+  onQuestionsAnsweredUpdate,
   onGameOver,
   onPause
 }: GameBoardProps) => {
@@ -47,6 +51,8 @@ const GameBoard = ({
   const [isGameActive, setIsGameActive] = useState(true);
   const [correctEffect, setCorrectEffect] = useState(false);
   const [wrongEffect, setWrongEffect] = useState(false);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [questionsAnswered, setQuestionsAnswered] = useState(0);
 
   // Generate target and tiles based on streak (progressive difficulty)
   const generatePuzzle = useCallback(() => {
@@ -228,11 +234,17 @@ const GameBoard = ({
     
     const newScore = score + totalPoints;
     const newStreak = streak + 1;
+    const newCorrectAnswers = correctAnswers + 1;
+    const newQuestionsAnswered = questionsAnswered + 1;
     
     setScore(newScore);
     setStreak(newStreak);
+    setCorrectAnswers(newCorrectAnswers);
+    setQuestionsAnswered(newQuestionsAnswered);
     onScoreUpdate(newScore);
     onStreakUpdate(newStreak);
+    onCorrectAnswersUpdate(newCorrectAnswers);
+    onQuestionsAnsweredUpdate(newQuestionsAnswered);
     
     // Level up every 5 correct answers
     if (newStreak % 5 === 0) {
@@ -252,6 +264,10 @@ const GameBoard = ({
   };
 
   const handleWrongAnswer = () => {
+    const newQuestionsAnswered = questionsAnswered + 1;
+    setQuestionsAnswered(newQuestionsAnswered);
+    onQuestionsAnsweredUpdate(newQuestionsAnswered);
+    
     if (mode !== 'chill') {
       const newLives = lives - 1;
       setLives(newLives);

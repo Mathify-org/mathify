@@ -9,6 +9,7 @@ import { RotateCw, Star, HelpCircle, ArrowLeft } from "lucide-react";
 import ExplorerMap from "@/components/ShapeExplorer/ExplorerMap";
 import ShapeChallenge from "@/components/ShapeExplorer/ShapeChallenge";
 import HelpModal from "@/components/ShapeExplorer/HelpModal";
+import { useShapeExplorerProgress } from "@/hooks/useShapeExplorerProgress";
 
 // Define island types and challenge data (only 3 islands)
 const islands = [
@@ -117,74 +118,29 @@ const islands = [
   }
 ];
 
-// Progress manager to handle localStorage
-const useProgressManager = () => {
-  const [gameData, setGameData] = useState(islands);
+// Map progress data to the island display structure
+const mapProgressToIslands = (progress: any) => {
+  if (!progress) return islands;
   
-  useEffect(() => {
-    const savedData = localStorage.getItem('shapeExplorerProgress');
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        setGameData(parsedData);
-      } catch (err) {
-        console.error('Failed to load saved progress', err);
-      }
-    }
-  }, []);
-
-  const updateProgress = (islandId: string, challengeId: string, stars: number) => {
-    setGameData(prevData => {
-      const newData = [...prevData];
-      const islandIndex = newData.findIndex(island => island.id === islandId);
-      
-      if (islandIndex === -1) return prevData;
-      
-      const challengeIndex = newData[islandIndex].challenges.findIndex(
-        challenge => challenge.id === challengeId
-      );
-      
-      if (challengeIndex === -1) return prevData;
-      
-      // Update challenge stars and completion
-      newData[islandIndex].challenges[challengeIndex].stars = stars;
-      newData[islandIndex].challenges[challengeIndex].completed = true;
-      
-      // Update island stats
-      const totalStars = newData[islandIndex].challenges.reduce(
-        (sum, challenge) => sum + challenge.stars, 0
-      );
-      newData[islandIndex].stars = totalStars;
-      
-      const islandCompleted = newData[islandIndex].challenges.every(
-        challenge => challenge.completed
-      );
-      newData[islandIndex].completed = islandCompleted;
-      
-      // Show toast notification for island completion
-      if (islandCompleted) {
-        toast.success(`Congratulations! You've completed ${newData[islandIndex].name}!`, {
-          description: "Great job exploring geometry!",
-          duration: 4000,
-        });
-      }
-      
-      // Save to localStorage
-      localStorage.setItem('shapeExplorerProgress', JSON.stringify(newData));
-      return newData;
-    });
-  };
-
-  const resetProgress = () => {
-    localStorage.removeItem('shapeExplorerProgress');
-    setGameData(islands);
-    toast.success("Progress reset successfully!", {
-      description: "All islands have been reset to their initial state.",
-      duration: 3000,
-    });
-  };
-
-  return { gameData, updateProgress, resetProgress };
+  return islands.map(island => {
+    const progressIsland = progress.islands.find((i: any) => i.id === island.id);
+    if (!progressIsland) return island;
+    
+    return {
+      ...island,
+      completed: progressIsland.completed,
+      stars: progressIsland.stars,
+      challenges: island.challenges.map(challenge => {
+        const progressChallenge = progressIsland.challenges.find((c: any) => c.id === challenge.id);
+        if (!progressChallenge) return challenge;
+        return {
+          ...challenge,
+          completed: progressChallenge.completed,
+          stars: progressChallenge.stars
+        };
+      })
+    };
+  });
 };
 
 const ShapeExplorer = () => {
@@ -192,7 +148,10 @@ const ShapeExplorer = () => {
   const [activeIsland, setActiveIsland] = useState<string | null>(null);
   const [activeChallenge, setActiveChallenge] = useState<string | null>(null);
   const [showHelp, setShowHelp] = useState(false);
-  const { gameData, updateProgress, resetProgress } = useProgressManager();
+  const { progress, updateChallengeProgress, resetProgress, loading } = useShapeExplorerProgress();
+  
+  // Map progress to display structure
+  const gameData = mapProgressToIslands(progress);
   
   const handleIslandSelect = (islandId: string) => {
     setActiveIsland(islandId);
@@ -210,8 +169,30 @@ const ShapeExplorer = () => {
   
   const handleChallengeComplete = (stars: number) => {
     if (activeIsland && activeChallenge) {
-      updateProgress(activeIsland, activeChallenge, stars);
+      updateChallengeProgress(activeIsland, activeChallenge, stars);
+      
+      // Check if island completed
+      const island = gameData.find(i => i.id === activeIsland);
+      if (island) {
+        const updatedChallenges = island.challenges.map(c => 
+          c.id === activeChallenge ? { ...c, completed: true } : c
+        );
+        if (updatedChallenges.every(c => c.completed)) {
+          toast.success(`Congratulations! You've completed ${island.name}!`, {
+            description: "Great job exploring geometry!",
+            duration: 4000,
+          });
+        }
+      }
     }
+  };
+  
+  const handleResetProgress = () => {
+    resetProgress();
+    toast.success("Progress reset successfully!", {
+      description: "All islands have been reset to their initial state.",
+      duration: 3000,
+    });
   };
   
   const selectedIsland = activeIsland 
@@ -257,7 +238,7 @@ const ShapeExplorer = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={resetProgress}
+              onClick={handleResetProgress}
               className="text-white hover:bg-white/10"
               title="Reset Progress"
             >
