@@ -367,6 +367,7 @@ export type Database = {
           id: string
           last_name: string | null
           updated_at: string
+          username: string | null
         }
         Insert: {
           created_at?: string
@@ -377,6 +378,7 @@ export type Database = {
           id: string
           last_name?: string | null
           updated_at?: string
+          username?: string | null
         }
         Update: {
           created_at?: string
@@ -387,6 +389,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           updated_at?: string
+          username?: string | null
         }
         Relationships: []
       }
@@ -498,6 +501,10 @@ export type Database = {
     Functions: {
       calculate_level: { Args: { xp: number }; Returns: number }
       cleanup_expired_otps: { Args: never; Returns: undefined }
+      generate_username_from_email: {
+        Args: { email_address: string }
+        Returns: string
+      }
       user_is_in_room: {
         Args: { _room_id: string; _user_id: string }
         Returns: boolean

@@ -21,6 +21,7 @@ interface Profile {
   email: string | null;
   date_of_birth: string | null;
   display_name: string | null;
+  username: string | null;
 }
 
 const Profile = () => {
@@ -37,6 +38,7 @@ const Profile = () => {
     email: '',
     date_of_birth: '',
     display_name: '',
+    username: '',
   });
 
   useEffect(() => {
@@ -71,6 +73,7 @@ const Profile = () => {
           email: user.email || '',
           date_of_birth: '',
           display_name: '',
+          username: '',
         });
       }
     } catch (error: any) {
@@ -187,7 +190,7 @@ const Profile = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="progress" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
             <TabsTrigger value="progress" className="gap-2">
               <BarChart3 className="h-4 w-4" />
               <span className="hidden sm:inline">Progress</span>
@@ -195,6 +198,10 @@ const Profile = () => {
             <TabsTrigger value="achievements" className="gap-2">
               <Trophy className="h-4 w-4" />
               <span className="hidden sm:inline">Achievements</span>
+            </TabsTrigger>
+            <TabsTrigger value="leaderboard" className="gap-2">
+              <Trophy className="h-4 w-4 text-amber-500" />
+              <span className="hidden sm:inline">Leaderboard</span>
             </TabsTrigger>
             <TabsTrigger value="activity" className="gap-2">
               <Clock className="h-4 w-4" />
@@ -239,6 +246,22 @@ const Profile = () => {
                 userAchievements={achievements} 
               />
             )}
+          </TabsContent>
+
+          {/* Leaderboard Tab */}
+          <TabsContent value="leaderboard">
+            <Card>
+              <CardContent className="p-8 text-center">
+                <Trophy className="w-16 h-16 mx-auto text-amber-500 mb-4" />
+                <h3 className="text-xl font-bold mb-2">View the Leaderboard</h3>
+                <p className="text-muted-foreground mb-4">See how you rank against other Mathify players!</p>
+                <Link to="/leaderboard">
+                  <Button className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white">
+                    Go to Leaderboard
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Activity Tab */}

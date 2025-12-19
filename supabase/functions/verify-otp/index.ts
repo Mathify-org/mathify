@@ -98,12 +98,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("User created successfully:", authData.user.id);
 
-    // Create/update the profile
+    // Generate username from email
+    const { data: usernameData } = await supabase.rpc('generate_username_from_email', {
+      email_address: pendingSignup.email
+    });
+    const username = usernameData || pendingSignup.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+
+    // Create/update the profile with username
     const { error: profileError } = await supabase.from("profiles").upsert({
       id: authData.user.id,
       email: pendingSignup.email,
       first_name: pendingSignup.first_name,
       display_name: pendingSignup.display_name,
+      username: username,
     });
 
     if (profileError) {

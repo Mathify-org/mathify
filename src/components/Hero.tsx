@@ -1,6 +1,8 @@
 
 import React from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Link } from "react-router-dom";
+import { Trophy } from "lucide-react";
 
 const Hero = () => {
   const isMobile = useIsMobile();
@@ -33,16 +35,32 @@ const Hero = () => {
               </div>
               
               {/* Enhanced "Free and Open-Source" badge */}
-              <div className="inline-block mt-4 md:mt-6 relative">
-                <div className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 p-0.5 rounded-2xl shadow-2xl">
-                  <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 px-6 py-3 rounded-2xl backdrop-blur-sm">
-                    <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent tracking-wide">
-                      Free and Open-Source
-                    </span>
+              <div className="flex flex-wrap items-center justify-center gap-3 mt-4 md:mt-6">
+                <div className="relative">
+                  <div className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 p-0.5 rounded-2xl shadow-2xl">
+                    <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 px-6 py-3 rounded-2xl backdrop-blur-sm">
+                      <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent tracking-wide">
+                        Free and Open-Source
+                      </span>
+                    </div>
                   </div>
+                  {/* Subtle pulse glow */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-300/30 via-teal-300/30 to-cyan-300/30 rounded-2xl blur-lg animate-pulse -z-10"></div>
                 </div>
-                {/* Subtle pulse glow */}
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-300/30 via-teal-300/30 to-cyan-300/30 rounded-2xl blur-lg animate-pulse -z-10"></div>
+
+                {/* Leaderboard Button */}
+                <Link to="/leaderboard" className="relative group">
+                  <div className="bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 p-0.5 rounded-2xl shadow-2xl group-hover:shadow-yellow-500/50 transition-all duration-300 group-hover:scale-105">
+                    <div className="bg-gradient-to-r from-yellow-50 via-amber-50 to-orange-50 px-6 py-3 rounded-2xl backdrop-blur-sm flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-amber-600" />
+                      <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-yellow-600 via-amber-600 to-orange-600 bg-clip-text text-transparent tracking-wide">
+                        Leaderboard
+                      </span>
+                    </div>
+                  </div>
+                  {/* Subtle pulse glow */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-300/30 via-amber-300/30 to-orange-300/30 rounded-2xl blur-lg animate-pulse -z-10"></div>
+                </Link>
               </div>
             </div>
             
