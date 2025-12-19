@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, User, Save, LogOut, Settings, Trophy, BarChart3, Clock } from 'lucide-react';
+import { ArrowLeft, User, Save, LogOut, Settings, Trophy, BarChart3, Clock, AtSign, Check, X, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGameProgress } from '@/hooks/useGameProgress';
@@ -30,6 +30,9 @@ const Profile = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
   const { progress, achievements, loading: progressLoading } = useGameProgress();
   const [profile, setProfile] = useState<Profile>({
     id: '',
@@ -40,6 +43,7 @@ const Profile = () => {
     display_name: '',
     username: '',
   });
+  const [originalUsername, setOriginalUsername] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -65,6 +69,7 @@ const Profile = () => {
 
       if (data) {
         setProfile(data);
+        setOriginalUsername(data.username);
       } else {
         setProfile({
           id: user.id,
@@ -75,6 +80,7 @@ const Profile = () => {
           display_name: '',
           username: '',
         });
+        setOriginalUsername(null);
       }
     } catch (error: any) {
       toast({
@@ -87,8 +93,89 @@ const Profile = () => {
     }
   };
 
+  // Validate username format
+  const validateUsername = (username: string): string | null => {
+    if (!username) return null;
+    if (username.length < 3) return 'Username must be at least 3 characters';
+    if (username.length > 20) return 'Username must be 20 characters or less';
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) return 'Only letters, numbers, and underscores allowed';
+    return null;
+  };
+
+  // Check if username is available
+  const checkUsernameAvailability = async (username: string) => {
+    if (!username || username === originalUsername) {
+      setUsernameAvailable(null);
+      setUsernameError(null);
+      return;
+    }
+
+    const formatError = validateUsername(username);
+    if (formatError) {
+      setUsernameError(formatError);
+      setUsernameAvailable(false);
+      return;
+    }
+
+    setCheckingUsername(true);
+    setUsernameError(null);
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', username.toLowerCase())
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setUsernameAvailable(false);
+        setUsernameError('This username is already taken');
+      } else {
+        setUsernameAvailable(true);
+        setUsernameError(null);
+      }
+    } catch (error) {
+      console.error('Error checking username:', error);
+    } finally {
+      setCheckingUsername(false);
+    }
+  };
+
+  // Debounced username check
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (profile.username && profile.username !== originalUsername) {
+        checkUsernameAvailability(profile.username);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [profile.username, originalUsername]);
+
   const handleSave = async () => {
     if (!user) return;
+
+    // Validate username before saving
+    if (profile.username && profile.username !== originalUsername) {
+      const formatError = validateUsername(profile.username);
+      if (formatError) {
+        toast({
+          title: "Invalid Username",
+          description: formatError,
+          variant: "destructive",
+        });
+        return;
+      }
+      if (usernameAvailable === false) {
+        toast({
+          title: "Username Unavailable",
+          description: "Please choose a different username",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
 
     setSaving(true);
     try {
@@ -101,10 +188,17 @@ const Profile = () => {
           email: profile.email,
           date_of_birth: profile.date_of_birth,
           display_name: profile.display_name,
+          username: profile.username?.toLowerCase() || originalUsername,
         });
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23505') {
+          throw new Error('This username is already taken');
+        }
+        throw error;
+      }
 
+      setOriginalUsername(profile.username?.toLowerCase() || null);
       toast({
         title: "Success",
         description: "Profile updated successfully",
@@ -172,7 +266,10 @@ const Profile = () => {
               </div>
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold">Welcome back, {displayName}!</h1>
-                <p className="text-white/80">{user?.email}</p>
+                {profile.username && (
+                  <p className="text-white/90 font-medium">@{profile.username}</p>
+                )}
+                <p className="text-white/70 text-sm">{user?.email}</p>
                 {progress && (
                   <div className="flex items-center gap-4 mt-2">
                     <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
@@ -279,6 +376,50 @@ const Profile = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Username Field */}
+                <div>
+                  <Label htmlFor="username" className="flex items-center gap-2">
+                    <AtSign className="w-4 h-4" />
+                    Username
+                  </Label>
+                  <div className="relative mt-1">
+                    <Input
+                      id="username"
+                      value={profile.username || ''}
+                      onChange={(e) => {
+                        const value = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+                        setProfile({ ...profile, username: value });
+                      }}
+                      placeholder="Choose a unique username"
+                      maxLength={20}
+                      className={`pr-10 ${
+                        usernameError ? 'border-red-500 focus:ring-red-500' : 
+                        usernameAvailable === true ? 'border-green-500 focus:ring-green-500' : ''
+                      }`}
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {checkingUsername && (
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      )}
+                      {!checkingUsername && usernameAvailable === true && (
+                        <Check className="h-4 w-4 text-green-500" />
+                      )}
+                      {!checkingUsername && usernameAvailable === false && (
+                        <X className="h-4 w-4 text-red-500" />
+                      )}
+                    </div>
+                  </div>
+                  {usernameError && (
+                    <p className="text-sm text-red-500 mt-1">{usernameError}</p>
+                  )}
+                  {usernameAvailable === true && (
+                    <p className="text-sm text-green-500 mt-1">Username is available!</p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    3-20 characters, letters, numbers, and underscores only
+                  </p>
+                </div>
+
                 <div>
                   <Label htmlFor="display_name">Display Name</Label>
                   <Input
@@ -318,7 +459,12 @@ const Profile = () => {
                     value={profile.email || ''}
                     onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                     placeholder="Enter your email"
+                    disabled
+                    className="bg-muted"
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Email cannot be changed
+                  </p>
                 </div>
 
                 <div>
