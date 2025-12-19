@@ -7,6 +7,8 @@ const corsHeaders = {
 };
 
 const ADMIN_EMAIL = "support@mathify.org";
+const PHYSICAL_ADDRESS = "Mathify Education Ltd, London, United Kingdom";
+const UNSUBSCRIBE_URL = "https://mathify.org/unsubscribe";
 
 interface EmailRequest {
   recipients: { email: string; name?: string }[];
@@ -20,7 +22,9 @@ interface EmailRequest {
   };
 }
 
-function getEmailTemplate(templateId: string, customContent?: EmailRequest['customContent']): string {
+function getEmailTemplate(templateId: string, recipientEmail: string, customContent?: EmailRequest['customContent']): string {
+  const unsubscribeLink = `${UNSUBSCRIBE_URL}?email=${encodeURIComponent(recipientEmail)}`;
+  
   const baseStyles = `
     body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); min-height: 100vh; }
     .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; }
@@ -33,16 +37,40 @@ function getEmailTemplate(templateId: string, customContent?: EmailRequest['cust
     .body p { color: #6b7280; font-size: 16px; line-height: 1.6; margin: 0 0 24px; }
     .cta-button { display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #f97316 100%); color: white; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3); }
     .footer { background: #f9fafb; padding: 30px 40px; border-top: 1px solid #e5e7eb; text-align: center; }
-    .footer p { color: #9ca3af; font-size: 13px; margin: 0 0 16px; }
+    .footer p { color: #9ca3af; font-size: 13px; margin: 0 0 12px; }
     .footer small { color: #d1d5db; font-size: 12px; }
+    .footer-links { margin: 16px 0; }
+    .footer-links a { color: #7c3aed; text-decoration: none; font-size: 13px; margin: 0 8px; }
+    .footer-links a:hover { text-decoration: underline; }
+    .address { color: #9ca3af; font-size: 11px; margin-top: 16px; line-height: 1.5; }
+    .unsubscribe { color: #9ca3af; font-size: 11px; margin-top: 12px; }
+    .unsubscribe a { color: #7c3aed; text-decoration: underline; }
     .feature-box { background: linear-gradient(135deg, #f0f9ff 0%, #fdf4ff 100%); border-radius: 16px; padding: 24px; margin: 24px 0; border: 1px solid #e0e7ff; }
     .emoji { font-size: 48px; margin-bottom: 16px; }
   `;
 
+  const footerHtml = `
+  <div class="footer">
+    <p>Made with 💜 by the Mathify Team</p>
+    <div class="footer-links">
+      <a href="https://mathify.org">Visit Website</a>
+      <a href="https://mathify.org/privacy-policy">Privacy Policy</a>
+      <a href="https://mathify.org/terms">Terms of Service</a>
+    </div>
+    <div class="address">
+      ${PHYSICAL_ADDRESS}
+    </div>
+    <div class="unsubscribe">
+      You received this email because you signed up for Mathify.<br>
+      <a href="${unsubscribeLink}">Unsubscribe</a> from future emails.
+    </div>
+    <small>© ${new Date().getFullYear()} Mathify. All rights reserved.</small>
+  </div>`;
+
   const templates: Record<string, string> = {
     welcome: `
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><style>${baseStyles}</style></head>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${baseStyles}</style></head>
 <body>
 <table role="presentation" style="width: 100%; padding: 40px 20px;">
 <tr><td align="center">
@@ -61,17 +89,14 @@ function getEmailTemplate(templateId: string, customContent?: EmailRequest['cust
     </div>
     <a href="${customContent?.ctaUrl || 'https://mathify.org'}" class="cta-button">${customContent?.ctaText || "Start Learning Now"}</a>
   </div>
-  <div class="footer">
-    <p>Made with 💜 by the Mathify Team</p>
-    <small>© ${new Date().getFullYear()} Mathify. All rights reserved.</small>
-  </div>
+  ${footerHtml}
 </div>
 </td></tr></table>
 </body></html>`,
 
     newsletter: `
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><style>${baseStyles}</style></head>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${baseStyles}</style></head>
 <body>
 <table role="presentation" style="width: 100%; padding: 40px 20px;">
 <tr><td align="center">
@@ -90,17 +115,14 @@ function getEmailTemplate(templateId: string, customContent?: EmailRequest['cust
     </div>
     <a href="${customContent?.ctaUrl || 'https://mathify.org'}" class="cta-button">${customContent?.ctaText || "Explore Now"}</a>
   </div>
-  <div class="footer">
-    <p>Made with 💜 by the Mathify Team</p>
-    <small>© ${new Date().getFullYear()} Mathify. All rights reserved.</small>
-  </div>
+  ${footerHtml}
 </div>
 </td></tr></table>
 </body></html>`,
 
     announcement: `
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><style>${baseStyles}</style></head>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${baseStyles}</style></head>
 <body>
 <table role="presentation" style="width: 100%; padding: 40px 20px;">
 <tr><td align="center">
@@ -119,17 +141,14 @@ function getEmailTemplate(templateId: string, customContent?: EmailRequest['cust
     </div>
     <a href="${customContent?.ctaUrl || 'https://mathify.org'}" class="cta-button" style="background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);">${customContent?.ctaText || "Learn More"}</a>
   </div>
-  <div class="footer">
-    <p>Made with 💜 by the Mathify Team</p>
-    <small>© ${new Date().getFullYear()} Mathify. All rights reserved.</small>
-  </div>
+  ${footerHtml}
 </div>
 </td></tr></table>
 </body></html>`,
 
     reengagement: `
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><style>${baseStyles}</style></head>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${baseStyles}</style></head>
 <body>
 <table role="presentation" style="width: 100%; padding: 40px 20px;">
 <tr><td align="center">
@@ -148,17 +167,14 @@ function getEmailTemplate(templateId: string, customContent?: EmailRequest['cust
     </div>
     <a href="${customContent?.ctaUrl || 'https://mathify.org'}" class="cta-button" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #fcd34d 100%); color: #1f2937;">${customContent?.ctaText || "Jump Back In"}</a>
   </div>
-  <div class="footer">
-    <p>Made with 💜 by the Mathify Team</p>
-    <small>© ${new Date().getFullYear()} Mathify. All rights reserved.</small>
-  </div>
+  ${footerHtml}
 </div>
 </td></tr></table>
 </body></html>`,
 
     custom: `
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><style>${baseStyles}</style></head>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${baseStyles}</style></head>
 <body>
 <table role="presentation" style="width: 100%; padding: 40px 20px;">
 <tr><td align="center">
@@ -173,10 +189,7 @@ function getEmailTemplate(templateId: string, customContent?: EmailRequest['cust
     <p>${customContent?.body || "We have something important to share with you."}</p>
     ${customContent?.ctaUrl ? `<a href="${customContent.ctaUrl}" class="cta-button">${customContent?.ctaText || "Learn More"}</a>` : ''}
   </div>
-  <div class="footer">
-    <p>Made with 💜 by the Mathify Team</p>
-    <small>© ${new Date().getFullYear()} Mathify. All rights reserved.</small>
-  </div>
+  ${footerHtml}
 </div>
 </td></tr></table>
 </body></html>`
@@ -239,10 +252,8 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const htmlContent = getEmailTemplate(templateId, customContent);
-
     // Send emails via Brevo (in batches if needed)
-    const batchSize = 50; // Brevo recommends batching
+    const batchSize = 50;
     let successCount = 0;
     let failCount = 0;
     const errors: string[] = [];
@@ -250,9 +261,12 @@ const handler = async (req: Request): Promise<Response> => {
     for (let i = 0; i < recipients.length; i += batchSize) {
       const batch = recipients.slice(i, i + batchSize);
       
-      // Send to each recipient in the batch
       for (const recipient of batch) {
         try {
+          // Generate personalized HTML with unsubscribe link for each recipient
+          const htmlContent = getEmailTemplate(templateId, recipient.email, customContent);
+          const unsubscribeLink = `${UNSUBSCRIBE_URL}?email=${encodeURIComponent(recipient.email)}`;
+          
           const response = await fetch("https://api.brevo.com/v3/smtp/email", {
             method: "POST",
             headers: {
@@ -267,6 +281,14 @@ const handler = async (req: Request): Promise<Response> => {
               to: [{ email: recipient.email, name: recipient.name || undefined }],
               subject: subject,
               htmlContent: htmlContent,
+              headers: {
+                "List-Unsubscribe": `<${unsubscribeLink}>`,
+                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+              },
+              replyTo: {
+                email: "support@mathify.org",
+                name: "Mathify Support"
+              }
             }),
           });
 
@@ -293,7 +315,7 @@ const handler = async (req: Request): Promise<Response> => {
         success: true, 
         sent: successCount, 
         failed: failCount,
-        errors: errors.length > 0 ? errors.slice(0, 10) : undefined // Return first 10 errors
+        errors: errors.length > 0 ? errors.slice(0, 10) : undefined
       }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );

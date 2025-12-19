@@ -468,7 +468,7 @@ const MarketingAdmin = () => {
                         onClick={() => setSendingTo('subscribers')}
                         className={sendingTo === 'subscribers' 
                           ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' 
-                          : 'border-white/20 bg-white/10 text-slate-900 dark:text-white hover:bg-white/20'}
+                          : 'border-white/20 bg-white/10 text-white hover:bg-white/20'}
                       >
                         All Subscribers ({subscribers.filter(s => s.is_active).length})
                       </Button>
@@ -478,7 +478,7 @@ const MarketingAdmin = () => {
                         onClick={() => setSendingTo('users')}
                         className={sendingTo === 'users' 
                           ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' 
-                          : 'border-white/20 bg-white/10 text-slate-900 dark:text-white hover:bg-white/20'}
+                          : 'border-white/20 bg-white/10 text-white hover:bg-white/20'}
                       >
                         All Users ({users.length})
                       </Button>
@@ -488,7 +488,7 @@ const MarketingAdmin = () => {
                         onClick={() => setSendingTo('selected')}
                         className={sendingTo === 'selected' 
                           ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' 
-                          : 'border-white/20 bg-white/10 text-slate-900 dark:text-white hover:bg-white/20'}
+                          : 'border-white/20 bg-white/10 text-white hover:bg-white/20'}
                       >
                         Selected Only ({selectedUsers.size + selectedSubscribers.size})
                       </Button>
