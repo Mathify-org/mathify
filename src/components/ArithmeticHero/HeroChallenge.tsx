@@ -13,8 +13,15 @@ import GameHUD from './GameHUD';
 import ZapEffect from './ZapEffect';
 import PowerupNotification from './PowerupNotification';
 
+interface GameStatsResult {
+  score: number;
+  correctAnswers: number;
+  incorrectAnswers: number;
+  longestStreak: number;
+}
+
 interface HeroChallengeProps {
-  onGameOver: () => void;
+  onGameOver: (stats?: GameStatsResult) => void;
 }
 
 const CHALLENGE_DURATION = 90; // 90 seconds
@@ -172,13 +179,21 @@ const HeroChallenge: React.FC<HeroChallengeProps> = ({ onGameOver }) => {
     if (problemTimerRef.current) clearInterval(problemTimerRef.current);
     if (powerupTimerRef.current) clearInterval(powerupTimerRef.current);
     
-    // Update high score
+    // Update high score in localStorage
     gameService.updateHighScore("challenge", 1, stats.score);
     gameService.updateTotalCorrectAnswers(stats.correctAnswers);
     gameService.updateLongestStreak(stats.longestStreak);
     
-    // Trigger game over callback
-    onGameOver();
+    // Prepare stats to pass to parent
+    const finalStats: GameStatsResult = {
+      score: stats.score,
+      correctAnswers: stats.correctAnswers,
+      incorrectAnswers: stats.incorrectAnswers,
+      longestStreak: stats.longestStreak
+    };
+    
+    // Trigger game over callback with stats
+    onGameOver(finalStats);
   };
   
   // Handle correct answer

@@ -11,9 +11,16 @@ import ZapEffect from './ZapEffect';
 import PowerupNotification from './PowerupNotification';
 import confetti from 'canvas-confetti';
 
+interface GameOverStats {
+  score: number;
+  correctAnswers: number;
+  incorrectAnswers: number;
+  longestStreak: number;
+}
+
 interface GameAreaProps {
   level: number;
-  onGameOver: () => void;
+  onGameOver: (stats?: GameOverStats) => void;
 }
 
 // Constants
@@ -331,22 +338,30 @@ const GameArea: React.FC<GameAreaProps> = ({ level, onGameOver }) => {
     if (waveTimerRef.current) clearTimeout(waveTimerRef.current);
     if (problemIntervalRef.current) clearInterval(problemIntervalRef.current);
     
-    // Save stats
+    // Save stats to localStorage (for Arithmetic Hero's internal system)
     gameService.updateHighScore("arcade", level, gameStats.score);
     gameService.updateTotalCorrectAnswers(gameStats.correctAnswers);
     
     // Check if player unlocked next level
     const unlocked = gameService.checkLevelProgress(level, gameStats.score);
     
+    // Prepare stats to pass to parent
+    const finalStats: GameOverStats = {
+      score: gameStats.score,
+      correctAnswers: gameStats.correctAnswers,
+      incorrectAnswers: gameStats.incorrectAnswers,
+      longestStreak: gameStats.longestStreak
+    };
+    
     if (unlocked) {
       setShowLevelUp(true);
       // Show level up for 2 seconds before ending game
       setTimeout(() => {
-        onGameOver();
+        onGameOver(finalStats);
       }, 2000);
     } else {
       // End game immediately
-      onGameOver();
+      onGameOver(finalStats);
     }
   };
   
