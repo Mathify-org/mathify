@@ -8,3 +8,12 @@ verify_jwt = false
 
 [functions.forgot-password]
 verify_jwt = false
+
+[functions.admin-get-users]
+verify_jwt = false
+
+[functions.admin-get-subscribers]
+verify_jwt = false
+
+[functions.admin-send-marketing-email]
+verify_jwt = false
