@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import confetti from 'canvas-confetti';
+import GameCompletionHandler from '@/components/GameCompletionHandler';
 
 interface Question {
   id: number;
@@ -50,6 +51,8 @@ const GeometryMaster = () => {
   const [includeVolume, setIncludeVolume] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [userAnswer, setUserAnswer] = useState('');
+  const [showCompletionHandler, setShowCompletionHandler] = useState(false);
+  const gameStartTime = useRef<number>(Date.now());
   const [stats, setStats] = useState<GameStats>({
     score: 0,
     streak: 0,
@@ -68,6 +71,7 @@ const GeometryMaster = () => {
         setStats(prev => {
           if (prev.timeRemaining <= 1) {
             setGameState('finished');
+            setShowCompletionHandler(true);
             return prev;
           }
           return { ...prev, timeRemaining: prev.timeRemaining - 1 };
@@ -269,6 +273,8 @@ const GeometryMaster = () => {
 
   const startGame = () => {
     setGameState('playing');
+    setShowCompletionHandler(false);
+    gameStartTime.current = Date.now();
     setStats({
       score: 0,
       streak: 0,
@@ -547,6 +553,21 @@ const GeometryMaster = () => {
             </CardContent>
           </Card>
         </div>
+        
+        {/* Progress Tracking Modal */}
+        {showCompletionHandler && (
+          <GameCompletionHandler
+            gameId="geometry-master"
+            gameName="Geometry Master"
+            score={stats.score}
+            correctAnswers={stats.correctAnswers}
+            totalQuestions={stats.questionsAnswered}
+            timeSpentSeconds={Math.round((Date.now() - gameStartTime.current) / 1000)}
+            difficulty={difficulty}
+            onClose={() => setShowCompletionHandler(false)}
+            onPlayAgain={startGame}
+          />
+        )}
       </div>
     );
   }

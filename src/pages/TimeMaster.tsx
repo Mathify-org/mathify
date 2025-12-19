@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Trophy, Star, Clock, CheckCircle, XCircle, RotateCcw, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import confetti from 'canvas-confetti';
+import GameCompletionHandler from '@/components/GameCompletionHandler';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 type GameState = 'menu' | 'playing' | 'finished';
@@ -29,6 +30,8 @@ const TimeMaster = () => {
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
+  const [showCompletionHandler, setShowCompletionHandler] = useState(false);
+  const gameStartTime = useRef<number>(Date.now());
 
   const totalQuestions = 10;
 

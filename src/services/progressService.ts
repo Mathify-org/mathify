@@ -214,7 +214,9 @@ export const progressService = {
           gamesPlayed: (currentProgress?.games_played || 0) + 1,
           totalCorrectAnswers: (currentProgress?.total_correct_answers || 0) + session.correctAnswers,
           currentStreak: newStreak,
-          uniqueGamesPlayed: uniqueGames
+          uniqueGamesPlayed: uniqueGames,
+          currentLevel: newLevel,
+          accuracy: session.accuracy
         });
         
         newAchievements.push(...earnedAchievements);
@@ -270,6 +272,8 @@ export const progressService = {
     totalCorrectAnswers?: number;
     currentStreak?: number;
     uniqueGamesPlayed?: string[];
+    currentLevel?: number;
+    accuracy?: number;
   }): Promise<Achievement[]> => {
     const newlyUnlocked: Achievement[] = [];
     
@@ -303,10 +307,18 @@ export const progressService = {
             shouldUnlock = (stats.totalCorrectAnswers || 0) >= achievement.requirement_value;
             break;
           case 'streak':
+          case 'daily_streak':
             shouldUnlock = (stats.currentStreak || 0) >= achievement.requirement_value;
             break;
           case 'unique_games':
             shouldUnlock = (stats.uniqueGamesPlayed?.length || 0) >= achievement.requirement_value;
+            break;
+          case 'level':
+            shouldUnlock = (stats.currentLevel || 1) >= achievement.requirement_value;
+            break;
+          case 'perfect_game':
+            // Perfect game achievements are unlocked when accuracy is 100%
+            shouldUnlock = (stats.accuracy || 0) === 100 && (stats.gamesPlayed || 0) >= achievement.requirement_value;
             break;
         }
         
