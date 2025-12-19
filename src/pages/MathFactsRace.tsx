@@ -135,6 +135,7 @@ const MathFactsRace = () => {
 
     if (isCorrect) {
       const points = 10 + (gameStats.streak * 2);
+      setCorrectAnswers(prev => prev + 1);
       setGameStats(prev => ({
         ...prev,
         score: prev.score + points,
