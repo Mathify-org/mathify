@@ -32,6 +32,7 @@ import Terms from "./pages/Terms";
 import MathWarp from "./pages/MathWarp";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import Leaderboard from "./pages/Leaderboard";
 import TimeMaster from "./pages/TimeMaster";
 import MoneyCounter from "./pages/MoneyCounter";
 import GeometryMaster from "./pages/GeometryMaster";
@@ -75,6 +76,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
                 <Route path="/mental-maths" element={<MentalMathsGame />} />
                 <Route path="/times-tables" element={<TimesTablesMaster />} />
                 <Route path="/math-facts" element={<MathFactsRace />} />
