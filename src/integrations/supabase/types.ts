@@ -367,6 +367,7 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          marketing_emails_enabled: boolean
           updated_at: string
           username: string | null
         }
@@ -379,6 +380,7 @@ export type Database = {
           first_name?: string | null
           id: string
           last_name?: string | null
+          marketing_emails_enabled?: boolean
           updated_at?: string
           username?: string | null
         }
@@ -391,6 +393,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          marketing_emails_enabled?: boolean
           updated_at?: string
           username?: string | null
         }

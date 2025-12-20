@@ -15,6 +15,7 @@ interface EmailRequest {
   recipients: { email: string; name?: string }[];
   subject: string;
   templateId: string;
+  recipientType: "newsletter" | "marketing"; // newsletter = newsletter_subscribers, marketing = registered users
   customContent?: {
     heading?: string;
     body?: string;
@@ -33,8 +34,8 @@ function formatBodyText(text: string): string {
     .join('</p><p style="color: #6b7280; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">');
 }
 
-function getEmailTemplate(templateId: string, recipientEmail: string, customContent?: EmailRequest['customContent']): string {
-  const unsubscribeLink = `${UNSUBSCRIBE_URL}?email=${encodeURIComponent(recipientEmail)}`;
+function getEmailTemplate(templateId: string, recipientEmail: string, recipientType: "newsletter" | "marketing", customContent?: EmailRequest['customContent']): string {
+  const unsubscribeLink = `${UNSUBSCRIBE_URL}?type=${recipientType}&email=${encodeURIComponent(recipientEmail)}`;
   const formattedBody = customContent?.body ? formatBodyText(customContent.body) : null;
   
   const baseStyles = `
@@ -248,8 +249,10 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { recipients, subject, templateId, customContent }: EmailRequest = await req.json();
+    const { recipients, subject, templateId, recipientType, customContent }: EmailRequest = await req.json();
 
+    // Default recipientType to 'newsletter' for backwards compatibility
+    const emailType = recipientType || 'newsletter';
     if (!recipients || recipients.length === 0) {
       return new Response(
         JSON.stringify({ error: "No recipients specified" }),
@@ -275,9 +278,9 @@ const handler = async (req: Request): Promise<Response> => {
       
       for (const recipient of batch) {
         try {
-          // Generate personalized HTML with unsubscribe link for each recipient
-          const htmlContent = getEmailTemplate(templateId, recipient.email, customContent);
-          const unsubscribeLink = `${UNSUBSCRIBE_URL}?email=${encodeURIComponent(recipient.email)}`;
+          // Generate personalized HTML with type-specific unsubscribe link for each recipient
+          const htmlContent = getEmailTemplate(templateId, recipient.email, emailType, customContent);
+          const unsubscribeLink = `${UNSUBSCRIBE_URL}?type=${emailType}&email=${encodeURIComponent(recipient.email)}`;
           
           const response = await fetch("https://api.brevo.com/v3/smtp/email", {
             method: "POST",

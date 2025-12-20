@@ -42,6 +42,7 @@ import MemorizingNumbers from "./pages/MemorizingNumbers";
 import MemorizingEuler from "./pages/MemorizingEuler";
 import MemorizingPhi from "./pages/MemorizingPhi";
 import MarketingAdmin from "./pages/MarketingAdmin";
+import Unsubscribe from "./pages/Unsubscribe";
 
 // ScrollToTop component that will trigger on route changes
 const ScrollToTop = () => {
@@ -100,6 +101,7 @@ const App = () => (
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/marketingadmin" element={<MarketingAdmin />} />
+                <Route path="/unsubscribe" element={<Unsubscribe />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.admin-send-marketing-email]
 verify_jwt = false
+
+[functions.unsubscribe-email]
+verify_jwt = false
