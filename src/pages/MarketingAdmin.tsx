@@ -156,22 +156,36 @@ const MarketingAdmin = () => {
     setSelectedSubscribers(newSet);
   };
 
-  const getRecipients = () => {
+  const getRecipients = (): { recipients: { email: string; name?: string }[]; recipientType: "newsletter" | "marketing" } => {
     if (sendingTo === 'users') {
-      return users.map(u => ({ email: u.email, name: u.first_name || u.display_name || undefined }));
+      // Sending to registered users - use 'marketing' type
+      return {
+        recipients: users.map(u => ({ email: u.email, name: u.first_name || u.display_name || undefined })),
+        recipientType: 'marketing'
+      };
     } else if (sendingTo === 'subscribers') {
-      return subscribers.filter(s => s.is_active).map(s => ({ email: s.email }));
+      // Sending to newsletter subscribers - use 'newsletter' type
+      return {
+        recipients: subscribers.filter(s => s.is_active).map(s => ({ email: s.email })),
+        recipientType: 'newsletter'
+      };
     } else {
+      // Mixed selection - determine type based on what's selected
+      // If any users are selected, use 'marketing' type (more restrictive)
+      const hasSelectedUsers = selectedUsers.size > 0;
       const selected = new Set([...selectedUsers, ...selectedSubscribers]);
-      return Array.from(selected).map(email => {
-        const user = users.find(u => u.email === email);
-        return { email, name: user?.first_name || user?.display_name || undefined };
-      });
+      return {
+        recipients: Array.from(selected).map(email => {
+          const user = users.find(u => u.email === email);
+          return { email, name: user?.first_name || user?.display_name || undefined };
+        }),
+        recipientType: hasSelectedUsers ? 'marketing' : 'newsletter'
+      };
     }
   };
 
   const handleSendEmails = async () => {
-    const recipients = getRecipients();
+    const { recipients, recipientType } = getRecipients();
     
     if (recipients.length === 0) {
       toast({
@@ -199,6 +213,7 @@ const MarketingAdmin = () => {
           recipients,
           subject: emailSubject,
           templateId: selectedTemplate,
+          recipientType,
           customContent: {
             heading: customHeading || undefined,
             body: customBody || undefined,
@@ -585,7 +600,7 @@ const MarketingAdmin = () => {
                     ) : (
                       <>
                         <Send className="mr-2 h-5 w-5" />
-                        Send to {getRecipients().length} recipients
+                        Send to {getRecipients().recipients.length} recipients
                       </>
                     )}
                   </Button>
