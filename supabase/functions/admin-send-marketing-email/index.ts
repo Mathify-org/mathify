@@ -22,8 +22,19 @@ interface EmailRequest {
   };
 }
 
+function formatBodyText(text: string): string {
+  // Convert newlines to <br> tags for proper HTML rendering
+  // Also handle double newlines as paragraph breaks
+  return text
+    .split(/\n\n+/)  // Split on double+ newlines (paragraphs)
+    .map(paragraph => paragraph.trim().replace(/\n/g, '<br>'))  // Convert single newlines to <br>
+    .filter(p => p.length > 0)
+    .join('</p><p style="color: #6b7280; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">');
+}
+
 function getEmailTemplate(templateId: string, recipientEmail: string, customContent?: EmailRequest['customContent']): string {
   const unsubscribeLink = `${UNSUBSCRIBE_URL}?email=${encodeURIComponent(recipientEmail)}`;
+  const formattedBody = customContent?.body ? formatBodyText(customContent.body) : null;
   
   const baseStyles = `
     body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); min-height: 100vh; }
@@ -83,7 +94,7 @@ function getEmailTemplate(templateId: string, recipientEmail: string, customCont
   <div class="body">
     <div class="emoji">🎉</div>
     <h2>${customContent?.heading || "We're thrilled to have you!"}</h2>
-    <p>${customContent?.body || "Get ready to explore exciting math games, challenges, and learning experiences designed just for you. Whether you're a beginner or a math whiz, there's something for everyone!"}</p>
+    <p>${formattedBody || "Get ready to explore exciting math games, challenges, and learning experiences designed just for you. Whether you're a beginner or a math whiz, there's something for everyone!"}</p>
     <div class="feature-box">
       <p style="margin: 0; color: #7c3aed; font-weight: 600;">🎮 Fun Games • 📊 Track Progress • 🏆 Earn Achievements</p>
     </div>
@@ -109,7 +120,7 @@ function getEmailTemplate(templateId: string, recipientEmail: string, customCont
   <div class="body">
     <div class="emoji">✨</div>
     <h2>${customContent?.heading || "What's New This Week"}</h2>
-    <p>${customContent?.body || "We've been busy creating new games, challenges, and learning experiences. Check out what's new and continue your mathematical journey!"}</p>
+    <p>${formattedBody || "We've been busy creating new games, challenges, and learning experiences. Check out what's new and continue your mathematical journey!"}</p>
     <div class="feature-box">
       <p style="margin: 0; color: #7c3aed; font-weight: 600;">🆕 New Games • 🎯 Fresh Challenges • 💡 Learning Tips</p>
     </div>
@@ -135,7 +146,7 @@ function getEmailTemplate(templateId: string, recipientEmail: string, customCont
   <div class="body">
     <div class="emoji">🚀</div>
     <h2>${customContent?.heading || "Something Amazing is Here"}</h2>
-    <p>${customContent?.body || "We have some exciting news to share with you! Stay tuned for updates and new features that will make your learning experience even better."}</p>
+    <p>${formattedBody || "We have some exciting news to share with you! Stay tuned for updates and new features that will make your learning experience even better."}</p>
     <div class="feature-box" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-color: #6ee7b7;">
       <p style="margin: 0; color: #059669; font-weight: 600;">🌟 Major Update • 🎁 Special Surprise • 📈 Better Experience</p>
     </div>
@@ -161,7 +172,7 @@ function getEmailTemplate(templateId: string, recipientEmail: string, customCont
   <div class="body">
     <div class="emoji">🎯</div>
     <h2>${customContent?.heading || "Your Math Adventure Awaits"}</h2>
-    <p>${customContent?.body || "It's been a while since we've seen you! Your progress is waiting, and there are new challenges to conquer. Come back and show us what you've got!"}</p>
+    <p>${formattedBody || "It's been a while since we've seen you! Your progress is waiting, and there are new challenges to conquer. Come back and show us what you've got!"}</p>
     <div class="feature-box" style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-color: #fcd34d;">
       <p style="margin: 0; color: #f59e0b; font-weight: 600;">📊 Your Progress Saved • 🎮 New Games Added • 🏆 Achievements Waiting</p>
     </div>
@@ -186,7 +197,7 @@ function getEmailTemplate(templateId: string, recipientEmail: string, customCont
   </div>
   <div class="body">
     <h2>${customContent?.heading || "Hello from Mathify"}</h2>
-    <p>${customContent?.body || "We have something important to share with you."}</p>
+    <p>${formattedBody || "We have something important to share with you."}</p>
     ${customContent?.ctaUrl ? `<a href="${customContent.ctaUrl}" class="cta-button">${customContent?.ctaText || "Learn More"}</a>` : ''}
   </div>
   ${footerHtml}
