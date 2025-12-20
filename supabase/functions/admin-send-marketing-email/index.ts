@@ -9,6 +9,7 @@ const corsHeaders = {
 const ADMIN_EMAIL = "support@mathify.org";
 const PHYSICAL_ADDRESS = "Mathify Education Ltd, London, United Kingdom";
 const UNSUBSCRIBE_URL = "https://mathify.org/unsubscribe";
+const MATHIFY_LOGO_URL = "https://mathify.org/lovable-uploads/471e55df-9e2d-4051-b312-93edbd1dc0f0.png";
 
 interface EmailRequest {
   recipients: { email: string; name?: string }[];
@@ -40,8 +41,8 @@ function getEmailTemplate(templateId: string, recipientEmail: string, customCont
     body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); min-height: 100vh; }
     .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; }
     .header { background: linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #f97316 100%); padding: 40px 40px 60px; text-align: center; }
-    .logo { width: 80px; height: 80px; background: white; border-radius: 20px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-    .header h1 { color: white; margin: 0; font-size: 32px; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .logo { width: 80px; height: 80px; background: white; border-radius: 20px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); padding: 12px; }
+    .logo img { width: 100%; height: 100%; object-fit: contain; }
     .header p { color: rgba(255,255,255,0.9); margin: 12px 0 0; font-size: 16px; }
     .body { padding: 50px 40px 40px; text-align: center; }
     .body h2 { color: #1f2937; font-size: 24px; margin: 0 0 16px; }
@@ -87,7 +88,7 @@ function getEmailTemplate(templateId: string, recipientEmail: string, customCont
 <tr><td align="center">
 <div class="container">
   <div class="header">
-    <div class="logo"><span style="font-size: 40px;">🧮</span></div>
+    <div class="logo"><img src="${MATHIFY_LOGO_URL}" alt="Mathify Logo" /></div>
     <h1>Welcome to Mathify!</h1>
     <p>Your mathematical adventure begins here</p>
   </div>
@@ -113,7 +114,7 @@ function getEmailTemplate(templateId: string, recipientEmail: string, customCont
 <tr><td align="center">
 <div class="container">
   <div class="header">
-    <div class="logo"><span style="font-size: 40px;">📬</span></div>
+    <div class="logo"><img src="${MATHIFY_LOGO_URL}" alt="Mathify Logo" /></div>
     <h1>Mathify Newsletter</h1>
     <p>Your weekly dose of mathematical inspiration</p>
   </div>
@@ -139,7 +140,7 @@ function getEmailTemplate(templateId: string, recipientEmail: string, customCont
 <tr><td align="center">
 <div class="container">
   <div class="header" style="background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);">
-    <div class="logo"><span style="font-size: 40px;">📢</span></div>
+    <div class="logo"><img src="${MATHIFY_LOGO_URL}" alt="Mathify Logo" /></div>
     <h1>Exciting Announcement!</h1>
     <p>Big news from Mathify</p>
   </div>
@@ -165,7 +166,7 @@ function getEmailTemplate(templateId: string, recipientEmail: string, customCont
 <tr><td align="center">
 <div class="container">
   <div class="header" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #fcd34d 100%);">
-    <div class="logo"><span style="font-size: 40px;">👋</span></div>
+    <div class="logo"><img src="${MATHIFY_LOGO_URL}" alt="Mathify Logo" /></div>
     <h1>We Miss You!</h1>
     <p>Come back and continue your journey</p>
   </div>
@@ -191,7 +192,7 @@ function getEmailTemplate(templateId: string, recipientEmail: string, customCont
 <tr><td align="center">
 <div class="container">
   <div class="header">
-    <div class="logo"><span style="font-size: 40px;">🧮</span></div>
+    <div class="logo"><img src="${MATHIFY_LOGO_URL}" alt="Mathify Logo" /></div>
     <h1>Mathify</h1>
     <p>A message from our team</p>
   </div>
