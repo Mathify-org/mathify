@@ -24,6 +24,18 @@ const FAQ = () => {
       icon: <Heart className="h-5 w-5" />
     },
     {
+      id: "how-funded",
+      question: "How is Mathify funded if it's free?",
+      answer: "Mathify is funded entirely through small, non-intrusive advertisements. We've carefully placed ads in locations that won't disrupt your learning experience. By using Mathify, you're directly supporting the platform — thank you! We're committed to keeping education free and accessible, and your support through viewing ads helps us maintain and improve the platform for everyone.",
+      icon: <Heart className="h-5 w-5" />
+    },
+    {
+      id: "open-source",
+      question: "Is Mathify open-source?",
+      answer: "Yes! Mathify is an open-source project. We believe in transparency and community-driven development. This means anyone can view, contribute to, and learn from our codebase. It's our way of giving back to the education community.",
+      icon: <Sparkles className="h-5 w-5" />
+    },
+    {
       id: "age-groups",
       question: "What age groups is Mathify suitable for?",
       answer: "Mathify is primarily designed for primary and elementary school students (ages 5-12), with games covering fundamental concepts like counting, shapes, times tables, fractions, and basic algebra. We also offer practical real-world tools suitable for older students and adults.",
