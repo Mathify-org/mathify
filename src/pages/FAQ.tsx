@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Mail, HelpCircle, Sparkles, BookOpen, Users, Heart } from "lucide-react";
 import {
@@ -8,6 +7,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
+import AdBanner from "@/components/AdBanner";
 
 const FAQ = () => {
   const faqs = [
@@ -143,6 +143,11 @@ const FAQ = () => {
               </AccordionItem>
             ))}
           </Accordion>
+        </div>
+
+        {/* Ad Banner */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <AdBanner />
         </div>
 
         {/* Call to Action */}

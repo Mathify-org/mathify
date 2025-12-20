@@ -9,6 +9,7 @@ import { Heart, BookOpen, GamepadIcon, Zap, Calculator, Wallet, Ruler, TrendingU
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import AdBanner from "@/components/AdBanner";
 
 const gradeLevels = [
   {
@@ -488,8 +489,13 @@ const Index = () => {
             ))}
           </div>
 
+          {/* Ad Banner between sections */}
+          <div className="mt-10 md:mt-14">
+            <AdBanner className="max-w-4xl mx-auto" />
+          </div>
+
           {/* New Practical Skill-Building Section */}
-          <div className="mt-12 md:mt-16">
+          <div className="mt-10 md:mt-14">
             <div className="text-center mb-8">
               <h3 className="text-2xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight pb-2">
                 Practical Skill-Building
