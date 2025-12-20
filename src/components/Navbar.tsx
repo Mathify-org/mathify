@@ -1,19 +1,17 @@
 
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, Home, Phone, HelpCircle, Gamepad2, GraduationCap, Wrench, BarChart3 } from "lucide-react";
+import { Menu, X, User, Home, Phone, HelpCircle, Gamepad2, Wrench, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import GamePopup from "./GamePopup";
-import SecondaryMathsPopup from "./SecondaryMathsPopup";
 import PracticalSkillsPopup from "./PracticalSkillsPopup";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isGamePopupOpen, setIsGamePopupOpen] = useState(false);
-  const [isSecondaryPopupOpen, setIsSecondaryPopupOpen] = useState(false);
   const [isPracticalPopupOpen, setIsPracticalPopupOpen] = useState(false);
   const isMobile = useIsMobile();
   const { user, loading } = useAuth();
@@ -28,11 +26,6 @@ const Navbar = () => {
 
   const openGamePopup = () => {
     setIsGamePopupOpen(true);
-    closeMenu();
-  };
-
-  const openSecondaryPopup = () => {
-    setIsSecondaryPopupOpen(true);
     closeMenu();
   };
 
@@ -164,17 +157,6 @@ const Navbar = () => {
                   <span className="font-medium">Data Analysis Suite</span>
                 </Link>
 
-                {/* Secondary Maths */}
-                <button 
-                  onClick={openSecondaryPopup}
-                  className="w-full flex items-center gap-4 text-white hover:bg-white/20 px-4 py-3 rounded-xl transition-all duration-300"
-                >
-                  <div className="p-2 bg-purple-500/30 rounded-lg">
-                    <GraduationCap className="h-5 w-5 text-purple-300" />
-                  </div>
-                  <span className="font-medium">Secondary Maths</span>
-                </button>
-
                 {/* Contact */}
                 <Link 
                   to="/contact"
@@ -238,10 +220,6 @@ const Navbar = () => {
       <GamePopup 
         isOpen={isGamePopupOpen} 
         onClose={() => setIsGamePopupOpen(false)} 
-      />
-      <SecondaryMathsPopup 
-        isOpen={isSecondaryPopupOpen} 
-        onClose={() => setIsSecondaryPopupOpen(false)} 
       />
       <PracticalSkillsPopup 
         isOpen={isPracticalPopupOpen} 

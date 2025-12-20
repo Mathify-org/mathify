@@ -14,37 +14,43 @@ const FAQ = () => {
     {
       id: "what-is-mathify",
       question: "What is Mathify?",
-      answer: "Mathify is a completely free, open-source learning platform that makes mathematics engaging and accessible for everyone. We offer interactive games specifically designed for primary mathematics education, while also curating and aggregating the best educational videos and resources from across the web for secondary mathematics. Additionally, we create our own comprehensive learning materials to support students at every level of their mathematical journey.",
+      answer: "Mathify is a completely free learning platform that makes mathematics engaging and accessible for everyone. We offer 20+ interactive games covering mental maths, times tables, fractions, geometry, algebra, and more. Plus practical skill-building tools like Budget Builder, Tax Calculator, and Unit Converter, along with introductory physics games.",
       icon: <Sparkles className="h-5 w-5" />
     },
     {
       id: "is-free",
       question: "Is Mathify really free to use?",
-      answer: "Yes! Mathify is 100% free and will always remain so. We believe everyone should have equal access to quality educational tools without any paywalls or hidden costs. Our mission is to democratize mathematics education for all.",
+      answer: "Yes! Mathify is 100% free and will always remain so. We believe everyone should have equal access to quality educational tools without any paywalls or hidden costs. All games, tools, and features are completely free to use.",
       icon: <Heart className="h-5 w-5" />
     },
     {
       id: "age-groups",
       question: "What age groups is Mathify suitable for?",
-      answer: "Mathify offers comprehensive resources for all educational levels. Our interactive games are specifically designed for primary school children (ages 5-11), while our curated video content and learning materials support secondary students (ages 11-18) through their entire mathematical journey.",
+      answer: "Mathify is primarily designed for primary and elementary school students (ages 5-12), with games covering fundamental concepts like counting, shapes, times tables, fractions, and basic algebra. We also offer practical real-world tools suitable for older students and adults.",
       icon: <Users className="h-5 w-5" />
     },
     {
-      id: "how-helps",
-      question: "How does Mathify help students learn?",
-      answer: "Our multi-faceted approach combines game-based learning for primary mathematics with carefully curated video resources and original learning materials for advanced topics. This blend of interactive engagement and comprehensive content delivery enhances retention and makes complex mathematical concepts more accessible and enjoyable.",
+      id: "what-games",
+      question: "What games and tools are available?",
+      answer: "We offer 20+ interactive games including Mental Maths Challenge, Times Tables Master, Math Facts Race, Fraction Master, Geometry Master, Algebra Adventure, Target Takedown, Shape Explorer, and memory games for Pi, Euler's number, and Phi. We also have practical tools like Budget Builder, Tax Calculator, and Unit Converter, plus physics games covering Newton's Laws and Motion.",
       icon: <BookOpen className="h-5 w-5" />
+    },
+    {
+      id: "progress-tracking",
+      question: "Can I track my progress?",
+      answer: "Yes! Create a free account to track your progress across all games. You'll earn XP, unlock achievements, see your stats on the leaderboard, and track your learning journey through your personal profile dashboard.",
+      icon: <Users className="h-5 w-5" />
     },
     {
       id: "teachers",
       question: "Can teachers use Mathify in their classrooms?",
-      answer: "Absolutely! Mathify is designed with classroom integration in mind. Teachers can use our interactive games as engaging supplementary tools for primary mathematics, while leveraging our curated video resources and learning materials to support secondary mathematics instruction and homework assignments.",
+      answer: "Absolutely! Mathify is designed with classroom integration in mind. Teachers can use our interactive games as engaging supplementary tools for mathematics instruction. All games provide instant feedback and can be used for practice, homework, or in-class activities.",
       icon: <Users className="h-5 w-5" />
     },
     {
       id: "support",
       question: "How can I report a bug or suggest a feature?",
-      answer: "We welcome your feedback and actively use it to improve Mathify! You can reach out to us through our Contact form or email us directly. We're constantly working to enhance the platform based on user input and educational best practices.",
+      answer: "We welcome your feedback and actively use it to improve Mathify! You can reach out to us through our Contact form or email us directly. We're constantly working to enhance the platform based on user input.",
       icon: <HelpCircle className="h-5 w-5" />
     }
   ];
