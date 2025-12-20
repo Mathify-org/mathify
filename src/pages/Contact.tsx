@@ -1,10 +1,10 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Mail } from "lucide-react";
+import AdBanner from "@/components/AdBanner";
 
 const Contact = () => {
   const { toast } = useToast();
@@ -94,6 +94,11 @@ const Contact = () => {
               {isSubmitting ? "Sending..." : "Send Message"}
             </Button>
           </form>
+        </div>
+
+        {/* Ad Banner */}
+        <div className="max-w-2xl mx-auto mb-8">
+          <AdBanner />
         </div>
       </div>
     </div>

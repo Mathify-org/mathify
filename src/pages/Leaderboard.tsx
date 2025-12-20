@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Trophy, Medal, Crown, Star, Flame, Target, Zap, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import AdBanner from '@/components/AdBanner';
 
 interface UserRanking {
   userId: string;
@@ -385,6 +386,11 @@ const Leaderboard = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Ad Banner */}
+        <div className="mt-6">
+          <AdBanner />
+        </div>
 
         {/* Call to Action */}
         {!user && (

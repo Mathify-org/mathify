@@ -1,10 +1,10 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import AdBanner from "@/components/AdBanner";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -64,8 +64,16 @@ const Footer = () => {
   };
   
   return (
-    <footer className="bg-slate-900 text-white py-8 md:py-12">
-      <div className="container mx-auto px-4">
+    <footer className="bg-slate-900 text-white">
+      {/* Ad Banner above footer content */}
+      <div className="bg-slate-800 py-4">
+        <div className="container mx-auto px-4">
+          <AdBanner className="max-w-4xl mx-auto" />
+        </div>
+      </div>
+      
+      <div className="py-8 md:py-12">
+        <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center space-x-2 md:space-x-3 mb-4">
@@ -120,8 +128,9 @@ const Footer = () => {
           </div>
         </div>
         
-        <div className="border-t border-slate-700 mt-8 pt-6 text-center">
-          <p className="text-slate-400 text-sm">© {currentYear} Mathify. All rights reserved.</p>
+          <div className="border-t border-slate-700 mt-8 pt-6 text-center">
+            <p className="text-slate-400 text-sm">© {currentYear} Mathify. All rights reserved.</p>
+          </div>
         </div>
       </div>
     </footer>

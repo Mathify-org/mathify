@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
 import { Trophy, Star, Zap, TrendingUp, Flame, UserPlus } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import AdBanner from '@/components/AdBanner';
 
 interface GameCompletionHandlerProps {
   gameId: string;
@@ -248,6 +249,11 @@ const GameCompletionHandler: React.FC<GameCompletionHandlerProps> = ({
                   </div>
                 </motion.div>
               )}
+
+              {/* Ad Banner */}
+              <div className="mb-4">
+                <AdBanner />
+              </div>
 
               {/* Action Buttons */}
               <div className="flex gap-3">
