@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Trophy, Medal, Crown, Star, Flame, Target, Zap, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Trophy, Medal, Crown, Star, Flame, Target, Zap, TrendingUp, ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AdBanner from '@/components/AdBanner';
@@ -40,6 +40,27 @@ const gameOptions = [
   { value: 'shape-explorer', label: 'Shape Explorer' },
 ];
 
+const ITEMS_PER_PAGE = 50;
+
+// Get the start date for time period filtering
+const getStartDateForPeriod = (period: 'weekly' | 'monthly' | 'all-time'): Date | null => {
+  const now = new Date();
+  switch (period) {
+    case 'weekly':
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - 7);
+      weekStart.setHours(0, 0, 0, 0);
+      return weekStart;
+    case 'monthly':
+      const monthStart = new Date(now);
+      monthStart.setDate(now.getDate() - 30);
+      monthStart.setHours(0, 0, 0, 0);
+      return monthStart;
+    case 'all-time':
+      return null;
+  }
+};
+
 const Leaderboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -48,19 +69,26 @@ const Leaderboard = () => {
   const [periodFilter, setPeriodFilter] = useState<'weekly' | 'monthly' | 'all-time'>('all-time');
   const [gameFilter, setGameFilter] = useState('all');
   const [userRank, setUserRank] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset to page 1 when filters change
+    loadLeaderboard();
+  }, [periodFilter, gameFilter]);
 
   useEffect(() => {
     loadLeaderboard();
-  }, [periodFilter, gameFilter]);
+  }, [currentPage]);
 
   const loadLeaderboard = async () => {
     setLoading(true);
     try {
       let formattedRankings: UserRanking[] = [];
+      const startDate = getStartDateForPeriod(periodFilter);
 
-      if (gameFilter === 'all') {
-        // For "All Games", get ALL public profiles with usernames or display names
-        // Left join with user_progress to get stats (may be null for users who haven't played)
+      if (gameFilter === 'all' && periodFilter === 'all-time') {
+        // ALL GAMES + ALL TIME: Show all public profiles, ranked by total_xp from user_progress
         const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
           .select('id, username, display_name, avatar_url, is_public')
@@ -73,11 +101,12 @@ const Leaderboard = () => {
           return;
         }
 
-        // Filter to only include profiles that have a meaningful username or display_name
         const validProfiles = (profiles || []).filter((p: any) => 
           (p.username && p.username.trim() !== '') || 
           (p.display_name && p.display_name.trim() !== '')
         );
+
+        setTotalUsers(validProfiles.length);
 
         if (validProfiles.length === 0) {
           setRankings([]);
@@ -87,7 +116,6 @@ const Leaderboard = () => {
 
         const profileIds = validProfiles.map((p: any) => p.id);
 
-        // Fetch progress data for these users
         const { data: progressData } = await supabase
           .from('user_progress')
           .select('user_id, total_xp, games_played, current_level')
@@ -102,8 +130,8 @@ const Leaderboard = () => {
           });
         });
 
-        // Build rankings - sort by XP (users without progress get 0 XP)
-        formattedRankings = validProfiles
+        // Build ALL rankings first
+        const allRankings = validProfiles
           .map((profile: any) => {
             const progress = progressMap.get(profile.id);
             return {
@@ -114,22 +142,39 @@ const Leaderboard = () => {
               totalXp: progress?.totalXp || 0,
               gamesPlayed: progress?.gamesPlayed || 0,
               currentLevel: progress?.currentLevel || 1,
-              rank: 0, // Will be set after sorting
+              rank: 0,
             };
           })
           .sort((a, b) => b.totalXp - a.totalXp)
-          .map((entry, index) => ({ ...entry, rank: index + 1 }))
-          .slice(0, 100);
+          .map((entry, index) => ({ ...entry, rank: index + 1 }));
+
+        // Find user's rank from full list
+        if (user) {
+          const userEntry = allRankings.find(r => r.userId === user.id);
+          setUserRank(userEntry?.rank || null);
+        }
+
+        // Paginate
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        formattedRankings = allRankings.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
       } else {
-        // For specific games, aggregate from game_sessions
-        const { data, error } = await supabase
+        // SPECIFIC GAME or TIME-FILTERED: Aggregate from game_sessions with date filtering
+        let query = supabase
           .from('game_sessions')
-          .select(`
-            user_id,
-            xp_earned,
-            score
-          `)
-          .eq('game_id', gameFilter);
+          .select('user_id, xp_earned, score, completed_at');
+
+        // Apply game filter
+        if (gameFilter !== 'all') {
+          query = query.eq('game_id', gameFilter);
+        }
+
+        // Apply time period filter
+        if (startDate) {
+          query = query.gte('completed_at', startDate.toISOString());
+        }
+
+        const { data, error } = await query;
 
         if (error) {
           console.error('Error loading game leaderboard:', error);
@@ -147,28 +192,30 @@ const Leaderboard = () => {
           });
         });
 
-        // Filter users with XP > 0
-        const userIds = Array.from(userStats.entries())
-          .filter(([_, stats]) => stats.totalXp > 0)
-          .map(([id]) => id);
+        const userIds = Array.from(userStats.keys());
 
         if (userIds.length === 0) {
           setRankings([]);
+          setTotalUsers(0);
+          setUserRank(null);
           setLoading(false);
           return;
         }
 
-        // Fetch profiles for these users
+        // Fetch profiles for these users (only public ones)
         const { data: profiles, error: profileError } = await supabase
           .from('profiles')
-          .select('id, username, display_name, avatar_url')
-          .in('id', userIds);
+          .select('id, username, display_name, avatar_url, is_public')
+          .in('id', userIds)
+          .eq('is_public', true);
 
         if (profileError) {
           console.error('Error loading profiles:', profileError);
           setRankings([]);
           return;
         }
+
+        const publicUserIds = new Set((profiles || []).map((p: any) => p.id));
 
         // Fetch levels from user_progress
         const { data: progressData } = await supabase
@@ -179,39 +226,46 @@ const Leaderboard = () => {
         const levelMap = new Map<string, number>();
         (progressData || []).forEach((p: any) => levelMap.set(p.user_id, p.current_level));
 
-        // Build rankings sorted by XP
-        formattedRankings = Array.from(userStats.entries())
-          .filter(([_, stats]) => stats.totalXp > 0)
+        // Build ALL rankings (only for public users)
+        const allRankings = Array.from(userStats.entries())
+          .filter(([userId]) => publicUserIds.has(userId))
           .sort((a, b) => b[1].totalXp - a[1].totalXp)
           .map(([userId, stats], index) => {
             const profile = profiles?.find((p: any) => p.id === userId);
             return {
               userId,
               username: profile?.username || 'anonymous',
-              displayName: profile?.display_name || 'Player',
+              displayName: profile?.display_name || profile?.username || 'Player',
               avatarUrl: profile?.avatar_url || null,
               totalXp: stats.totalXp,
               gamesPlayed: stats.gamesPlayed,
               currentLevel: levelMap.get(userId) || 1,
               rank: index + 1,
             };
-          })
-          .slice(0, 100);
+          });
+
+        setTotalUsers(allRankings.length);
+
+        // Find user's rank from full list
+        if (user) {
+          const userEntry = allRankings.find(r => r.userId === user.id);
+          setUserRank(userEntry?.rank || null);
+        }
+
+        // Paginate
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        formattedRankings = allRankings.slice(startIndex, startIndex + ITEMS_PER_PAGE);
       }
 
       setRankings(formattedRankings);
-
-      // Find current user's rank
-      if (user) {
-        const userEntry = formattedRankings.find(r => r.userId === user.id);
-        setUserRank(userEntry?.rank || null);
-      }
     } catch (err) {
       console.error('Error in loadLeaderboard:', err);
     } finally {
       setLoading(false);
     }
   };
+
+  const totalPages = Math.ceil(totalUsers / ITEMS_PER_PAGE);
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -333,9 +387,19 @@ const Leaderboard = () => {
         {/* Leaderboard Table */}
         <Card className="overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-amber-100 to-yellow-100">
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-amber-600" />
-              Top Players
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-amber-600" />
+                {periodFilter === 'weekly' ? 'This Week\'s Top Players' : 
+                 periodFilter === 'monthly' ? 'This Month\'s Top Players' : 
+                 'All-Time Top Players'}
+              </div>
+              {totalUsers > 0 && (
+                <div className="flex items-center gap-1 text-sm font-normal text-muted-foreground">
+                  <Users className="h-4 w-4" />
+                  {totalUsers.toLocaleString()} players
+                </div>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -347,8 +411,16 @@ const Leaderboard = () => {
             ) : rankings.length === 0 ? (
               <div className="p-8 text-center">
                 <Trophy className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">No players on the leaderboard yet!</p>
-                <p className="text-sm text-muted-foreground">Be the first to play and claim the top spot!</p>
+                <p className="text-muted-foreground mb-4">
+                  {periodFilter !== 'all-time' || gameFilter !== 'all' 
+                    ? 'No players found for these filters!' 
+                    : 'No players on the leaderboard yet!'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {periodFilter !== 'all-time' 
+                    ? 'Try selecting a different time period or game.' 
+                    : 'Be the first to play and claim the top spot!'}
+                </p>
                 <Link to="/" className="mt-4 inline-block">
                   <Button className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
                     Start Playing
@@ -356,75 +428,133 @@ const Leaderboard = () => {
                 </Link>
               </div>
             ) : (
-              <div className="divide-y">
-                {rankings.map((player, index) => (
-                  <motion.div
-                    key={player.userId}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.02 }}
-                  >
-                    <Link
-                      to={player.username !== 'anonymous' ? `/u/${player.username}` : '#'}
-                      className={`flex items-center gap-4 p-4 transition-colors hover:bg-muted/50 ${
-                        player.userId === user?.id ? 'bg-amber-50/50 border-l-4 border-amber-500' : ''
-                      } ${index < 3 ? 'bg-gradient-to-r from-amber-50/50 to-transparent' : ''} ${
-                        player.username !== 'anonymous' ? 'cursor-pointer' : 'cursor-default'
-                      }`}
-                      onClick={(e) => {
-                        if (player.username === 'anonymous') {
-                          e.preventDefault();
-                        }
-                      }}
+              <>
+                <div className="divide-y">
+                  {rankings.map((player, index) => (
+                    <motion.div
+                      key={player.userId}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.02 }}
                     >
-                      {/* Rank */}
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getRankBadgeClass(player.rank)}`}>
-                        {getRankIcon(player.rank)}
-                      </div>
-
-                      {/* Avatar */}
-                      <Avatar className="h-10 w-10 ring-2 ring-muted">
-                        <AvatarImage src={player.avatarUrl || undefined} alt={player.displayName} />
-                        <AvatarFallback className="bg-gradient-to-br from-purple-400 to-pink-400 text-white text-sm font-bold">
-                          {player.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-                        </AvatarFallback>
-                      </Avatar>
-
-                      {/* Player Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-foreground truncate">
-                            {player.displayName}
-                          </span>
-                          {player.userId === user?.id && (
-                            <Badge variant="secondary" className="text-xs">You</Badge>
-                          )}
+                      <Link
+                        to={player.username !== 'anonymous' ? `/u/${player.username}` : '#'}
+                        className={`flex items-center gap-4 p-4 transition-colors hover:bg-muted/50 ${
+                          player.userId === user?.id ? 'bg-amber-50/50 border-l-4 border-amber-500' : ''
+                        } ${player.rank <= 3 ? 'bg-gradient-to-r from-amber-50/50 to-transparent' : ''} ${
+                          player.username !== 'anonymous' ? 'cursor-pointer' : 'cursor-default'
+                        }`}
+                        onClick={(e) => {
+                          if (player.username === 'anonymous') {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
+                        {/* Rank */}
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getRankBadgeClass(player.rank)}`}>
+                          {getRankIcon(player.rank)}
                         </div>
-                        <span className="text-sm text-muted-foreground">@{player.username}</span>
-                      </div>
 
-                      {/* Stats */}
-                      <div className="flex items-center gap-6 text-sm">
-                        <div className="text-center hidden sm:block">
-                          <div className="font-bold text-foreground">{player.gamesPlayed}</div>
-                          <div className="text-muted-foreground text-xs">Games</div>
-                        </div>
-                        <div className="text-center hidden sm:block">
-                          <div className="font-bold text-purple-600">Lvl {player.currentLevel}</div>
-                          <div className="text-muted-foreground text-xs">Level</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="font-bold text-amber-600 flex items-center gap-1">
-                            <Zap className="h-4 w-4" />
-                            {player.totalXp.toLocaleString()}
+                        {/* Avatar */}
+                        <Avatar className="h-10 w-10 ring-2 ring-muted">
+                          <AvatarImage src={player.avatarUrl || undefined} alt={player.displayName} />
+                          <AvatarFallback className="bg-gradient-to-br from-purple-400 to-pink-400 text-white text-sm font-bold">
+                            {player.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
+
+                        {/* Player Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-foreground truncate">
+                              {player.displayName}
+                            </span>
+                            {player.userId === user?.id && (
+                              <Badge variant="secondary" className="text-xs">You</Badge>
+                            )}
                           </div>
-                          <div className="text-muted-foreground text-xs">XP</div>
+                          <span className="text-sm text-muted-foreground">@{player.username}</span>
                         </div>
+
+                        {/* Stats */}
+                        <div className="flex items-center gap-6 text-sm">
+                          <div className="text-center hidden sm:block">
+                            <div className="font-bold text-foreground">{player.gamesPlayed}</div>
+                            <div className="text-muted-foreground text-xs">Games</div>
+                          </div>
+                          <div className="text-center hidden sm:block">
+                            <div className="font-bold text-purple-600">Lvl {player.currentLevel}</div>
+                            <div className="text-muted-foreground text-xs">Level</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="font-bold text-amber-600 flex items-center gap-1">
+                              <Zap className="h-4 w-4" />
+                              {player.totalXp.toLocaleString()}
+                            </div>
+                            <div className="text-muted-foreground text-xs">XP</div>
+                          </div>
+                        </div>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between p-4 border-t bg-muted/30">
+                    <p className="text-sm text-muted-foreground">
+                      Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, totalUsers)} of {totalUsers}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="gap-1"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Previous
+                      </Button>
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                          let pageNum: number;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant={currentPage === pageNum ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setCurrentPage(pageNum)}
+                              className="w-8 h-8 p-0"
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        })}
                       </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="gap-1"
+                      >
+                        Next
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
