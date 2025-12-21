@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
@@ -72,30 +72,25 @@ const Leaderboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
 
-  // Track if we should skip the next page-change load (to prevent double-loading)
-  const skipNextPageLoad = React.useRef(false);
+  const loadIdRef = useRef(0);
 
-  // When filters change, reset to page 1 and load
-  useEffect(() => {
-    if (currentPage !== 1) {
-      skipNextPageLoad.current = true; // Skip the page-change effect
-      setCurrentPage(1);
-    }
-    loadLeaderboard();
-  }, [periodFilter, gameFilter]);
+  const handlePeriodChange = (v: string) => {
+    setCurrentPage(1);
+    setPeriodFilter(v as 'weekly' | 'monthly' | 'all-time');
+  };
 
-  // When page changes (user clicked pagination), load the leaderboard
+  const handleGameChange = (v: string) => {
+    setCurrentPage(1);
+    setGameFilter(v);
+  };
+
   useEffect(() => {
-    if (skipNextPageLoad.current) {
-      skipNextPageLoad.current = false;
-      return; // Skip this load, filter change already triggered one
-    }
-    // Only run on page changes after initial mount
     loadLeaderboard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage]);
+  }, [periodFilter, gameFilter, currentPage]);
 
   const loadLeaderboard = async () => {
+    const loadId = ++loadIdRef.current;
     setLoading(true);
     try {
       let formattedRankings: UserRanking[] = [];
@@ -124,16 +119,16 @@ const Leaderboard = () => {
 
         if (validProfiles.length === 0) {
           setRankings([]);
-          setLoading(false);
           return;
         }
 
-        const profileIds = validProfiles.map((p: any) => p.id);
-
-        const { data: progressData } = await supabase
+        const { data: progressData, error: progressError } = await supabase
           .from('user_progress')
-          .select('user_id, total_xp, games_played, current_level')
-          .in('user_id', profileIds);
+          .select('user_id, total_xp, games_played, current_level');
+
+        if (progressError) {
+          console.error('Error loading progress:', progressError);
+        }
 
         const progressMap = new Map<string, { totalXp: number; gamesPlayed: number; currentLevel: number }>();
         (progressData || []).forEach((p: any) => {
@@ -212,7 +207,6 @@ const Leaderboard = () => {
           setRankings([]);
           setTotalUsers(0);
           setUserRank(null);
-          setLoading(false);
           return;
         }
 
@@ -275,7 +269,9 @@ const Leaderboard = () => {
     } catch (err) {
       console.error('Error in loadLeaderboard:', err);
     } finally {
-      setLoading(false);
+      if (loadId === loadIdRef.current) {
+        setLoading(false);
+      }
     }
   };
 
@@ -362,7 +358,7 @@ const Leaderboard = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
                 <label className="text-sm font-medium text-muted-foreground mb-2 block">Time Period</label>
-                <Tabs value={periodFilter} onValueChange={(v) => setPeriodFilter(v as any)}>
+                <Tabs value={periodFilter} onValueChange={handlePeriodChange}>
                   <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="weekly" className="gap-1">
                       <Flame className="h-4 w-4" />
@@ -381,7 +377,7 @@ const Leaderboard = () => {
               </div>
               <div className="w-full sm:w-48">
                 <label className="text-sm font-medium text-muted-foreground mb-2 block">Game</label>
-                <Select value={gameFilter} onValueChange={setGameFilter}>
+                <Select value={gameFilter} onValueChange={handleGameChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select game" />
                   </SelectTrigger>
