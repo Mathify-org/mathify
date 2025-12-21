@@ -366,6 +366,7 @@ export type Database = {
           email: string | null
           first_name: string | null
           id: string
+          is_public: boolean
           last_name: string | null
           marketing_emails_enabled: boolean
           updated_at: string
@@ -379,6 +380,7 @@ export type Database = {
           email?: string | null
           first_name?: string | null
           id: string
+          is_public?: boolean
           last_name?: string | null
           marketing_emails_enabled?: boolean
           updated_at?: string
@@ -392,6 +394,7 @@ export type Database = {
           email?: string | null
           first_name?: string | null
           id?: string
+          is_public?: boolean
           last_name?: string | null
           marketing_emails_enabled?: boolean
           updated_at?: string

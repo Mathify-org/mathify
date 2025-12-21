@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -58,40 +59,67 @@ const Leaderboard = () => {
       let formattedRankings: UserRanking[] = [];
 
       if (gameFilter === 'all') {
-        // For "All Games", query user_progress for overall stats
-        const { data, error } = await supabase
-          .from('user_progress')
-          .select(`
-            user_id,
-            total_xp,
-            games_played,
-            current_level,
-            profiles!inner (
-              username,
-              display_name,
-              avatar_url
-            )
-          `)
-          .gt('total_xp', 0)
-          .order('total_xp', { ascending: false })
-          .limit(100);
+        // For "All Games", get ALL public profiles with usernames or display names
+        // Left join with user_progress to get stats (may be null for users who haven't played)
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, username, display_name, avatar_url, is_public')
+          .eq('is_public', true)
+          .or('username.neq.null,display_name.neq.null');
 
-        if (error) {
-          console.error('Error loading leaderboard:', error);
+        if (profilesError) {
+          console.error('Error loading profiles:', profilesError);
           setRankings([]);
           return;
         }
 
-        formattedRankings = (data || []).map((entry: any, index: number) => ({
-          userId: entry.user_id,
-          username: entry.profiles?.username || 'anonymous',
-          displayName: entry.profiles?.display_name || 'Player',
-          avatarUrl: entry.profiles?.avatar_url || null,
-          totalXp: entry.total_xp || 0,
-          gamesPlayed: entry.games_played || 0,
-          currentLevel: entry.current_level || 1,
-          rank: index + 1,
-        }));
+        // Filter to only include profiles that have a meaningful username or display_name
+        const validProfiles = (profiles || []).filter((p: any) => 
+          (p.username && p.username.trim() !== '') || 
+          (p.display_name && p.display_name.trim() !== '')
+        );
+
+        if (validProfiles.length === 0) {
+          setRankings([]);
+          setLoading(false);
+          return;
+        }
+
+        const profileIds = validProfiles.map((p: any) => p.id);
+
+        // Fetch progress data for these users
+        const { data: progressData } = await supabase
+          .from('user_progress')
+          .select('user_id, total_xp, games_played, current_level')
+          .in('user_id', profileIds);
+
+        const progressMap = new Map<string, { totalXp: number; gamesPlayed: number; currentLevel: number }>();
+        (progressData || []).forEach((p: any) => {
+          progressMap.set(p.user_id, {
+            totalXp: p.total_xp || 0,
+            gamesPlayed: p.games_played || 0,
+            currentLevel: p.current_level || 1,
+          });
+        });
+
+        // Build rankings - sort by XP (users without progress get 0 XP)
+        formattedRankings = validProfiles
+          .map((profile: any) => {
+            const progress = progressMap.get(profile.id);
+            return {
+              userId: profile.id,
+              username: profile.username || 'anonymous',
+              displayName: profile.display_name || profile.username || 'Player',
+              avatarUrl: profile.avatar_url || null,
+              totalXp: progress?.totalXp || 0,
+              gamesPlayed: progress?.gamesPlayed || 0,
+              currentLevel: progress?.currentLevel || 1,
+              rank: 0, // Will be set after sorting
+            };
+          })
+          .sort((a, b) => b.totalXp - a.totalXp)
+          .map((entry, index) => ({ ...entry, rank: index + 1 }))
+          .slice(0, 100);
       } else {
         // For specific games, aggregate from game_sessions
         const { data, error } = await supabase
@@ -330,57 +358,71 @@ const Leaderboard = () => {
             ) : (
               <div className="divide-y">
                 {rankings.map((player, index) => (
-                  <div
+                  <motion.div
                     key={player.userId}
-                    className={`flex items-center gap-4 p-4 transition-colors hover:bg-muted/50 ${
-                      player.userId === user?.id ? 'bg-amber-50/50 border-l-4 border-amber-500' : ''
-                    } ${index < 3 ? 'bg-gradient-to-r from-amber-50/50 to-transparent' : ''}`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.02 }}
                   >
-                    {/* Rank */}
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getRankBadgeClass(player.rank)}`}>
-                      {getRankIcon(player.rank)}
-                    </div>
-
-                    {/* Avatar */}
-                    <Avatar className="h-10 w-10 ring-2 ring-muted">
-                      <AvatarImage src={player.avatarUrl || undefined} alt={player.displayName} />
-                      <AvatarFallback className="bg-gradient-to-br from-purple-400 to-pink-400 text-white text-sm font-bold">
-                        {player.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    {/* Player Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-foreground truncate">
-                          {player.displayName}
-                        </span>
-                        {player.userId === user?.id && (
-                          <Badge variant="secondary" className="text-xs">You</Badge>
-                        )}
+                    <Link
+                      to={player.username !== 'anonymous' ? `/u/${player.username}` : '#'}
+                      className={`flex items-center gap-4 p-4 transition-colors hover:bg-muted/50 ${
+                        player.userId === user?.id ? 'bg-amber-50/50 border-l-4 border-amber-500' : ''
+                      } ${index < 3 ? 'bg-gradient-to-r from-amber-50/50 to-transparent' : ''} ${
+                        player.username !== 'anonymous' ? 'cursor-pointer' : 'cursor-default'
+                      }`}
+                      onClick={(e) => {
+                        if (player.username === 'anonymous') {
+                          e.preventDefault();
+                        }
+                      }}
+                    >
+                      {/* Rank */}
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getRankBadgeClass(player.rank)}`}>
+                        {getRankIcon(player.rank)}
                       </div>
-                      <span className="text-sm text-muted-foreground">@{player.username}</span>
-                    </div>
 
-                    {/* Stats */}
-                    <div className="flex items-center gap-6 text-sm">
-                      <div className="text-center hidden sm:block">
-                        <div className="font-bold text-foreground">{player.gamesPlayed}</div>
-                        <div className="text-muted-foreground text-xs">Games</div>
-                      </div>
-                      <div className="text-center hidden sm:block">
-                        <div className="font-bold text-purple-600">Lvl {player.currentLevel}</div>
-                        <div className="text-muted-foreground text-xs">Level</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="font-bold text-amber-600 flex items-center gap-1">
-                          <Zap className="h-4 w-4" />
-                          {player.totalXp.toLocaleString()}
+                      {/* Avatar */}
+                      <Avatar className="h-10 w-10 ring-2 ring-muted">
+                        <AvatarImage src={player.avatarUrl || undefined} alt={player.displayName} />
+                        <AvatarFallback className="bg-gradient-to-br from-purple-400 to-pink-400 text-white text-sm font-bold">
+                          {player.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      {/* Player Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-foreground truncate">
+                            {player.displayName}
+                          </span>
+                          {player.userId === user?.id && (
+                            <Badge variant="secondary" className="text-xs">You</Badge>
+                          )}
                         </div>
-                        <div className="text-muted-foreground text-xs">XP</div>
+                        <span className="text-sm text-muted-foreground">@{player.username}</span>
                       </div>
-                    </div>
-                  </div>
+
+                      {/* Stats */}
+                      <div className="flex items-center gap-6 text-sm">
+                        <div className="text-center hidden sm:block">
+                          <div className="font-bold text-foreground">{player.gamesPlayed}</div>
+                          <div className="text-muted-foreground text-xs">Games</div>
+                        </div>
+                        <div className="text-center hidden sm:block">
+                          <div className="font-bold text-purple-600">Lvl {player.currentLevel}</div>
+                          <div className="text-muted-foreground text-xs">Level</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-bold text-amber-600 flex items-center gap-1">
+                            <Zap className="h-4 w-4" />
+                            {player.totalXp.toLocaleString()}
+                          </div>
+                          <div className="text-muted-foreground text-xs">XP</div>
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
                 ))}
               </div>
             )}

@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, User, Save, LogOut, Settings, Trophy, BarChart3, Clock, AtSign, Check, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, User, Save, LogOut, Settings, Trophy, BarChart3, Clock, AtSign, Check, X, Loader2, Globe, EyeOff } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGameProgress } from '@/hooks/useGameProgress';
@@ -25,6 +26,7 @@ interface Profile {
   display_name: string | null;
   username: string | null;
   avatar_url: string | null;
+  is_public?: boolean;
 }
 
 const Profile = () => {
@@ -48,6 +50,7 @@ const Profile = () => {
     avatar_url: null,
   });
   const [originalUsername, setOriginalUsername] = useState<string | null>(null);
+  const [savingVisibility, setSavingVisibility] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -72,7 +75,7 @@ const Profile = () => {
       }
 
       if (data) {
-        setProfile(data);
+        setProfile({ ...data, is_public: data.is_public ?? true });
         setOriginalUsername(data.username);
       } else {
         setProfile({
@@ -84,6 +87,7 @@ const Profile = () => {
           display_name: '',
           username: '',
           avatar_url: null,
+          is_public: true,
         });
         setOriginalUsername(null);
       }
@@ -224,6 +228,35 @@ const Profile = () => {
     navigate('/');
   };
 
+  const handleVisibilityToggle = async (isPublic: boolean) => {
+    if (!user) return;
+    setSavingVisibility(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_public: isPublic })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      setProfile(prev => prev ? { ...prev, is_public: isPublic } : prev);
+      toast({
+        title: isPublic ? "Profile is now public" : "Profile is now private",
+        description: isPublic 
+          ? "Your profile will appear on the leaderboard" 
+          : "Your profile is hidden from the leaderboard",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to update visibility",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingVisibility(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50">
@@ -355,18 +388,51 @@ const Profile = () => {
 
           {/* Leaderboard Tab */}
           <TabsContent value="leaderboard">
-            <Card>
-              <CardContent className="p-8 text-center">
-                <Trophy className="w-16 h-16 mx-auto text-amber-500 mb-4" />
-                <h3 className="text-xl font-bold mb-2">View the Leaderboard</h3>
-                <p className="text-muted-foreground mb-4">See how you rank against other Mathify players!</p>
-                <Link to="/leaderboard">
-                  <Button className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white">
-                    Go to Leaderboard
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              {/* Profile Visibility Toggle */}
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white">
+                        {profile.is_public !== false ? (
+                          <Globe className="w-6 h-6" />
+                        ) : (
+                          <EyeOff className="w-6 h-6" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground">Profile Visibility</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {profile.is_public !== false 
+                            ? 'Your profile is visible on the leaderboard' 
+                            : 'Your profile is hidden from the leaderboard'}
+                        </p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={profile.is_public !== false}
+                      onCheckedChange={handleVisibilityToggle}
+                      disabled={savingVisibility}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* View Leaderboard */}
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Trophy className="w-16 h-16 mx-auto text-amber-500 mb-4" />
+                  <h3 className="text-xl font-bold mb-2">View the Leaderboard</h3>
+                  <p className="text-muted-foreground mb-4">See how you rank against other Mathify players!</p>
+                  <Link to="/leaderboard">
+                    <Button className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white">
+                      Go to Leaderboard
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* Activity Tab */}
