@@ -72,13 +72,27 @@ const Leaderboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
 
+  // Track if we should skip the next page-change load (to prevent double-loading)
+  const skipNextPageLoad = React.useRef(false);
+
+  // When filters change, reset to page 1 and load
   useEffect(() => {
-    setCurrentPage(1); // Reset to page 1 when filters change
+    if (currentPage !== 1) {
+      skipNextPageLoad.current = true; // Skip the page-change effect
+      setCurrentPage(1);
+    }
     loadLeaderboard();
   }, [periodFilter, gameFilter]);
 
+  // When page changes (user clicked pagination), load the leaderboard
   useEffect(() => {
+    if (skipNextPageLoad.current) {
+      skipNextPageLoad.current = false;
+      return; // Skip this load, filter change already triggered one
+    }
+    // Only run on page changes after initial mount
     loadLeaderboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   const loadLeaderboard = async () => {
