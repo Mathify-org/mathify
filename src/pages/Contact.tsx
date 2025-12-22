@@ -96,8 +96,8 @@ const Contact = () => {
           </form>
         </div>
 
-        {/* Ad Banner */}
-        <div className="max-w-2xl mx-auto mb-8">
+        {/* Ad Banner - collapses when no ad is loaded */}
+        <div className="max-w-2xl mx-auto mb-8 [&:has(.ad-container.hidden)]:mb-0 [&:has(.ad-container.hidden)]:hidden">
           <AdBanner />
         </div>
       </div>

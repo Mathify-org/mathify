@@ -65,11 +65,9 @@ const Footer = () => {
   
   return (
     <footer className="bg-slate-900 text-white">
-      {/* Ad Banner above footer content */}
-      <div className="bg-slate-800 py-4">
-        <div className="container mx-auto px-4">
-          <AdBanner className="max-w-4xl mx-auto" />
-        </div>
+      {/* Ad Banner above footer content - container collapses when no ad */}
+      <div className="container mx-auto px-4 [&:has(.ad-container.hidden)]:hidden [&:has(.ad-container:not(.hidden))]:bg-slate-800 [&:has(.ad-container:not(.hidden))]:py-4">
+        <AdBanner className="max-w-4xl mx-auto" />
       </div>
       
       <div className="py-8 md:py-12">
