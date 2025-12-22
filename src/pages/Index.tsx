@@ -422,7 +422,7 @@ const Index = () => {
 
 
       {/* Games Section */}
-      <section id="general-skills" className="py-10 md:py-16 bg-gradient-to-b from-purple-50 to-pink-50">
+      <section id="primary-maths" className="py-10 md:py-16 bg-gradient-to-b from-purple-50 to-pink-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 md:mb-16">
             <div className="relative max-w-4xl mx-auto">
@@ -494,8 +494,8 @@ const Index = () => {
             <AdBanner className="max-w-4xl mx-auto" />
           </div>
 
-          {/* New Practical Skill-Building Section */}
-          <div className="mt-10 md:mt-14">
+          {/* Practical Skill-Building Section */}
+          <div id="practical-skills" className="mt-10 md:mt-14 scroll-mt-20">
             <div className="text-center mb-8">
               <h3 className="text-2xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight pb-2">
                 Practical Skill-Building
@@ -548,7 +548,7 @@ const Index = () => {
           </div>
 
           {/* Mini-Physics Section */}
-          <div className="mt-12 md:mt-16">
+          <div id="mini-physics" className="mt-12 md:mt-16 scroll-mt-20">
             <div className="text-center mb-8">
               <h3 className="text-2xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight pb-2">
                 Mini-Physics
@@ -602,7 +602,7 @@ const Index = () => {
       </section>
 
       {/* Data Analysis Suite Section */}
-      <section className="py-10 md:py-16 bg-gradient-to-b from-emerald-50 to-cyan-50 relative overflow-hidden">
+      <section id="data-analysis" className="py-10 md:py-16 bg-gradient-to-b from-emerald-50 to-cyan-50 relative overflow-hidden scroll-mt-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 md:mb-12">
             <h3 className="text-2xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent leading-tight pb-2">

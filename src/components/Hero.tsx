@@ -1,11 +1,19 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link } from "react-router-dom";
-import { Trophy } from "lucide-react";
+import { Trophy, Sparkles } from "lucide-react";
+import GetStartedFlow from "./GetStartedFlow";
 
 const Hero = () => {
   const isMobile = useIsMobile();
+  const [showGetStarted, setShowGetStarted] = useState(false);
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
   
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 py-10 md:py-24">
@@ -34,34 +42,55 @@ const Hero = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-yellow-200/20 to-white/20 blur-xl -z-10 transform scale-110"></div>
               </div>
               
-              {/* Enhanced "Free and Open-Source" badge */}
-              <div className="flex flex-wrap items-center justify-center gap-3 mt-4 md:mt-6">
+              {/* Enhanced badges row - made smaller and added Get Started */}
+              <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mt-4 md:mt-6">
+                {/* Free and Open-Source badge - smaller */}
                 <div className="relative">
-                  <div className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 p-0.5 rounded-2xl shadow-2xl">
-                    <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 px-6 py-3 rounded-2xl backdrop-blur-sm">
-                      <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent tracking-wide">
-                        Free and Open-Source
+                  <div className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 p-0.5 rounded-xl shadow-lg">
+                    <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 px-3 py-1.5 md:px-4 md:py-2 rounded-xl backdrop-blur-sm">
+                      <span className="text-xs md:text-sm font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent tracking-wide">
+                        Free & Open-Source
                       </span>
                     </div>
                   </div>
-                  {/* Subtle pulse glow */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-300/30 via-teal-300/30 to-cyan-300/30 rounded-2xl blur-lg animate-pulse -z-10"></div>
                 </div>
 
-                {/* Leaderboard Button */}
+                {/* Leaderboard Button - smaller */}
                 <Link to="/leaderboard" className="relative group">
-                  <div className="bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 p-0.5 rounded-2xl shadow-2xl group-hover:shadow-yellow-500/50 transition-all duration-300 group-hover:scale-105">
-                    <div className="bg-gradient-to-r from-yellow-50 via-amber-50 to-orange-50 px-6 py-3 rounded-2xl backdrop-blur-sm flex items-center gap-2">
-                      <Trophy className="h-5 w-5 text-amber-600" />
-                      <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-yellow-600 via-amber-600 to-orange-600 bg-clip-text text-transparent tracking-wide">
+                  <div className="bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 p-0.5 rounded-xl shadow-lg group-hover:shadow-yellow-500/50 transition-all duration-300 group-hover:scale-105">
+                    <div className="bg-gradient-to-r from-yellow-50 via-amber-50 to-orange-50 px-3 py-1.5 md:px-4 md:py-2 rounded-xl backdrop-blur-sm flex items-center gap-1.5">
+                      <Trophy className="h-3.5 w-3.5 md:h-4 md:w-4 text-amber-600" />
+                      <span className="text-xs md:text-sm font-bold bg-gradient-to-r from-yellow-600 via-amber-600 to-orange-600 bg-clip-text text-transparent tracking-wide">
                         Leaderboard
                       </span>
                     </div>
                   </div>
-                  {/* Subtle pulse glow */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-300/30 via-amber-300/30 to-orange-300/30 rounded-2xl blur-lg animate-pulse -z-10"></div>
                 </Link>
+
+                {/* Get Started Button - NEW */}
+                <button
+                  onClick={() => setShowGetStarted(!showGetStarted)}
+                  className="relative group"
+                >
+                  <div className={`bg-gradient-to-r from-violet-400 via-purple-400 to-fuchsia-400 p-0.5 rounded-xl shadow-lg transition-all duration-300 group-hover:scale-105 ${showGetStarted ? 'shadow-purple-500/50 scale-105' : 'group-hover:shadow-purple-500/50'}`}>
+                    <div className="bg-gradient-to-r from-violet-50 via-purple-50 to-fuchsia-50 px-3 py-1.5 md:px-4 md:py-2 rounded-xl backdrop-blur-sm flex items-center gap-1.5">
+                      <Sparkles className={`h-3.5 w-3.5 md:h-4 md:w-4 text-purple-600 transition-transform duration-300 ${showGetStarted ? 'rotate-180' : ''}`} />
+                      <span className="text-xs md:text-sm font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent tracking-wide">
+                        Get Started
+                      </span>
+                    </div>
+                  </div>
+                  {/* Subtle pulse glow */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-300/30 via-purple-300/30 to-fuchsia-300/30 rounded-xl blur-lg animate-pulse -z-10"></div>
+                </button>
               </div>
+
+              {/* Get Started Flow - In-app navigation */}
+              <GetStartedFlow
+                isOpen={showGetStarted}
+                onClose={() => setShowGetStarted(false)}
+                onNavigate={scrollToSection}
+              />
             </div>
             
             <p className="text-white/90 text-base md:text-xl mb-6 md:mb-8 max-w-xl mx-auto px-3 md:px-0">
