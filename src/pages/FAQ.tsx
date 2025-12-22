@@ -145,8 +145,8 @@ const FAQ = () => {
           </Accordion>
         </div>
 
-        {/* Ad Banner */}
-        <div className="max-w-4xl mx-auto mb-12">
+        {/* Ad Banner - collapses when no ad is loaded */}
+        <div className="max-w-4xl mx-auto mb-12 [&:has(.ad-container.hidden)]:mb-0 [&:has(.ad-container.hidden)]:hidden">
           <AdBanner />
         </div>
 

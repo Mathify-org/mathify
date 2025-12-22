@@ -489,8 +489,8 @@ const Index = () => {
             ))}
           </div>
 
-          {/* Ad Banner between sections */}
-          <div className="mt-10 md:mt-14">
+          {/* Ad Banner between sections - collapses when no ad is loaded */}
+          <div className="mt-10 md:mt-14 [&:has(.ad-container.hidden)]:mt-0 [&:has(.ad-container.hidden)]:hidden">
             <AdBanner className="max-w-4xl mx-auto" />
           </div>
 
