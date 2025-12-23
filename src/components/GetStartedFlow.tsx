@@ -57,21 +57,23 @@ const GetStartedFlow: React.FC<GetStartedFlowProps> = ({ isOpen, onClose, onNavi
       {isOpen && (
         <>
           {/* Desktop: Full-screen overlay */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="hidden md:fixed md:inset-0 md:z-50 md:flex md:items-center md:justify-center"
-          >
-            {/* Backdrop - fully opaque to prevent content showing through */}
+          <div className="hidden md:flex fixed inset-0 z-[9999] items-center justify-center">
+            {/* Beautiful gradient backdrop - fully opaque */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-950 backdrop-blur-xl"
+              className="absolute inset-0"
               onClick={onClose}
-            />
+            >
+              {/* Base gradient layer */}
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-500 via-rose-500 to-purple-600" />
+              {/* Secondary gradient overlay for depth */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-orange-400/50 via-pink-500/30 to-indigo-600/50" />
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-yellow-300/20 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-fuchsia-400/20 via-transparent to-transparent" />
+            </motion.div>
             
             {/* Content */}
             <motion.div
@@ -154,7 +156,7 @@ const GetStartedFlow: React.FC<GetStartedFlowProps> = ({ isOpen, onClose, onNavi
                 </div>
               </div>
             </motion.div>
-          </motion.div>
+          </div>
 
           {/* Mobile: Inline expanding panel (unchanged) */}
           <motion.div
