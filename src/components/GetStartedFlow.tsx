@@ -64,12 +64,12 @@ const GetStartedFlow: React.FC<GetStartedFlowProps> = ({ isOpen, onClose, onNavi
             transition={{ duration: 0.3 }}
             className="hidden md:fixed md:inset-0 md:z-50 md:flex md:items-center md:justify-center"
           >
-            {/* Backdrop */}
+            {/* Backdrop - fully opaque to prevent content showing through */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              className="absolute inset-0 bg-slate-950 backdrop-blur-xl"
               onClick={onClose}
             />
             
