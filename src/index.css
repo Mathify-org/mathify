@@ -32,8 +32,20 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
- 
+  
     --radius: 0.5rem;
+
+    /* Get Started overlay (golden-pink gradient) */
+    --overlay-from: 45 96% 58%;
+    --overlay-via: 330 90% 62%;
+    --overlay-to: 265 85% 60%;
+
+    --overlay-from-2: 32 95% 60%;
+    --overlay-via-2: 318 90% 60%;
+    --overlay-to-2: 230 75% 60%;
+
+    --overlay-glow-1: 52 95% 62%;
+    --overlay-glow-2: 295 85% 65%;
   }
  
   .dark {
