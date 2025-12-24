@@ -55,14 +55,10 @@ const GetStartedFlow: React.FC<GetStartedFlowProps> = ({ isOpen, onClose, onNavi
 
     update();
 
-    if (mql.addEventListener) mql.addEventListener("change", update);
-    // @ts-expect-error - Safari fallback
-    else mql.addListener(update);
+    mql.addEventListener("change", update);
 
     return () => {
-      if (mql.removeEventListener) mql.removeEventListener("change", update);
-      // @ts-expect-error - Safari fallback
-      else mql.removeListener(update);
+      mql.removeEventListener("change", update);
     };
   }, []);
 
