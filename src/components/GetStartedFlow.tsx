@@ -45,15 +45,16 @@ const sections = [
 ];
 
 const GetStartedFlow: React.FC<GetStartedFlowProps> = ({ isOpen, onClose, onNavigate }) => {
-  const [isDesktop, setIsDesktop] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(min-width: 768px)").matches;
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const mql = window.matchMedia("(min-width: 768px)");
     const update = () => setIsDesktop(mql.matches);
-
-    update();
 
     mql.addEventListener("change", update);
 
